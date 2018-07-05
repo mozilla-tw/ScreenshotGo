@@ -10,11 +10,13 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.support.v4.app.NotificationCompat
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import org.mozilla.scryer.ChooseCollectionActivity
 import org.mozilla.scryer.R
 
 class ScreenshotMenuService : FloatingViewService() {
@@ -80,5 +82,8 @@ class ScreenshotMenuService : FloatingViewService() {
 
     private fun onScreenShotTaken() {
         screenShotButton?.visibility = View.VISIBLE
+        val intent = Intent(this, ChooseCollectionActivity::class.java);
+        intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
 }

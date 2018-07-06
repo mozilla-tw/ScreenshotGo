@@ -9,42 +9,96 @@ import android.annotation.TargetApi
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.Context
+import android.app.Service
 import android.content.Intent
 import android.os.Build
+import android.os.IBinder
 import android.support.v4.app.NotificationCompat
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
 import org.mozilla.scryer.ChooseCollectionActivity
-import org.mozilla.scryer.R
 
-class ScreenshotMenuService : FloatingViewService() {
+class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListener  {
     companion object {
         // TODO: temp id
         private const val NOTIFICATION_ID_FOREGROUND = 9487
     }
 
-    private var screenShotButton: View? = null
-
-    override fun onCreateView(context: Context, container: ViewGroup): View {
-        val view = ImageView(context)
-        view.setImageResource(R.mipmap.ic_launcher_round)
-        view.scaleType = ImageView.ScaleType.CENTER_INSIDE
-        view.setOnClickListener { _ -> onScreenshotButtonClicked() }
-        view.setOnLongClickListener { _ ->
-            stopSelf()
-            true
-        }
-        screenShotButton = view
-        return view
+    private var isRunning: Boolean = false
+    private val floatingButtonController: ScreenshotButtonController by lazy {
+        ScreenshotButtonController(applicationContext)
     }
 
-    override fun getForegroundNotificationId(): Int {
+    override fun onCreate() {
+        super.onCreate()
+        startForeground(getForegroundNotificationId(), getForegroundNotification())
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (!OverlayPermission.hasPermission(applicationContext)) {
+            stopSelf()
+            return Service.START_NOT_STICKY
+        }
+
+        if (null == intent) {
+            stopSelf()
+            return Service.START_NOT_STICKY
+        }
+
+        if (!isRunning) {
+            isRunning = true
+            initFloatingButton()
+        }
+
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        if (isRunning) {
+            isRunning = false
+            floatingButtonController.destroy()
+        }
+        super.onDestroy()
+    }
+
+    private fun initFloatingButton() {
+        floatingButtonController.setOnClickListener(this)
+        floatingButtonController.init()
+    }
+
+    override fun onScreenshotButtonClicked() {
+        floatingButtonController.hide()
+        takeScreenshot()
+    }
+
+    override fun onScreenshotButtonLongClicked() {
+        stopSelf()
+    }
+
+    private fun takeScreenshot() {
+        floatingButtonController.view?.postDelayed({
+            onScreenShotTaken()
+        }, 1500)
+    }
+
+    private fun onScreenShotTaken() {
+        floatingButtonController.show()
+        startChooseCollectionActivity()
+    }
+
+    private fun startChooseCollectionActivity() {
+        val intent = Intent(this, ChooseCollectionActivity::class.java)
+        intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
+
+    private fun getForegroundNotificationId(): Int {
         return NOTIFICATION_ID_FOREGROUND
     }
 
-    override fun getForegroundNotification(): Notification? {
+    private fun getForegroundNotification(): Notification? {
         val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel()
         } else {
@@ -69,21 +123,5 @@ class ScreenshotMenuService : FloatingViewService() {
         val manager = applicationContext.getSystemService(NotificationManager::class.java)
         manager?.createNotificationChannel(channel)
         return channelId
-    }
-
-    private fun onScreenshotButtonClicked() {
-        screenShotButton?.visibility = View.INVISIBLE
-        takeScreenshot()
-    }
-
-    private fun takeScreenshot() {
-        screenShotButton?.postDelayed({ this.onScreenShotTaken() }, 1500)
-    }
-
-    private fun onScreenShotTaken() {
-        screenShotButton?.visibility = View.VISIBLE
-        val intent = Intent(this, ChooseCollectionActivity::class.java);
-        intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
     }
 }

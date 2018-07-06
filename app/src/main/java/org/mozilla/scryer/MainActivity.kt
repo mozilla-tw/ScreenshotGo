@@ -7,13 +7,14 @@ package org.mozilla.scryer
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-
-import org.mozilla.scryer.overlay.ScreenshotMenuService
 import org.mozilla.scryer.overlay.OverlayPermission
+import org.mozilla.scryer.overlay.ScreenshotMenuService
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -34,8 +35,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (OverlayPermission.hasPermission(this)) {
-            applicationContext.startService(Intent(applicationContext, ScreenshotMenuService::class.java))
-            if (!storageRequested) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                applicationContext.startService(Intent(applicationContext, ScreenshotMenuService::class.java))
+            } else if (!storageRequested) {
                 ensureStoragePermission()
             }
         }
@@ -44,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUEST_CODE_OVERLAY_PERMISSION -> overlayRequested = true
-            REQUEST_CODE_READ_EXTERNAL_PERMISSION -> { storageRequested = true }
+            REQUEST_CODE_READ_EXTERNAL_PERMISSION -> {}
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
@@ -60,6 +63,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun ensureStoragePermission() {
+        storageRequested = true
         ActivityCompat.requestPermissions(this,
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                 REQUEST_CODE_READ_EXTERNAL_PERMISSION)

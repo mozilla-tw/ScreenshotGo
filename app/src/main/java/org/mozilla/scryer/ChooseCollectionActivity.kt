@@ -7,6 +7,7 @@
 package org.mozilla.scryer
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
@@ -15,15 +16,22 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
-import android.view.*
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import java.io.File
 
 class ChooseCollectionActivity : AppCompatActivity() {
     companion object {
         private const val GRID_SPAN_COUNT = 2
         private const val GRID_CELL_SPACE_DP = 6f
+
+        const val EXTRA_PATH = "path"
     }
 
     private val collectionModel = CollectionModel()
@@ -38,6 +46,13 @@ class ChooseCollectionActivity : AppCompatActivity() {
         setContentView(R.layout.activity_choose_collection)
 
         initRecyclerView()
+
+        val path = intent.getStringExtra(EXTRA_PATH)
+        val file = File(path)
+        if (file.exists()) {
+            val bmp = BitmapFactory.decodeFile(file.absolutePath)
+            findViewById<ImageView>(R.id.image_view).setImageBitmap(bmp)
+        }
     }
 
     private fun initRecyclerView() {

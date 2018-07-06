@@ -11,17 +11,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/black"
     tools:context=".ChooseCollectionActivity">
 
     <ImageView
+        android:id="@+id/image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
         android:src="@android:drawable/ic_menu_camera" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#aa000000" />
+    <!--<View-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="#33000000" />-->
 
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -36,7 +39,7 @@
             android:layout_marginEnd="20dp"
             android:background="@android:color/white"
             app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
-            app:behavior_hideable="true"
+            app:behavior_hideable="false"
             app:behavior_peekHeight="300dp" />
 
     </android.support.design.widget.CoordinatorLayout>

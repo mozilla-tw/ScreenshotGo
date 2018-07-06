@@ -11,10 +11,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.database.ContentObserver
+import android.net.Uri
 import android.os.Build
 import android.os.IBinder
+import android.provider.MediaStore
 import android.support.v4.app.NotificationCompat
 import org.mozilla.scryer.ChooseCollectionActivity
+
 
 class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListener  {
     companion object {
@@ -50,6 +54,7 @@ class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListene
         if (!isRunning) {
             isRunning = true
             initFloatingButton()
+            initFileMonitor()
         }
 
         return START_STICKY
@@ -66,6 +71,43 @@ class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListene
     private fun initFloatingButton() {
         floatingButtonController.setOnClickListener(this)
         floatingButtonController.init()
+    }
+
+    private fun initFileMonitor() {
+        val context = applicationContext
+        val contentResolver = context.contentResolver
+        val contentObserver = object : ContentObserver(null) {
+            override fun onChange(selfChange: Boolean, uri: Uri) {
+                if (!uri.toString().contains(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
+                    return
+                }
+
+                val cursor = contentResolver.query(uri,
+                        arrayOf(MediaStore.Images.Media.DISPLAY_NAME,
+                                MediaStore.Images.Media.DATA,
+                                MediaStore.Images.Media.DATE_ADDED),
+                        null,
+                        null,
+                        MediaStore.Images.Media.DATE_ADDED + " DESC")
+
+                cursor.use {
+                    if (cursor.moveToFirst()) {
+                        val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
+                        val dateAdded = cursor!!.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED))
+                        val currentTime = System.currentTimeMillis() / 1000
+
+                        if (Math.abs(currentTime - dateAdded) <= 10) {
+                            startChooseCollectionActivity(path)
+                        }
+                    }
+                }
+
+                super.onChange(selfChange, uri)
+            }
+        }
+        contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                true,
+                contentObserver)
     }
 
     override fun onScreenshotButtonClicked() {
@@ -85,11 +127,12 @@ class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListene
 
     private fun onScreenShotTaken() {
         floatingButtonController.show()
-        startChooseCollectionActivity()
+        startChooseCollectionActivity("")
     }
 
-    private fun startChooseCollectionActivity() {
+    private fun startChooseCollectionActivity(path: String) {
         val intent = Intent(this, ChooseCollectionActivity::class.java)
+        intent.putExtra(ChooseCollectionActivity.EXTRA_PATH, path)
         intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
     }

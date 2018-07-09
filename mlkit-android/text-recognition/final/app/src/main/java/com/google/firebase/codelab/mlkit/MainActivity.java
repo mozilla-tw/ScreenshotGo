@@ -16,10 +16,13 @@ package com.google.firebase.codelab.mlkit;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.View;
@@ -43,6 +46,7 @@ import com.google.firebase.ml.vision.text.FirebaseVisionTextDetector;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -56,6 +60,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private Integer mImageMaxWidth;
     // Max height (portrait mode)
     private Integer mImageMaxHeight;
+
+    List<Item> items = new ArrayList<>();
+
+    private class Item {
+        private String title;
+        private String path;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,11 +92,44 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
         Spinner dropdown = findViewById(R.id.spinner);
-        String[] items = new String[]{"Image 1", "Image 2", "Image 3"};
+        ActivityCompat.requestPermissions(this,
+                new String[]{ android.Manifest.permission.READ_EXTERNAL_STORAGE },
+                0);
+
+        Cursor cursor = getImageCursor();
+        if (cursor != null) {
+            cursor.moveToFirst();
+            Item item = new Item();
+            item.path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+            item.title = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME ));
+            items.add(item);
+            while(cursor.moveToNext()) {
+                item = new Item();
+                item.path = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA));
+                item.title = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME ));
+                items.add(item);
+            }
+        }
+        String[] itemNames = items.stream().map(item -> item.title).toArray(String[]::new);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout
-                .simple_spinner_dropdown_item, items);
+                .simple_spinner_dropdown_item, itemNames);
         dropdown.setAdapter(adapter);
         dropdown.setOnItemSelectedListener(this);
+    }
+
+    private Cursor getImageCursor() {
+        Cursor cursor = null;
+        // It have to be matched with the directory in SDCard
+        cursor = this
+                .getContentResolver()
+                .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, null, null, null, null);
+        // if cursor is null, then try to read image from internal memory
+        if (cursor == null)
+            cursor = this
+                    .getContentResolver()
+                    .query(MediaStore.Images.Media.INTERNAL_CONTENT_URI, null, null, null, null);
+
+        return cursor;
     }
 
     private void runTextRecognition() {
@@ -237,20 +281,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {
         mGraphicOverlay.clear();
-        switch (position) {
-            case 0:
-                mSelectedImage = getBitmapFromAsset(this, "Please_walk_on_the_grass.jpg");
-
-                break;
-            case 1:
-                // Whatever you want to happen when the second item gets selected
-                mSelectedImage = getBitmapFromAsset(this, "non-latin.jpg");
-                break;
-            case 2:
-                // Whatever you want to happen when the thrid item gets selected
-                mSelectedImage = getBitmapFromAsset(this, "nl2.jpg");
-                break;
-        }
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        mSelectedImage = BitmapFactory.decodeFile(items.get(position).path, options);
         if (mSelectedImage != null) {
             // Get the dimensions of the View
             Pair<Integer, Integer> targetedSize = getTargetedWidthHeight();

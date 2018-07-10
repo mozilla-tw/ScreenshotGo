@@ -6,6 +6,8 @@
 
 package org.mozilla.scryer
 
+import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -34,16 +36,26 @@ class ChooseCollectionActivity : AppCompatActivity() {
         const val EXTRA_PATH = "path"
     }
 
-    private val collectionModel = CollectionModel()
-    private val adapter: CollectionAdapter by lazy {
-        CollectionAdapter(this, collectionModel.items, this::onItemClicked)
+    private val adapter: ChooseCollectionAdapter by lazy {
+        ChooseCollectionAdapter(this, this::onItemClicked)
     }
 
     private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.recycler_view) }
+    private lateinit var categoryViewModel: ScreenshotViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_collection)
+
+        val factory = ScreenshotViewModelFactory(getScreenshotRepository())
+        categoryViewModel = ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
+        val data = categoryViewModel.getCategories()
+        data.observe(this, Observer { collections ->
+            collections?.let {
+                adapter.categoryList = it
+                adapter.notifyDataSetChanged()
+            }
+        })
 
         initRecyclerView()
 
@@ -55,6 +67,10 @@ class ChooseCollectionActivity : AppCompatActivity() {
         }
     }
 
+    private fun getScreenshotRepository(): ScreenshotRepository {
+        return ScreenshotRepository.from(this)
+    }
+
     private fun initRecyclerView() {
         recyclerView.layoutManager = GridLayoutManager(this, GRID_SPAN_COUNT,
                 GridLayoutManager.VERTICAL,
@@ -64,8 +80,8 @@ class ChooseCollectionActivity : AppCompatActivity() {
         recyclerView.adapter = this.adapter
     }
 
-    private fun onItemClicked(item: CollectionItem) {
-        Toast.makeText(this, "save to ${item.title}", Toast.LENGTH_SHORT).show()
+    private fun onItemClicked(item: CategoryModel) {
+        Toast.makeText(this, "save to ${item.name}", Toast.LENGTH_SHORT).show()
         finish()
     }
 
@@ -76,7 +92,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
                 .setView(dialogView)
                 .setPositiveButton("DONE", { _, _ ->
-                    collectionModel.addNewCollection(CollectionItem(editText.text.toString()))
+                    categoryViewModel.addCategory(CategoryModel(editText.text.toString()))
                     recyclerView.adapter.notifyItemInserted(recyclerView.adapter.itemCount - 1)
                 })
                 .create()
@@ -86,21 +102,8 @@ class ChooseCollectionActivity : AppCompatActivity() {
     }
 }
 
-class CollectionModel {
-    fun addNewCollection(item: CollectionItem) {
-        items.add(item)
-    }
-
-    val items: MutableList<CollectionItem> = mutableListOf(CollectionItem("Shopping"),
-            CollectionItem("Music"),
-            CollectionItem("Secret"))
-}
-
-class CollectionItem(val title: String)
-
-class CollectionAdapter(private var activity: ChooseCollectionActivity,
-                        private var list: MutableList<CollectionItem>,
-                        private var itemClickListener: (CollectionItem) -> Unit)
+class ChooseCollectionAdapter(private var activity: ChooseCollectionActivity,
+                        private var itemClickListener: (CategoryModel) -> Unit)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TYPE_FIXED_ITEM = 0
@@ -109,6 +112,7 @@ class CollectionAdapter(private var activity: ChooseCollectionActivity,
         private const val POSITION_NEW_COLLECTION = 0
     }
 
+     var categoryList: List<CategoryModel>? = null
     private val fixedItems = listOf("Create new collection")
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -125,7 +129,7 @@ class CollectionAdapter(private var activity: ChooseCollectionActivity,
     }
 
     override fun getItemCount(): Int {
-        return fixedItems.size + list.size
+        return fixedItems.size + (categoryList?.size?:0)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -134,7 +138,9 @@ class CollectionAdapter(private var activity: ChooseCollectionActivity,
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is DataViewHolder) {
-            (holder.itemView as TextView).text = list[position - fixedItems.size].title
+            (holder.itemView as TextView).text = categoryList?.let {
+                it[position - fixedItems.size].name
+            }
         } else if (holder is FixedViewHolder) {
             (holder.itemView as TextView).text = fixedItems[position]
         }
@@ -172,7 +178,9 @@ class CollectionAdapter(private var activity: ChooseCollectionActivity,
                 position != RecyclerView.NO_POSITION
 
             }?.let { position: Int ->
-                itemClickListener.invoke(list[position - fixedItems.size])
+                categoryList?.let {
+                    itemClickListener.invoke(it[position - fixedItems.size])
+                }
             }
         }
         return holder
@@ -216,6 +224,6 @@ class SpacesItemDecoration(private val space: Int) : RecyclerView.ItemDecoration
     }
 }
 
-private fun dp2px(context: Context, dp: Float): Int {
+fun dp2px(context: Context, dp: Float): Int {
     return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics).toInt()
 }

@@ -17,6 +17,9 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.BackgroundColorSpan
 import android.view.*
 import android.widget.*
 
@@ -319,6 +322,8 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
     lateinit var list: List<ScreenshotModel>
     private var filteredList: MutableList<ScreenshotModel> = mutableListOf()
 
+    private var searchTarget: String = ""
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
         view.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
@@ -346,7 +351,14 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as ScreenshotItemHolder).title?.text = filteredList[position].name
+        val titleView = (holder as ScreenshotItemHolder).title
+        titleView?.apply {
+            val spannable = SpannableString(filteredList[position].name)
+            val start = filteredList[position].name.indexOf(searchTarget)
+            spannable.setSpan(BackgroundColorSpan(Color.RED), start, start + searchTarget.length,
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            titleView.text = spannable
+        }
     }
 
     override fun getFilter(): Filter {
@@ -366,6 +378,7 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                searchTarget = constraint.toString()
                 notifyDataSetChanged()
             }
         }

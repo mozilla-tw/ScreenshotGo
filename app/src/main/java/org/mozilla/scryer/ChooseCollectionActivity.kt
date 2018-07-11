@@ -27,6 +27,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ChooseCollectionActivity : AppCompatActivity() {
     companion object {
@@ -80,8 +82,14 @@ class ChooseCollectionActivity : AppCompatActivity() {
         recyclerView.adapter = this.adapter
     }
 
-    private fun onItemClicked(item: CategoryModel) {
-        Toast.makeText(this, "save to ${item.name}", Toast.LENGTH_SHORT).show()
+    private fun onItemClicked(category: CategoryModel) {
+        Toast.makeText(this, "save to ${category.name}", Toast.LENGTH_SHORT).show()
+
+        val date = SimpleDateFormat("yyyy-MM-dd-HH:mm:ss", Locale.ENGLISH)
+        // TODO: use an unique id instead of category name for identifying category
+        val screenshot = ScreenshotModel("screenshot_${date.format(Date())}", category.name)
+        ScreenshotRepository.from(this).addScreenshot(screenshot)
+
         finish()
     }
 

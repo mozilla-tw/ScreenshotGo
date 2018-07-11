@@ -19,9 +19,23 @@ abstract class ScreenshotRepository {
     abstract fun getCategories(): LiveData<List<CategoryModel>>
     abstract fun addCategory(category: CategoryModel)
     abstract fun getScreenshots(): LiveData<List<ScreenshotModel>>
+    abstract fun addScreenshot(screenshot: ScreenshotModel)
 }
 
 class InMemoryScreenshotRepository : ScreenshotRepository() {
+    override fun addScreenshot(screenshot: ScreenshotModel) {
+        categoryList.find { model -> model.name == screenshot.category }?.let {
+            screenshotList.add(screenshot)
+            screenshotListData.value = screenshotList
+        } ?: run {
+            categoryList.add(CategoryModel(screenshot.category))
+            categoryListData.value = categoryList
+
+            screenshotList.add(screenshot)
+            screenshotListData.value = screenshotList
+        }
+    }
+
     object Holder {
         val INSTANCE = InMemoryScreenshotRepository()
     }

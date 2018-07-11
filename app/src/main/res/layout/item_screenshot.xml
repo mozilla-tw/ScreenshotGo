@@ -21,6 +21,8 @@
         android:padding="4dp"
         android:background="#55000000"
         android:textColor="@android:color/white"
-        android:layout_alignParentBottom="true" />
+        android:layout_alignParentBottom="true"
+        android:inputType="textNoSuggestions"
+        android:focusable="false" />
 
 </RelativeLayout>

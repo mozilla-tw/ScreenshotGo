@@ -91,10 +91,10 @@ class ChooseCollectionActivity : AppCompatActivity() {
 
         val dialog = AlertDialog.Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
                 .setView(dialogView)
-                .setPositiveButton("DONE", { _, _ ->
+                .setPositiveButton("DONE") { _, _ ->
                     categoryViewModel.addCategory(CategoryModel(editText.text.toString()))
                     recyclerView.adapter.notifyItemInserted(recyclerView.adapter.itemCount - 1)
-                })
+                }
                 .create()
         dialog.show()
         editText.requestFocus()

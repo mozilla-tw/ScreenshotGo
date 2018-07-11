@@ -36,6 +36,9 @@ class InMemoryScreenshotRepository : ScreenshotRepository() {
         categoryList.add(CategoryModel("Music"))
         categoryList.add(CategoryModel("Shopping"))
         categoryList.add(CategoryModel("Secret"))
+        for (i in 1..20) {
+            categoryList.add(CategoryModel("C$i"))
+        }
         categoryListData.value = categoryList
 
         for (i in 1..5) {

@@ -6,6 +6,7 @@
 package org.mozilla.scryer
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -18,12 +19,15 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
+import android.util.Log
 import android.view.*
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import org.mozilla.scryer.overlay.OverlayPermission
 import org.mozilla.scryer.overlay.ScreenshotMenuService
 
@@ -31,23 +35,20 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_CODE_OVERLAY_PERMISSION = 1000
         private const val REQUEST_CODE_READ_EXTERNAL_PERMISSION = 1001
-
-        private const val GRID_SPAN_COUNT = 2
-        private const val GRID_CELL_SPACE_DP = 6f
     }
 
     private var overlayRequested = false
     private var storageRequested = false
 
     private val quickAccessListView: RecyclerView by lazy {
-        findViewById<RecyclerView>(R.id.quick_access_list)
+        RecyclerView(this@MainActivity)
     }
     private val quickAccessListAdapter: QuickAccessListAdapter = QuickAccessListAdapter()
 
-    private val categoryListView: RecyclerView by lazy {
+    private val mainListView: RecyclerView by lazy {
         findViewById<RecyclerView>(R.id.category_list)
     }
-    private val categoryListAdapter: CategoryListAdapter = CategoryListAdapter()
+    private val mainListAdapter: MainListAdapter = MainListAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -129,10 +130,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initCategoryList() {
-        val manager = GridLayoutManager(this, GRID_SPAN_COUNT, GridLayoutManager.VERTICAL, false)
-        categoryListView.layoutManager = manager
-        categoryListView.adapter = categoryListAdapter
-        categoryListView.addItemDecoration(SpacesItemDecoration(dp2px(this, GRID_CELL_SPACE_DP)))
+        val manager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        mainListView.layoutManager = manager
+        mainListView.adapter = mainListAdapter
+        mainListView.recycledViewPool.setMaxRecycledViews(MainListAdapter.TYPE_QUICK_ACCESS, 1)
+        mainListAdapter.quickAccessListView = quickAccessListView
 
         val factory = ScreenshotViewModelFactory(getScreenshotRepository())
         ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
@@ -150,8 +152,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateCategoryListView(categories: List<CategoryModel>) {
-        categoryListAdapter.setData(categories)
-        categoryListAdapter.notifyDataSetChanged()
+        Log.d("roger_tag", "size: ${categories.size}")
+        mainListAdapter.categoryList = categories
+        mainListAdapter.notifyDataSetChanged()
     }
 
     private fun getScreenshotRepository(): ScreenshotRepository {
@@ -159,20 +162,21 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class QuickAccessListAdapter: RecyclerView.Adapter<ScreenshotHolder>() {
+class QuickAccessListAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
     private var list: List<ScreenshotModel>? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScreenshotHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScreenshotItemHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_quick_access, parent, false)
 
-        val holder = ScreenshotHolder(view)
+        val holder = ScreenshotItemHolder(view)
         holder.title = view.findViewById(R.id.title)
         holder.itemView.setOnClickListener { _ ->
             holder.adapterPosition.takeIf { position ->
                 position != RecyclerView.NO_POSITION
 
-            }?.let { _: Int ->
-
+            }?.let { position: Int ->
+                Toast.makeText(parent.context, "Item ${list?.get(position)?.name} clicked",
+                        Toast.LENGTH_SHORT).show()
             }
         }
         return holder
@@ -182,7 +186,7 @@ class QuickAccessListAdapter: RecyclerView.Adapter<ScreenshotHolder>() {
         return list?.size?: 0
     }
 
-    override fun onBindViewHolder(holder: ScreenshotHolder, position: Int) {
+    override fun onBindViewHolder(holder: ScreenshotItemHolder, position: Int) {
         list?.let {
             holder.title?.text = it[position].name
         }
@@ -193,49 +197,148 @@ class QuickAccessListAdapter: RecyclerView.Adapter<ScreenshotHolder>() {
     }
 }
 
-class CategoryListAdapter: RecyclerView.Adapter<CollectionHolder>() {
-    private var list: List<CategoryModel>? = null
+class MainListAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    companion object {
+        const val TYPE_SECTION_NAME = 0
+        const val TYPE_QUICK_ACCESS = 1
+        const val TYPE_ROW = 2
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CollectionHolder {
-        val view = TextView(parent.context)
-        view.setBackgroundColor(Color.LTGRAY)
-        view.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500)
-        view.setTextColor(Color.BLACK)
-        view.gravity = Gravity.CENTER
+        const val POS_QUICK_ACCESS_TITLE = 0
+        const val POS_QUICK_ACCESS_LIST = 1
+        const val POS_CATEGORY_TITLE = 2
 
-        val holder = CollectionHolder(view)
-        holder.title = holder.itemView as? TextView
-        holder.itemView.setOnClickListener { _ ->
-            holder.adapterPosition.takeIf { position ->
-                position != RecyclerView.NO_POSITION
+        const val FIXED_ITEM_COUNT = 3
+        const val COLUMN_COUNT = 2
+    }
 
-            }?.let { _: Int ->
+    lateinit var categoryList: List<CategoryModel>
+    lateinit var quickAccessListView: RecyclerView
 
-            }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        when (viewType) {
+            TYPE_SECTION_NAME ->
+                    return createSectionNameHolder(parent)
+            TYPE_QUICK_ACCESS ->
+                    return createQuickAccessHolder()
+            TYPE_ROW ->
+                    return createRowHolder(parent)
         }
-        return holder
+        throw IllegalArgumentException("unexpected view type: $viewType")
     }
 
     override fun getItemCount(): Int {
-        return list?.size?: 0
+        return FIXED_ITEM_COUNT + ((categoryList.size - 1) / COLUMN_COUNT) + 1
     }
 
-    override fun onBindViewHolder(holder: CollectionHolder, position: Int) {
-        list?.let {
-            holder.title?.text = it[position].name
+    override fun getItemViewType(position: Int): Int {
+        return when (position) {
+            POS_QUICK_ACCESS_TITLE -> TYPE_SECTION_NAME
+            POS_QUICK_ACCESS_LIST -> TYPE_QUICK_ACCESS
+            POS_CATEGORY_TITLE -> TYPE_SECTION_NAME
+            else -> TYPE_ROW
         }
     }
 
-    fun setData(categories: List<CategoryModel>?) {
-        list = categories
+    @SuppressLint("SetTextI18n")
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (position) {
+            POS_QUICK_ACCESS_TITLE -> (holder as SectionNameHolder).title?.text = "Quick Access"
+            POS_QUICK_ACCESS_LIST -> return
+            POS_CATEGORY_TITLE -> (holder as SectionNameHolder).title?.text = "Category"
+            else -> bindRowHolder(holder, position)
+        }
     }
 
+    private fun createSectionNameHolder(parent: ViewGroup): SectionNameHolder {
+        val textView = TextView(parent.context)
+        val padding = dp2px(parent.context, 10f)
+        textView.setPadding(padding, padding, padding, padding)
+        textView.setTextColor(Color.BLACK)
+
+        val holder = SectionNameHolder(textView)
+        holder.title = textView
+        return holder
+    }
+
+    private fun createQuickAccessHolder(): RecyclerView.ViewHolder {
+        return SimpleHolder(quickAccessListView)
+    }
+
+    private fun createRowHolder(parent: ViewGroup): RowHolder {
+        val inflater = LayoutInflater.from(parent.context)
+
+        val rowLayout = LinearLayout(parent.context)
+        val itemHolders = mutableListOf<RowItemHolder>()
+        val rowHolder = RowHolder(rowLayout, itemHolders)
+
+        val params = LinearLayout.LayoutParams(0, dp2px(parent.context, 200f))
+        params.weight = 1f
+
+        val padding = dp2px(parent.context, 8f)
+        for (i in 0 until COLUMN_COUNT) {
+            val container = FrameLayout(parent.context)
+            container.setPadding(if (i == 0) padding else padding / 2, 0,
+                    if (i == COLUMN_COUNT - 1) padding else padding / 2, padding)
+            rowLayout.addView(container, params)
+
+            val view = inflater.inflate(R.layout.item_category, container, true)
+            view.setOnClickListener {_ ->
+                rowHolder.adapterPosition.takeIf { position ->
+                    position != RecyclerView.NO_POSITION
+
+                }?.let { position: Int ->
+                    val row = position - FIXED_ITEM_COUNT
+                    val startIndex = row * COLUMN_COUNT
+                    Toast.makeText(parent.context, "Category ${categoryList[startIndex + i].name} clicked",
+                            Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            val itemHolder = RowItemHolder(view)
+            itemHolder.title = view.findViewById(R.id.title)
+            itemHolders.add(itemHolder)
+        }
+        return rowHolder
+    }
+
+    private fun bindRowHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val row = position - FIXED_ITEM_COUNT
+        val rowHolder = holder as RowHolder
+
+        val startIndex = row * COLUMN_COUNT
+        for (i in 0 until COLUMN_COUNT) {
+            val offsetIndex = startIndex + i
+            if (offsetIndex < categoryList.size) {
+                bindRowItem(rowHolder.holderList[i], categoryList[offsetIndex])
+            } else {
+                hideRowItem(rowHolder.holderList[i])
+            }
+        }
+    }
+
+    private fun bindRowItem(item: RowItemHolder, categoryModel: CategoryModel) {
+        item.itemView.visibility = View.VISIBLE
+        item.title?.text = categoryModel.name
+    }
+
+    private fun hideRowItem(item: RowItemHolder) {
+        item.itemView.visibility = View.INVISIBLE
+    }
 }
 
-class ScreenshotHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+class ScreenshotItemHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
     var title: TextView? = null
 }
 
-class CollectionHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+class SimpleHolder(itemView: View): RecyclerView.ViewHolder(itemView)
+
+class SectionNameHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    var title: TextView? = null
+}
+
+class RowHolder(itemView: View,
+                val holderList: List<RowItemHolder>) : RecyclerView.ViewHolder(itemView)
+
+class RowItemHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
     var title: TextView? = null
 }

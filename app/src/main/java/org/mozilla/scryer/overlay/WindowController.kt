@@ -6,6 +6,7 @@
 package org.mozilla.scryer.overlay
 
 import android.graphics.PixelFormat
+import android.graphics.Point
 import android.os.Build
 import android.view.Gravity
 import android.view.View
@@ -33,6 +34,16 @@ class WindowController internal constructor(private val windowManager: WindowMan
         params.y = 0
 
         windowManager.addView(view, params)
+    }
+
+    fun getViewPositionX(view: View): Int {
+        val params = view.layoutParams as WindowManager.LayoutParams
+        return params.x
+    }
+
+    fun getViewPositionY(view: View): Int {
+        val params = view.layoutParams as WindowManager.LayoutParams
+        return params.y
     }
 
     fun removeView(view: View) {

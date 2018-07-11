@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import org.mozilla.scryer.R
+import org.mozilla.scryer.dp2px
 
 class ScreenshotButtonController(private val context: Context) : DefaultLifecycleObserver {
     private var floatingContainer: FloatingView? = null
@@ -24,9 +25,10 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
 
     fun init() {
         floatingContainer = FloatingView(context).apply {
+            setOnClickListener { clickListener?.onScreenshotButtonClicked() }
             addView(onCreateView(context, this),
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT)
+                    dp2px(context, 50f),
+                    dp2px(context, 50f))
             addToWindow()
         }
     }
@@ -47,11 +49,11 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
         val view = ImageView(context)
         view.setImageResource(R.mipmap.ic_launcher_round)
         view.scaleType = ImageView.ScaleType.CENTER_INSIDE
-        view.setOnClickListener { _ -> clickListener?.onScreenshotButtonClicked() }
-        view.setOnLongClickListener { _ ->
-            clickListener?.onScreenshotButtonLongClicked()
-            true
-        }
+//        view.setOnClickListener { _ -> clickListener?.onScreenshotButtonClicked() }
+//        view.setOnLongClickListener { _ ->
+//            clickListener?.onScreenshotButtonLongClicked()
+//            true
+//        }
         this.view = view
         return view
     }

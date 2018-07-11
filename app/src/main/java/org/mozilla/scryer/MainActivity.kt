@@ -11,7 +11,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import org.mozilla.scryer.overlay.OverlayPermission
 import org.mozilla.scryer.overlay.ScreenshotMenuService
@@ -28,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         ensureOverlayPermission()
     }
 
@@ -68,4 +69,8 @@ class MainActivity : AppCompatActivity() {
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                 REQUEST_CODE_READ_EXTERNAL_PERMISSION)
     }
+}
+
+fun getSupportActionBar(activity: FragmentActivity?): ActionBar? {
+    return (activity as? AppCompatActivity)?.supportActionBar
 }

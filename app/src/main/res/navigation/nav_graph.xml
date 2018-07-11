@@ -9,5 +9,19 @@
     <fragment
         android:id="@+id/MainFragment"
         android:name="org.mozilla.scryer.MainFragment"
-        android:label="Main" />
+        android:label="Main">
+        <action
+            android:id="@+id/action_navigate_to_category"
+            app:destination="@id/CategoryFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slid_in_left"
+            app:popExitAnim="@anim/slide_out_right"/>
+    </fragment>
+    <fragment
+        android:id="@+id/CategoryFragment"
+        android:name="org.mozilla.scryer.CategoryFragment"
+        android:label="Category">
+        <argument android:name="category_name" />
+    </fragment>
 </navigation>

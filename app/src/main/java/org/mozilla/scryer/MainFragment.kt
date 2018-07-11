@@ -13,6 +13,7 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -22,6 +23,7 @@ import android.text.Spanned
 import android.text.style.BackgroundColorSpan
 import android.view.*
 import android.widget.*
+import androidx.navigation.Navigation
 
 class MainFragment : Fragment() {
     private lateinit var quickAccessListView: RecyclerView
@@ -44,6 +46,8 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setHasOptionsMenu(true)
+        (activity as? AppCompatActivity)?.setSupportActionBar(view?.findViewById(R.id.toolbar))
+        getSupportActionBar(activity)?.setDisplayHomeAsUpEnabled(false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -281,8 +285,9 @@ class MainListAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 }?.let { position: Int ->
                     val row = position - FIXED_ITEM_COUNT
                     val startIndex = row * COLUMN_COUNT
-                    Toast.makeText(parent.context, "Category ${categoryList[startIndex + i].name} clicked",
-                            Toast.LENGTH_SHORT).show()
+                    val bundle = Bundle()
+                    bundle.putString("category_name", categoryList[startIndex + i].name)
+                    Navigation.findNavController(parent).navigate(R.id.action_navigate_to_category, bundle)
                 }
             }
 

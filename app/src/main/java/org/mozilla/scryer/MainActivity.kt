@@ -6,8 +6,10 @@
 package org.mozilla.scryer
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -21,11 +23,13 @@ import org.mozilla.scryer.overlay.ScreenshotMenuService
 class MainActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_CODE_OVERLAY_PERMISSION = 1000
-        private const val REQUEST_CODE_READ_EXTERNAL_PERMISSION = 1001
+        private const val REQUEST_CODE_WRITE_EXTERNAL_PERMISSION = 1001
+        private const val REQUEST_CODE_SCREEN_CAPTURE_PERMISSION = 1002
     }
 
     private var overlayRequested = false
     private var storageRequested = false
+    private var screenCaptureRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,9 +40,11 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (OverlayPermission.hasPermission(this)) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                applicationContext.startService(Intent(applicationContext, ScreenshotMenuService::class.java))
+                if (!screenCaptureRequested) {
+                    ensureScreenCapturePermission()
+                }
             } else if (!storageRequested) {
                 ensureStoragePermission()
             }
@@ -48,7 +54,12 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             REQUEST_CODE_OVERLAY_PERMISSION -> overlayRequested = true
-            REQUEST_CODE_READ_EXTERNAL_PERMISSION -> {}
+            REQUEST_CODE_WRITE_EXTERNAL_PERMISSION -> {}
+            REQUEST_CODE_SCREEN_CAPTURE_PERMISSION -> {
+                val screenshotMenuIntent = Intent(applicationContext, ScreenshotMenuService::class.java)
+                screenshotMenuIntent.putExtra(ScreenshotMenuService.SCREEN_CAPTURE_PERMISSION_RESULT_KEY, data)
+                applicationContext.startService(screenshotMenuIntent)
+            }
             else -> super.onActivityResult(requestCode, resultCode, data)
         }
     }
@@ -66,8 +77,15 @@ class MainActivity : AppCompatActivity() {
     private fun ensureStoragePermission() {
         storageRequested = true
         ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                REQUEST_CODE_READ_EXTERNAL_PERMISSION)
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
+    }
+
+    private fun ensureScreenCapturePermission() {
+        screenCaptureRequested = true
+        val mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        val it = mediaProjectionManager.createScreenCaptureIntent()
+        startActivityForResult(it, REQUEST_CODE_SCREEN_CAPTURE_PERMISSION)
     }
 }
 

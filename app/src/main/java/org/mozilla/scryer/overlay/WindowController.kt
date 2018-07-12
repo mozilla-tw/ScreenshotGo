@@ -13,6 +13,7 @@ import android.view.View
 import android.view.WindowManager
 
 class WindowController internal constructor(private val windowManager: WindowManager) {
+    private val tmp: Point = Point()
 
     fun addView(width: Int, height: Int, isTouchable: Boolean, view: View) {
         val touchableFlag = if (isTouchable) 0 else WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
@@ -59,4 +60,13 @@ class WindowController internal constructor(private val windowManager: WindowMan
         windowManager.updateViewLayout(view, params)
     }
 
+    fun getWindowWidth(): Int {
+        windowManager.defaultDisplay.getSize(tmp)
+        return tmp.x
+    }
+
+    fun getWindowHeight(): Int {
+        windowManager.defaultDisplay.getSize(tmp)
+        return tmp.y
+    }
 }

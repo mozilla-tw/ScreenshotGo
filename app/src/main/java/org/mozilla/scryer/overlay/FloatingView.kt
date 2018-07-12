@@ -5,11 +5,13 @@
 
 package org.mozilla.scryer.overlay
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PointF
 import android.util.DisplayMetrics
 import android.view.*
+import android.view.animation.OvershootInterpolator
 import android.widget.RelativeLayout
 
 // TODO:
@@ -22,6 +24,30 @@ class FloatingView(context: Context) : RelativeLayout(context) {
             WindowController(context.getSystemService(Context.WINDOW_SERVICE) as WindowManager)
 
     private var clickListener: OnClickListener? = null
+
+    private val dragHelper: DragHelper = DragHelper(this, windowController)
+    private val dragListener: DragHelper.DragListener = object : DragHelper.DragListener {
+        override fun onTap() {
+            clickListener?.onClick(this@FloatingView)
+        }
+
+        override fun onRelease(x: Float, y: Float) {
+            val startX = x - width / 2
+            val startY = y - height / 2
+
+            val windowWidth: Float = windowController.getWindowWidth().toFloat()
+            val endX: Float = if (x >= windowWidth / 2) windowWidth - width else 0f
+
+            val animator = ValueAnimator.ofFloat(startX, endX)
+            animator.duration = 500
+            animator.interpolator = OvershootInterpolator()
+            animator.addUpdateListener {
+                val value = (it.animatedValue as Float)
+                windowController.moveViewTo(this@FloatingView, value.toInt(), startY.toInt())
+            }
+            animator.start()
+        }
+    }
 
     init {
         init()
@@ -44,16 +70,7 @@ class FloatingView(context: Context) : RelativeLayout(context) {
                 ViewGroup.LayoutParams.WRAP_CONTENT, true, this)
         isAddedToWindow = true
 
-        val dragHelper = DragHelper(this, windowController)
-        dragHelper.dragListener = object : DragHelper.DragListener {
-            override fun onTap() {
-                clickListener?.onClick(this@FloatingView)
-            }
-
-            override fun onRelease() {
-
-            }
-        }
+        dragHelper.dragListener = dragListener
         setOnTouchListener(dragHelper)
 
         post {
@@ -113,7 +130,7 @@ class FloatingView(context: Context) : RelativeLayout(context) {
                     if (!dragging) {
                         dragListener?.onTap()
                     } else {
-                        dragListener?.onRelease()
+                        dragListener?.onRelease(currentPosition.x, currentPosition.y)
                     }
 
                     return true
@@ -150,7 +167,7 @@ class FloatingView(context: Context) : RelativeLayout(context) {
 
         interface DragListener {
             fun onTap()
-            fun onRelease()
+            fun onRelease(x: Float, y: Float)
         }
     }
 }

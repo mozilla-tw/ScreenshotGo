@@ -144,7 +144,7 @@ class MainFragment : Fragment() {
                 .getScreenshots()
                 .observe(this, Observer { screenshots ->
                     screenshots?.let {newData ->
-                        searchListAdapter.list = newData
+                        searchListAdapter.setScreenshotList(newData)
                     }
                 })
     }
@@ -323,43 +323,21 @@ class MainListAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 }
 
-class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterable {
-    lateinit var list: List<ScreenshotModel>
-    private var filteredList: MutableList<ScreenshotModel> = mutableListOf()
-
+class SearchAdapter : ScreenshotAdapter(), Filterable {
+    private lateinit var originalList: List<ScreenshotModel>
     private var searchTarget: String = ""
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
-        view.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-
-        val ratio = parent.rootView.measuredHeight / parent.measuredWidth.toFloat() / 2f
-        view.layoutParams.height = ((parent.measuredWidth / 2f) * ratio).toInt()
-        view.setPadding(0, 0, 0, 0)
-
-        val holder = ScreenshotItemHolder(view)
-        holder.title = view.findViewById(R.id.title)
-        holder.itemView.setOnClickListener { _ ->
-            holder.adapterPosition.takeIf { position ->
-                position != RecyclerView.NO_POSITION
-
-            }?.let { position: Int ->
-                Toast.makeText(parent.context, "Item ${filteredList[position].name} clicked",
-                        Toast.LENGTH_SHORT).show()
-            }
-        }
-        return holder
-    }
-
-    override fun getItemCount(): Int {
-        return filteredList.size
+    override fun setScreenshotList(list: List<ScreenshotModel>) {
+        originalList = list
+        super.setScreenshotList(list)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val titleView = (holder as ScreenshotItemHolder).title
         titleView?.apply {
-            val spannable = SpannableString(filteredList[position].name)
-            val start = filteredList[position].name.indexOf(searchTarget)
+            val item = getItemAt(position)
+            val spannable = SpannableString(item.name)
+            val start = item.name.indexOf(searchTarget)
             spannable.setSpan(BackgroundColorSpan(Color.RED), start, start + searchTarget.length,
                     Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
             titleView.text = spannable
@@ -369,16 +347,19 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
-                filteredList.clear()
+                val newList = mutableListOf<ScreenshotModel>()
                 constraint?.takeIf { it.isNotEmpty() }?.let {
-                    for (category in list) {
+                    for (category in originalList) {
                         if (category.name.toLowerCase().contains(constraint.toString().toLowerCase())) {
-                            filteredList.add(category)
+                            newList.add(category)
                         }
                     }
                 }
+                // TODO: How to reference to super here?
+                setScreenshotListToSuper(newList)
                 val result = FilterResults()
-                result.values = filteredList
+                result.values = newList
+
                 return result
             }
 
@@ -387,6 +368,10 @@ class SearchAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), Filterabl
                 notifyDataSetChanged()
             }
         }
+    }
+
+    private fun setScreenshotListToSuper(list: List<ScreenshotModel>) {
+        super.setScreenshotList(list)
     }
 }
 

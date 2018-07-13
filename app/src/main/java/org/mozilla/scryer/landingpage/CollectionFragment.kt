@@ -108,11 +108,11 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 position != RecyclerView.NO_POSITION
 
             }?.let { position: Int ->
-                Toast.makeText(parent.context, "Item ${screenshotList[position].path} clicked",
-                        Toast.LENGTH_SHORT).show()
+//                Toast.makeText(parent.context, "Item ${screenshotList[position].path} clicked",
+//                        Toast.LENGTH_SHORT).show()
                 val intent = Intent(parent.context, DetailPageActivity::class.java)
                 val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        parent.context as Activity, holder.itemView, ViewCompat.getTransitionName(holder.image))
+                        parent.context as Activity, holder.image!!, ViewCompat.getTransitionName(holder.image))
                 val bundle = options.toBundle()
                 intent.putExtra("path", screenshotList[position].path)
                 (parent.context as AppCompatActivity).startActivity(intent, bundle)

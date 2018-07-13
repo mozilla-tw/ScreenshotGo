@@ -5,11 +5,15 @@
 
 package org.mozilla.scryer.landingpage
 
+import android.app.Activity
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.Fragment
+import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -22,6 +26,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
+import org.mozilla.scryer.DetailPageActivity
 import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.capture.GridItemDecoration
@@ -105,6 +110,12 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }?.let { position: Int ->
                 Toast.makeText(parent.context, "Item ${screenshotList[position].path} clicked",
                         Toast.LENGTH_SHORT).show()
+                val intent = Intent(parent.context, DetailPageActivity::class.java)
+                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        parent.context as Activity, holder.itemView, ViewCompat.getTransitionName(holder.image))
+                val bundle = options.toBundle()
+                intent.putExtra("path", screenshotList[position].path)
+                (parent.context as AppCompatActivity).startActivity(intent, bundle)
             }
         }
         return holder

@@ -6,13 +6,13 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".ScryerApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name=".ScryerApplication">
+        android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,10 +26,11 @@
         <activity
             android:name=".capture.ChooseCollectionActivity"
             android:launchMode="singleTask"
-            android:taskAffinity="org.mozilla.choose_collection"
             android:noHistory="true"
-            android:windowSoftInputMode="adjustNothing"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:taskAffinity="org.mozilla.choose_collection"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity android:name=".DetailPageActivity"></activity>
     </application>
 
 </manifest>

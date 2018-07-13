@@ -19,15 +19,15 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 class ScreenCaptureManager(context: Context, private val screenCapturePermissionIntent: Intent, private val screenCaptureListener: ScreenCaptureListener) {
-    private val mProjectionManager: MediaProjectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-    private var mMediaProjection: MediaProjection? = null
-    private var mImageReader: ImageReader? = null
-    private val mHandler: Handler
-    private val mUiHandler: Handler
-    private var mVirtualDisplay: VirtualDisplay? = null
-    private val mDensity: Int
-    private val mWidth: Int
-    private val mHeight: Int
+    private val projectionManager: MediaProjectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+    private var mediaProjection: MediaProjection? = null
+    private var imageReader: ImageReader? = null
+    private val workerHandler: Handler
+    private val uiHandler: Handler
+    private var virtualDisplay: VirtualDisplay? = null
+    private val density: Int
+    private val width: Int
+    private val height: Int
     private val screenshotPath: String
 
     init {
@@ -36,16 +36,16 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
         screenshotPath = screenshotDirectory.absolutePath
 
         val metrics = context.resources.displayMetrics
-        mDensity = metrics.densityDpi
-        mWidth = metrics.widthPixels
-        mHeight = metrics.heightPixels
+        density = metrics.densityDpi
+        width = metrics.widthPixels
+        height = metrics.heightPixels
 
         val handlerThread = HandlerThread("ScreenCaptureThread")
         handlerThread.start()
         val looper = handlerThread.looper
-        mHandler = Handler(looper)
+        workerHandler = Handler(looper)
 
-        mUiHandler = Handler()
+        uiHandler = Handler()
     }
 
     fun captureScreen() {
@@ -53,24 +53,24 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
     }
 
     private fun startProjection() {
-        mMediaProjection = mProjectionManager.getMediaProjection(Activity.RESULT_OK, screenCapturePermissionIntent)
+        mediaProjection = projectionManager.getMediaProjection(Activity.RESULT_OK, screenCapturePermissionIntent)
         createVirtualDisplay()
         // register media projection stop callback
-        mMediaProjection?.registerCallback(MediaProjectionStopCallback(), mHandler)
+        mediaProjection?.registerCallback(MediaProjectionStopCallback(), workerHandler)
     }
 
     private fun stopProjection() {
-        mHandler.post {
-            mMediaProjection?.stop()
+        workerHandler.post {
+            mediaProjection?.stop()
         }
     }
 
     private fun createVirtualDisplay() {
         // start capture reader
-        mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 1)
-        mVirtualDisplay = mMediaProjection?.createVirtualDisplay("screen-capture",
-                mWidth, mHeight, mDensity, VIRTUAL_DISPLAY_FLAGS, mImageReader?.surface, null, mHandler)
-        mImageReader!!.setOnImageAvailableListener(ImageAvailableListener(), mHandler)
+        imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
+        virtualDisplay = mediaProjection?.createVirtualDisplay("screen-capture",
+                width, height, density, VIRTUAL_DISPLAY_FLAGS, imageReader?.surface, null, workerHandler)
+        imageReader?.setOnImageAvailableListener(ImageAvailableListener(), workerHandler)
     }
 
     private fun ensureDir(dir: File): Boolean {
@@ -83,7 +83,7 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
 
     private inner class ImageAvailableListener : ImageReader.OnImageAvailableListener {
         override fun onImageAvailable(reader: ImageReader) {
-            mImageReader!!.setOnImageAvailableListener(null, null)
+            imageReader?.setOnImageAvailableListener(null, null)
 
             var image: Image? = null
             var fos: FileOutputStream? = null
@@ -97,10 +97,10 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
                     val buffer = planes[0].buffer
                     val pixelStride = planes[0].pixelStride
                     val rowStride = planes[0].rowStride
-                    val rowPadding = rowStride - pixelStride * mWidth
+                    val rowPadding = rowStride - pixelStride * width
 
                     // create bitmap
-                    bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888)
+                    bitmap = Bitmap.createBitmap(width + rowPadding / pixelStride, height, Bitmap.Config.ARGB_8888)
                     bitmap?.copyPixelsFromBuffer(buffer)
 
                     // write bitmap to a file
@@ -127,16 +127,16 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
                 stopProjection()
             }
 
-            mUiHandler.post { screenCaptureListener.onScreenShotTaken(filePath ?: "") }
+            uiHandler.post { screenCaptureListener.onScreenShotTaken(filePath ?: "") }
         }
     }
 
     private inner class MediaProjectionStopCallback : MediaProjection.Callback() {
         override fun onStop() {
-            mHandler.post {
-                mVirtualDisplay?.release()
-                mImageReader?.setOnImageAvailableListener(null, null)
-                mMediaProjection?.unregisterCallback(this@MediaProjectionStopCallback)
+            workerHandler.post {
+                virtualDisplay?.release()
+                imageReader?.setOnImageAvailableListener(null, null)
+                mediaProjection?.unregisterCallback(this@MediaProjectionStopCallback)
             }
         }
     }

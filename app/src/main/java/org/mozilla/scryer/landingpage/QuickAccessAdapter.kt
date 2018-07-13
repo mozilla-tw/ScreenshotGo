@@ -5,13 +5,14 @@
 
 package org.mozilla.scryer.landingpage
 
-import android.graphics.BitmapFactory
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
+import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
 import org.mozilla.scryer.persistence.ScreenshotModel
+import java.io.File
 
 class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
     var list: List<ScreenshotModel> = emptyList()
@@ -39,7 +40,19 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
     }
 
     override fun onBindViewHolder(holder: ScreenshotItemHolder, position: Int) {
-        holder.title?.text = list[position].path
-        holder.image?.setImageBitmap(BitmapFactory.decodeFile(list[position].path))
+        val path = list[position].path
+        val fileName = path.substring(path.lastIndexOf(File.separator) + 1)
+        holder.title?.text = fileName
+        holder.image?.let {
+            Glide.with(holder.itemView.context)
+                    .load(File(list[position].path)).into(it)
+        }
+    }
+
+    override fun onViewRecycled(holder: ScreenshotItemHolder) {
+        super.onViewRecycled(holder)
+        holder.image?.let {
+            Glide.with(holder.itemView.context).clear(it)
+        }
     }
 }

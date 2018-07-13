@@ -8,7 +8,6 @@ package org.mozilla.scryer.landingpage
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -22,6 +21,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.Navigation
+import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.capture.GridItemDecoration
@@ -117,17 +117,26 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as? ScreenshotItemHolder)?.apply {
             title?.text = getItemFileName(position)
-            image?.setImageBitmap(BitmapFactory.decodeFile(getItemAt(position).path))
+            image?.let {
+                Glide.with(holder.itemView.context)
+                        .load(File(screenshotList[position].path))
+                        .into(it)
+            }
+        }
+    }
+
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        (holder as? ScreenshotItemHolder)?.apply {
+            image?.let {
+                Glide.with(holder.itemView.context)
+                        .clear(it)
+            }
         }
     }
 
     fun getItemFileName(position: Int): String {
         val item = screenshotList[position]
         return item.path.substring(item.path.lastIndexOf(File.separator) + 1)
-    }
-
-    fun getItemAt(position: Int): ScreenshotModel {
-        return screenshotList[position]
     }
 
     open fun setScreenshotList(list: List<ScreenshotModel>) {

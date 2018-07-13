@@ -337,9 +337,9 @@ class SearchAdapter : ScreenshotAdapter(), Filterable {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val titleView = (holder as ScreenshotItemHolder).title
         titleView?.apply {
-            val item = getItemAt(position)
-            val spannable = SpannableString(item.path)
-            val start = item.path.indexOf(searchTarget)
+            val name = getItemFileName(position)
+            val spannable = SpannableString(name)
+            val start = name.indexOf(searchTarget)
             spannable.setSpan(BackgroundColorSpan(Color.RED), start, start + searchTarget.length,
                     Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
             titleView.text = spannable

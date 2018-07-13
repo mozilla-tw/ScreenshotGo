@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.Navigation
 import org.mozilla.scryer.persistence.ScreenshotModel
+import java.io.File
 
 class CategoryFragment : Fragment() {
     private lateinit var screenshotListView: RecyclerView
@@ -101,8 +102,13 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val titleView = (holder as ScreenshotItemHolder).title
         titleView?.apply {
-            text = screenshotList[position].path
+            text = getItemFileName(position)
         }
+    }
+
+    fun getItemFileName(position: Int): String {
+        val item = screenshotList[position]
+        return item.path.substring(item.path.lastIndexOf(File.separator) + 1)
     }
 
     fun getItemAt(position: Int): ScreenshotModel {

@@ -69,6 +69,19 @@ class ChooseCollectionActivity : AppCompatActivity() {
             val bmp = BitmapFactory.decodeFile(file.absolutePath)
             findViewById<ImageView>(R.id.image_view).setImageBitmap(bmp)
         }
+        getImagePath()?.let {
+            val bmp = BitmapFactory.decodeFile(file.absolutePath)
+            findViewById<ImageView>(R.id.image_view).setImageBitmap(bmp)
+        } ?: finish()
+    }
+
+    private fun getImagePath(): String? {
+        val path = intent.getStringExtra(EXTRA_PATH)
+        val file = File(path)
+        if (file.exists()) {
+            return file.absolutePath
+        }
+        return null
     }
 
     private fun getScreenshotRepository(): ScreenshotRepository {
@@ -87,12 +100,13 @@ class ChooseCollectionActivity : AppCompatActivity() {
     private fun onItemClicked(category: CategoryModel) {
         Toast.makeText(this, "save to ${category.name}", Toast.LENGTH_SHORT).show()
 
-        val date = SimpleDateFormat("yyyy-MM-dd-HH:mm:ss", Locale.ENGLISH)
-        // TODO: use an unique id instead of category name for identifying category
-        val screenshot = ScreenshotModel(UUID.randomUUID().toString(), "ss-${date.format(Date())}",
-                System.currentTimeMillis(),
-                category.id)
-        getScreenshotRepository().addScreenshot(screenshot)
+        val path = getImagePath()
+        path?.let {
+            val screenshot = ScreenshotModel(UUID.randomUUID().toString(), it,
+                    System.currentTimeMillis(),
+                    category.id)
+            getScreenshotRepository().addScreenshot(screenshot)
+        }
 
         finish()
     }

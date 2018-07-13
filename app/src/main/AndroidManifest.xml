@@ -24,7 +24,7 @@
         <service android:name=".overlay.ScreenshotMenuService" />
 
         <activity
-            android:name=".ChooseCollectionActivity"
+            android:name=".capture.ChooseCollectionActivity"
             android:launchMode="singleTask"
             android:taskAffinity="org.mozilla.choose_collection"
             android:noHistory="true"

@@ -17,7 +17,7 @@ import android.os.Build
 import android.os.IBinder
 import android.provider.MediaStore
 import android.support.v4.app.NotificationCompat
-import org.mozilla.scryer.ChooseCollectionActivity
+import org.mozilla.scryer.capture.ChooseCollectionActivity
 import org.mozilla.scryer.capture.ScreenCaptureListener
 import org.mozilla.scryer.capture.ScreenCaptureManager
 

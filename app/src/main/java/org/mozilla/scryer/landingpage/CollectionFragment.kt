@@ -3,11 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.scryer
+package org.mozilla.scryer.landingpage
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -17,17 +18,30 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.Navigation
+import org.mozilla.scryer.R
+import org.mozilla.scryer.ScryerApplication
+import org.mozilla.scryer.capture.GridItemDecoration
+import org.mozilla.scryer.capture.dp2px
+import org.mozilla.scryer.getSupportActionBar
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.viewmodel.ScreenshotViewModel
+import org.mozilla.scryer.viewmodel.ScreenshotViewModelFactory
 import java.io.File
 
-class CategoryFragment : Fragment() {
+class CollectionFragment : Fragment() {
+    companion object {
+        const val ARG_COLLECTION_ID = "collection_id"
+    }
+
     private lateinit var screenshotListView: RecyclerView
     private val screenshotAdapter = ScreenshotAdapter()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.fragment_category, container, false)
+        val layout = inflater.inflate(R.layout.fragment_collection, container, false)
         screenshotListView = layout.findViewById(R.id.screenshot_list)
         return layout
     }
@@ -57,10 +71,10 @@ class CategoryFragment : Fragment() {
         val manager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
         screenshotListView.layoutManager = manager
         screenshotListView.adapter = screenshotAdapter
-        screenshotListView.addItemDecoration(SpacesItemDecoration(dp2px(context, 8f)))
+        screenshotListView.addItemDecoration(GridItemDecoration(dp2px(context, 8f), 2))
         val factory = ScreenshotViewModelFactory(ScryerApplication.getInstance().screenshotRepository)
         ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
-                .getScreenshots(arguments?.getString("category_name")?:"")
+                .getScreenshots(arguments?.getString(ARG_COLLECTION_ID)?:"")
                 .observe(this, Observer { screenshots ->
                     screenshots?.let {
                         screenshotAdapter.setScreenshotList(it)
@@ -83,6 +97,7 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         val holder = ScreenshotItemHolder(view)
         holder.title = view.findViewById(R.id.title)
+        holder.image = view.findViewById(R.id.image_view)
         holder.itemView.setOnClickListener { _ ->
             holder.adapterPosition.takeIf { position ->
                 position != RecyclerView.NO_POSITION
@@ -100,9 +115,9 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val titleView = (holder as ScreenshotItemHolder).title
-        titleView?.apply {
-            text = getItemFileName(position)
+        (holder as? ScreenshotItemHolder)?.apply {
+            title?.text = getItemFileName(position)
+            image?.setImageBitmap(BitmapFactory.decodeFile(getItemAt(position).path))
         }
     }
 
@@ -118,4 +133,9 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     open fun setScreenshotList(list: List<ScreenshotModel>) {
         screenshotList = list
     }
+}
+
+class ScreenshotItemHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    var title: TextView? = null
+    var image: ImageView? = null
 }

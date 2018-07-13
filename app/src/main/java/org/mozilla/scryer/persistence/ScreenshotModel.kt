@@ -12,11 +12,11 @@ import android.arch.persistence.room.PrimaryKey
 
 @Entity(tableName = "screenshot",
         foreignKeys = [(ForeignKey(
-                entity = CategoryModel::class,
+                entity = CollectionModel::class,
                 parentColumns = ["id"],
-                childColumns = ["category_id"]))])
+                childColumns = ["collection_id"]))])
 data class ScreenshotModel(
         @PrimaryKey(autoGenerate = false) var id: String,
         @ColumnInfo(name = "path") var path: String,
         @ColumnInfo(name = "date") var date: Long,
-        @ColumnInfo(name = "category_id") var categoryId: String)
+        @ColumnInfo(name = "collection_id") var collectionId: String)

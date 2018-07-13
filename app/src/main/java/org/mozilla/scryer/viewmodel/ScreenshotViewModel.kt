@@ -3,30 +3,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.scryer
+package org.mozilla.scryer.viewmodel
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
-import org.mozilla.scryer.persistence.CategoryModel
+import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.repository.ScreenshotRepository
 
 class ScreenshotViewModel(private val repository: ScreenshotRepository) : ViewModel() {
 
-    fun getCategories(): LiveData<List<CategoryModel>> {
-        return repository.getCategories()
+    fun getCollections(): LiveData<List<CollectionModel>> {
+        return repository.getCollections()
     }
 
-    fun addCategory(category: CategoryModel) {
-        repository.addCategory(category)
+    fun addCollection(collection: CollectionModel) {
+        repository.addCollection(collection)
     }
 
     fun getScreenshots(): LiveData<List<ScreenshotModel>> {
         return repository.getScreenshots()
     }
 
-    fun getScreenshots(categoryId: String): LiveData<List<ScreenshotModel>> {
-        return repository.getScreenshots(categoryId)
+    fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>> {
+        return repository.getScreenshots(collectionId)
     }
 }
 

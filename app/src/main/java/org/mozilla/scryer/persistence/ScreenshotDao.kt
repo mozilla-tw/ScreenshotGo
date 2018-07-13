@@ -17,8 +17,8 @@ interface ScreenshotDao {
     fun getScreenshots(): LiveData<List<ScreenshotModel>>
 
 
-    @Query("SELECT * FROM screenshot WHERE category_id = :categoryId")
-    fun getScreenshots(categoryId: String): LiveData<List<ScreenshotModel>>
+    @Query("SELECT * FROM screenshot WHERE collection_id = :collectionId")
+    fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
 
     @Insert
     fun addScreenshot(screenshot: ScreenshotModel)

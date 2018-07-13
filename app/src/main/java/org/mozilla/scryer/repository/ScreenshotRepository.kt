@@ -3,12 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.scryer
+package org.mozilla.scryer.repository
 
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Room
 import android.content.Context
-import org.mozilla.scryer.persistence.CategoryModel
+import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotDatabase
 import org.mozilla.scryer.persistence.ScreenshotModel
 import java.util.concurrent.Executors
@@ -23,18 +23,18 @@ abstract class ScreenshotRepository {
         }
     }
 
-    abstract fun addCategory(category: CategoryModel)
-    abstract fun getCategories(): LiveData<List<CategoryModel>>
+    abstract fun addCollection(collection: CollectionModel)
+    abstract fun getCollections(): LiveData<List<CollectionModel>>
 
     abstract fun addScreenshot(screenshot: ScreenshotModel)
     abstract fun getScreenshots(): LiveData<List<ScreenshotModel>>
-    abstract fun getScreenshots(categoryId: String): LiveData<List<ScreenshotModel>>
+    abstract fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
 }
 
 class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : ScreenshotRepository() {
     private val executor = Executors.newSingleThreadExecutor()
 
-    private var categoryListData = database.categoryDao().getCategories()
+    private var collectionListData = database.collectionDao().getCollections()
     private val screenshotListData = database.screenshotDao().getScreenshots()
 
     override fun addScreenshot(screenshot: ScreenshotModel) {
@@ -43,21 +43,21 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
         }
     }
 
-    override fun getScreenshots(categoryId: String): LiveData<List<ScreenshotModel>> {
-        return database.screenshotDao().getScreenshots(categoryId)
+    override fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>> {
+        return database.screenshotDao().getScreenshots(collectionId)
     }
 
     override fun getScreenshots(): LiveData<List<ScreenshotModel>> {
         return screenshotListData
     }
 
-    override fun getCategories(): LiveData<List<CategoryModel>> {
-        return categoryListData
+    override fun getCollections(): LiveData<List<CollectionModel>> {
+        return collectionListData
     }
 
-    override fun addCategory(category: CategoryModel) {
+    override fun addCollection(collection: CollectionModel) {
         executor.submit {
-            database.categoryDao().addCategory(category)
+            database.collectionDao().addCollection(collection)
         }
     }
 }

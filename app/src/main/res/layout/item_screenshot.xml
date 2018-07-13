@@ -9,7 +9,8 @@
     android:paddingStart="8dp"
     android:paddingEnd="0dp">
 
-    <View
+    <ImageView
+        android:id="@+id/image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray" />

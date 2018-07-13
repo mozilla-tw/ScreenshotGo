@@ -12,11 +12,11 @@ import android.arch.persistence.room.OnConflictStrategy.REPLACE
 import android.arch.persistence.room.Query
 
 @Dao
-interface CategoryDao {
+interface CollectionDao {
 
-    @Query("SELECT * FROM CategoryModel")
-    fun getCategories(): LiveData<List<CategoryModel>>
+    @Query("SELECT * FROM collection")
+    fun getCollections(): LiveData<List<CollectionModel>>
 
     @Insert(onConflict = REPLACE)
-    fun addCategory(category: CategoryModel)
+    fun addCollection(collection: CollectionModel)
 }

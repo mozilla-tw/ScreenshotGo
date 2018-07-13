@@ -7,6 +7,8 @@ package org.mozilla.scryer;
 
 import android.app.Application;
 
+import org.mozilla.scryer.repository.ScreenshotRepository;
+
 public class ScryerApplication extends Application {
 
     private static ScryerApplication INSTANCE;

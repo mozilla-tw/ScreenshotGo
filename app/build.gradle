@@ -51,6 +51,8 @@ dependencies {
 
     implementation "android.arch.persistence.room:runtime:1.1.1"
     kapt "android.arch.persistence.room:compiler:1.1.1"
+
+    implementation "com.github.bumptech.glide:glide:4.7.1"
 }
 repositories {
     mavenCentral()

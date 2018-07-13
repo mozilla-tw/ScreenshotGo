@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import org.mozilla.scryer.R
-import org.mozilla.scryer.dp2px
+import org.mozilla.scryer.capture.dp2px
 
 class ScreenshotButtonController(private val context: Context) : DefaultLifecycleObserver {
     private var floatingContainer: FloatingView? = null

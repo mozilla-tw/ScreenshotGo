@@ -18,10 +18,11 @@ import android.os.IBinder
 import android.provider.MediaStore
 import android.support.v4.app.NotificationCompat
 import org.mozilla.scryer.ChooseCollectionActivity
+import org.mozilla.scryer.capture.ScreenCaptureListener
 import org.mozilla.scryer.capture.ScreenCaptureManager
 
 
-class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListener {
+class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListener, ScreenCaptureListener {
     companion object {
         // TODO: temp id
         private const val NOTIFICATION_ID_FOREGROUND = 9487
@@ -35,7 +36,7 @@ class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListene
     }
     private lateinit var screenCapturePermissionIntent: Intent
     private val screenCaptureManager: ScreenCaptureManager by lazy {
-        ScreenCaptureManager(applicationContext, screenCapturePermissionIntent)
+        ScreenCaptureManager(applicationContext, screenCapturePermissionIntent, this)
     }
 
     override fun onCreate() {
@@ -129,14 +130,11 @@ class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListene
 
     private fun takeScreenshot() {
         screenCaptureManager.captureScreen()
-        floatingButtonController.view?.postDelayed({
-            onScreenShotTaken()
-        }, 1500)
     }
 
-    private fun onScreenShotTaken() {
+    override fun onScreenShotTaken(filePath: String) {
         floatingButtonController.show()
-        startChooseCollectionActivity("")
+        startChooseCollectionActivity(filePath)
     }
 
     private fun startChooseCollectionActivity(path: String) {

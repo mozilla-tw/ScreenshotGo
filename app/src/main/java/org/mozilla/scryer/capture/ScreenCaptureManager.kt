@@ -17,13 +17,13 @@ import android.os.HandlerThread
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.*
 
-class ScreenCaptureManager(context: Context, private val screenCapturePermissionIntent: Intent) {
+class ScreenCaptureManager(context: Context, private val screenCapturePermissionIntent: Intent, private val screenCaptureListener: ScreenCaptureListener) {
     private val mProjectionManager: MediaProjectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
     private var mMediaProjection: MediaProjection? = null
     private var mImageReader: ImageReader? = null
     private val mHandler: Handler
+    private val mUiHandler: Handler
     private var mVirtualDisplay: VirtualDisplay? = null
     private val mDensity: Int
     private val mWidth: Int
@@ -44,6 +44,8 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
         handlerThread.start()
         val looper = handlerThread.looper
         mHandler = Handler(looper)
+
+        mUiHandler = Handler()
     }
 
     fun captureScreen() {
@@ -86,6 +88,7 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
             var image: Image? = null
             var fos: FileOutputStream? = null
             var bitmap: Bitmap? = null
+            var filePath: String? = null
 
             try {
                 image = reader.acquireLatestImage()
@@ -101,7 +104,8 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
                     bitmap?.copyPixelsFromBuffer(buffer)
 
                     // write bitmap to a file
-                    fos = FileOutputStream(screenshotPath + "/my_screenshot_" + Calendar.getInstance().timeInMillis + ".png")
+                    filePath = screenshotPath + "/my_screenshot_" + System.currentTimeMillis() + ".png"
+                    fos = FileOutputStream(filePath)
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
                 }
 
@@ -119,9 +123,11 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
 
                 bitmap?.recycle()
                 image?.close()
+
+                stopProjection()
             }
 
-            stopProjection()
+            mUiHandler.post { screenCaptureListener.onScreenShotTaken(filePath ?: "") }
         }
     }
 

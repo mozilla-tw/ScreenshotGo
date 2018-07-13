@@ -6,20 +6,28 @@
 package org.mozilla.scryer.repository
 
 import android.arch.lifecycle.LiveData
+import android.arch.persistence.db.SupportSQLiteDatabase
 import android.arch.persistence.room.Room
+import android.arch.persistence.room.RoomDatabase
 import android.content.Context
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotDatabase
 import org.mozilla.scryer.persistence.ScreenshotModel
+import java.util.*
 import java.util.concurrent.Executors
 
 abstract class ScreenshotRepository {
     companion object Factory {
-        fun createRepository(context: Context): ScreenshotRepository {
-            return ScreenshotDatabaseRepository(
-                    Room.databaseBuilder(context.applicationContext,
-                            ScreenshotDatabase::class.java,
-                            "screenshot-db").build())
+        fun createRepository(context: Context, onCreated: () -> Unit): ScreenshotRepository {
+            val callback = object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    onCreated()
+                }
+            }
+            return ScreenshotDatabaseRepository(Room.databaseBuilder(context.applicationContext,
+                    ScreenshotDatabase::class.java, "screenshot-db")
+                    .addCallback(callback)
+                    .build())
         }
     }
 
@@ -29,6 +37,7 @@ abstract class ScreenshotRepository {
     abstract fun addScreenshot(screenshot: ScreenshotModel)
     abstract fun getScreenshots(): LiveData<List<ScreenshotModel>>
     abstract fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
+    abstract fun setupDefaultContent()
 }
 
 class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : ScreenshotRepository() {
@@ -59,5 +68,14 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
         executor.submit {
             database.collectionDao().addCollection(collection)
         }
+    }
+
+    override fun setupDefaultContent() {
+        val music = CollectionModel(UUID.randomUUID().toString(), "Music", System.currentTimeMillis())
+        val shopping = CollectionModel(UUID.randomUUID().toString(), "Shopping", System.currentTimeMillis())
+        val secret = CollectionModel(UUID.randomUUID().toString(), "Secret", System.currentTimeMillis())
+        addCollection(music)
+        addCollection(shopping)
+        addCollection(secret)
     }
 }

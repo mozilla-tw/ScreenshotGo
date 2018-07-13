@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "064776b67e5d0cb2eb42369362a54193",
+    "identityHash": "3bbe0d8ab4fb8d9d26358ac206927847",
     "entities": [
       {
         "tableName": "collection",
@@ -71,7 +71,16 @@
           ],
           "autoGenerate": false
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_screenshot_collection_id",
+            "unique": false,
+            "columnNames": [
+              "collection_id"
+            ],
+            "createSql": "CREATE  INDEX `index_screenshot_collection_id` ON `${TABLE_NAME}` (`collection_id`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "collection",
@@ -89,7 +98,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"064776b67e5d0cb2eb42369362a54193\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"3bbe0d8ab4fb8d9d26358ac206927847\")"
     ]
   }
 }

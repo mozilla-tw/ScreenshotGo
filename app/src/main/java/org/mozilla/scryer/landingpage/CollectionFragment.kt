@@ -72,7 +72,7 @@ class CollectionFragment : Fragment() {
         screenshotListView.layoutManager = manager
         screenshotListView.adapter = screenshotAdapter
         screenshotListView.addItemDecoration(GridItemDecoration(dp2px(context, 8f), 2))
-        val factory = ScreenshotViewModelFactory(ScryerApplication.getInstance().screenshotRepository)
+        val factory = ScreenshotViewModelFactory(ScryerApplication.instance.screenshotRepository)
         ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
                 .getScreenshots(arguments?.getString(ARG_COLLECTION_ID)?:"")
                 .observe(this, Observer { screenshots ->

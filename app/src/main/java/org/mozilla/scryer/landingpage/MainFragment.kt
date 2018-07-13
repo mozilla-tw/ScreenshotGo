@@ -165,7 +165,7 @@ class MainFragment : Fragment() {
     }
 
     private fun getScreenshotRepository(): ScreenshotRepository {
-        return ScryerApplication.getInstance().screenshotRepository
+        return ScryerApplication.instance.screenshotRepository
     }
 
     private class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {

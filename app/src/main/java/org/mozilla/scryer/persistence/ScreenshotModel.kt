@@ -5,16 +5,14 @@
 
 package org.mozilla.scryer.persistence
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.ForeignKey
-import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.*
 
 @Entity(tableName = "screenshot",
         foreignKeys = [(ForeignKey(
                 entity = CollectionModel::class,
                 parentColumns = ["id"],
-                childColumns = ["collection_id"]))])
+                childColumns = ["collection_id"]))],
+        indices = [(Index("collection_id"))])
 data class ScreenshotModel(
         @PrimaryKey(autoGenerate = false) var id: String,
         @ColumnInfo(name = "path") var path: String,

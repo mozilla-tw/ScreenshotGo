@@ -88,7 +88,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
     }
 
     private fun getScreenshotRepository(): ScreenshotRepository {
-        return ScryerApplication.getInstance().screenshotRepository
+        return ScryerApplication.instance.screenshotRepository
     }
 
     private fun initRecyclerView() {

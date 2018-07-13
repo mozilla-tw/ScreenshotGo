@@ -8,6 +8,8 @@ package org.mozilla.scryer
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
+import org.mozilla.scryer.persistence.CategoryModel
+import org.mozilla.scryer.persistence.ScreenshotModel
 
 class ScreenshotViewModel(private val repository: ScreenshotRepository) : ViewModel() {
 
@@ -22,10 +24,11 @@ class ScreenshotViewModel(private val repository: ScreenshotRepository) : ViewMo
     fun getScreenshots(): LiveData<List<ScreenshotModel>> {
         return repository.getScreenshots()
     }
-}
 
-class CategoryModel(val name: String)
-class ScreenshotModel(val name: String, val category: String)
+    fun getScreenshots(categoryId: String): LiveData<List<ScreenshotModel>> {
+        return repository.getScreenshots(categoryId)
+    }
+}
 
 class ScreenshotViewModelFactory(private val repository: ScreenshotRepository)
     : ViewModelProvider.NewInstanceFactory() {

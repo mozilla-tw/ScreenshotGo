@@ -19,6 +19,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.Navigation
+import org.mozilla.scryer.persistence.ScreenshotModel
 
 class CategoryFragment : Fragment() {
     private lateinit var screenshotListView: RecyclerView
@@ -56,13 +57,11 @@ class CategoryFragment : Fragment() {
         screenshotListView.layoutManager = manager
         screenshotListView.adapter = screenshotAdapter
         screenshotListView.addItemDecoration(SpacesItemDecoration(dp2px(context, 8f)))
-        val factory = ScreenshotViewModelFactory(ScreenshotRepository.from(context))
+        val factory = ScreenshotViewModelFactory(ScryerApplication.getInstance().screenshotRepository)
         ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
-                .getScreenshots()
+                .getScreenshots(arguments?.getString("category_name")?:"")
                 .observe(this, Observer { screenshots ->
-                    screenshots?.filter {
-                        it.category == arguments?.getString("category_name")?:""
-                    }?.let {
+                    screenshots?.let {
                         screenshotAdapter.setScreenshotList(it)
                         screenshotAdapter.notifyDataSetChanged()
                         getSupportActionBar(activity)?.setSubtitle("${it.size} shots")
@@ -72,7 +71,7 @@ class CategoryFragment : Fragment() {
 }
 
 open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private lateinit var screenshotList: List<ScreenshotModel>
+    private var screenshotList: List<ScreenshotModel> = emptyList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
@@ -88,7 +87,7 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 position != RecyclerView.NO_POSITION
 
             }?.let { position: Int ->
-                Toast.makeText(parent.context, "Item ${screenshotList[position].name} clicked",
+                Toast.makeText(parent.context, "Item ${screenshotList[position].path} clicked",
                         Toast.LENGTH_SHORT).show()
             }
         }
@@ -102,7 +101,7 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val titleView = (holder as ScreenshotItemHolder).title
         titleView?.apply {
-            text = screenshotList[position].name
+            text = screenshotList[position].path
         }
     }
 

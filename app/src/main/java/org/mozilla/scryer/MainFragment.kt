@@ -24,6 +24,8 @@ import android.text.style.BackgroundColorSpan
 import android.view.*
 import android.widget.*
 import androidx.navigation.Navigation
+import org.mozilla.scryer.persistence.CategoryModel
+import org.mozilla.scryer.persistence.ScreenshotModel
 
 class MainFragment : Fragment() {
     private lateinit var quickAccessListView: RecyclerView
@@ -107,7 +109,7 @@ class MainFragment : Fragment() {
         quickAccessListView.layoutManager = manager
         quickAccessListView.adapter = quickAccessListAdapter
 
-        val factory = ScreenshotViewModelFactory(getScreenshotRepository(context))
+        val factory = ScreenshotViewModelFactory(getScreenshotRepository())
         ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
                 .getScreenshots()
                 .observe(this, Observer { screenshots ->
@@ -124,7 +126,7 @@ class MainFragment : Fragment() {
         mainListView.recycledViewPool.setMaxRecycledViews(MainListAdapter.TYPE_QUICK_ACCESS, 1)
         mainListAdapter.quickAccessListView = quickAccessListView
 
-        val factory = ScreenshotViewModelFactory(getScreenshotRepository(context))
+        val factory = ScreenshotViewModelFactory(getScreenshotRepository())
         ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
                 .getCategories()
                 .observe(this, Observer { collections ->
@@ -139,7 +141,7 @@ class MainFragment : Fragment() {
         searchListView.layoutManager = manager
         searchListView.adapter = searchListAdapter
         searchListView.addItemDecoration(SpacesItemDecoration(dp2px(context, 8f)))
-        val factory = ScreenshotViewModelFactory(getScreenshotRepository(context))
+        val factory = ScreenshotViewModelFactory(getScreenshotRepository())
         ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
                 .getScreenshots()
                 .observe(this, Observer { screenshots ->
@@ -159,13 +161,13 @@ class MainFragment : Fragment() {
         mainListAdapter.notifyDataSetChanged()
     }
 
-    private fun getScreenshotRepository(context: Context): ScreenshotRepository {
-        return ScreenshotRepository.from(context)
+    private fun getScreenshotRepository(): ScreenshotRepository {
+        return ScryerApplication.getInstance().screenshotRepository
     }
 }
 
 class QuickAccessListAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
-    lateinit var list: List<ScreenshotModel>
+    var list: List<ScreenshotModel> = emptyList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScreenshotItemHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
@@ -177,7 +179,7 @@ class QuickAccessListAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
                 position != RecyclerView.NO_POSITION
 
             }?.let { position: Int ->
-                Toast.makeText(parent.context, "Item ${list[position].name} clicked",
+                Toast.makeText(parent.context, "Item ${list[position].path} clicked",
                         Toast.LENGTH_SHORT).show()
             }
         }
@@ -189,7 +191,7 @@ class QuickAccessListAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
     }
 
     override fun onBindViewHolder(holder: ScreenshotItemHolder, position: Int) {
-        holder.title?.text = list[position].name
+        holder.title?.text = list[position].path
     }
 }
 
@@ -207,7 +209,7 @@ class MainListAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         const val COLUMN_COUNT = 2
     }
 
-    lateinit var categoryList: List<CategoryModel>
+    var categoryList: List<CategoryModel> = emptyList()
     lateinit var quickAccessListView: RecyclerView
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -286,7 +288,7 @@ class MainListAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                     val row = position - FIXED_ITEM_COUNT
                     val startIndex = row * COLUMN_COUNT
                     val bundle = Bundle()
-                    bundle.putString("category_name", categoryList[startIndex + i].name)
+                    bundle.putString("category_name", categoryList[startIndex + i].id)
                     Navigation.findNavController(parent).navigate(R.id.action_navigate_to_category, bundle)
                 }
             }
@@ -336,8 +338,8 @@ class SearchAdapter : ScreenshotAdapter(), Filterable {
         val titleView = (holder as ScreenshotItemHolder).title
         titleView?.apply {
             val item = getItemAt(position)
-            val spannable = SpannableString(item.name)
-            val start = item.name.indexOf(searchTarget)
+            val spannable = SpannableString(item.path)
+            val start = item.path.indexOf(searchTarget)
             spannable.setSpan(BackgroundColorSpan(Color.RED), start, start + searchTarget.length,
                     Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
             titleView.text = spannable
@@ -350,7 +352,7 @@ class SearchAdapter : ScreenshotAdapter(), Filterable {
                 val newList = mutableListOf<ScreenshotModel>()
                 constraint?.takeIf { it.isNotEmpty() }?.let {
                     for (category in originalList) {
-                        if (category.name.toLowerCase().contains(constraint.toString().toLowerCase())) {
+                        if (category.path.toLowerCase().contains(constraint.toString().toLowerCase())) {
                             newList.add(category)
                         }
                     }

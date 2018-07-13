@@ -1,8 +1,7 @@
-/*
+/* -*- Mode: Java; c-basic-offset: 4; tab-width: 4; indent-tabs-mode: nil; -*-
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 package org.mozilla.scryer
 
@@ -17,6 +16,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -26,6 +26,8 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import org.mozilla.scryer.persistence.CategoryModel
+import org.mozilla.scryer.persistence.ScreenshotModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -70,7 +72,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
     }
 
     private fun getScreenshotRepository(): ScreenshotRepository {
-        return ScreenshotRepository.from(this)
+        return ScryerApplication.getInstance().screenshotRepository
     }
 
     private fun initRecyclerView() {
@@ -87,8 +89,10 @@ class ChooseCollectionActivity : AppCompatActivity() {
 
         val date = SimpleDateFormat("yyyy-MM-dd-HH:mm:ss", Locale.ENGLISH)
         // TODO: use an unique id instead of category name for identifying category
-        val screenshot = ScreenshotModel("screenshot_${date.format(Date())}", category.name)
-        ScreenshotRepository.from(this).addScreenshot(screenshot)
+        val screenshot = ScreenshotModel(UUID.randomUUID().toString(), "ss-${date.format(Date())}",
+                System.currentTimeMillis(),
+                category.id)
+        getScreenshotRepository().addScreenshot(screenshot)
 
         finish()
     }
@@ -100,8 +104,9 @@ class ChooseCollectionActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
                 .setView(dialogView)
                 .setPositiveButton("DONE") { _, _ ->
-                    categoryViewModel.addCategory(CategoryModel(editText.text.toString()))
-                    recyclerView.adapter.notifyItemInserted(recyclerView.adapter.itemCount - 1)
+                    val model = CategoryModel(UUID.randomUUID().toString(), editText.text.toString(), System.currentTimeMillis())
+                    categoryViewModel.addCategory(model)
+                    //recyclerView.adapter.notifyItemInserted(recyclerView.adapter.itemCount - 1)
                 }
                 .create()
         dialog.show()
@@ -182,12 +187,17 @@ class ChooseCollectionAdapter(private var activity: ChooseCollectionActivity,
 
         val holder = DataViewHolder(view)
         holder.itemView.setOnClickListener { _ ->
+            Log.d("roger_tag", "clicked")
             holder.adapterPosition.takeIf { position ->
                 position != RecyclerView.NO_POSITION
 
             }?.let { position: Int ->
+                Log.d("roger_tag", "let")
                 categoryList?.let {
+                    Log.d("roger_tag", "let sucess")
                     itemClickListener.invoke(it[position - fixedItems.size])
+                } ?: run {
+                    Log.d("roger_tag", "let failed")
                 }
             }
         }

@@ -6,70 +6,49 @@
 package org.mozilla.scryer
 
 import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import android.arch.persistence.room.Room
 import android.content.Context
+import org.mozilla.scryer.persistence.CategoryModel
+import org.mozilla.scryer.persistence.ScreenshotDatabase
+import org.mozilla.scryer.persistence.ScreenshotModel
+import java.util.concurrent.Executors
 
 abstract class ScreenshotRepository {
     companion object Factory {
-        fun from(context: Context): ScreenshotRepository {
-            return InMemoryScreenshotRepository.Holder.INSTANCE
+        fun createRepository(context: Context): ScreenshotRepository {
+            return ScreenshotDatabaseRepository(
+                    Room.databaseBuilder(context.applicationContext,
+                            ScreenshotDatabase::class.java,
+                            "screenshot-db").build())
         }
     }
 
-    abstract fun getCategories(): LiveData<List<CategoryModel>>
     abstract fun addCategory(category: CategoryModel)
-    abstract fun getScreenshots(): LiveData<List<ScreenshotModel>>
+    abstract fun getCategories(): LiveData<List<CategoryModel>>
+
     abstract fun addScreenshot(screenshot: ScreenshotModel)
+    abstract fun getScreenshots(): LiveData<List<ScreenshotModel>>
+    abstract fun getScreenshots(categoryId: String): LiveData<List<ScreenshotModel>>
 }
 
-class InMemoryScreenshotRepository : ScreenshotRepository() {
+class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : ScreenshotRepository() {
+    private val executor = Executors.newSingleThreadExecutor()
+
+    private var categoryListData = database.categoryDao().getCategories()
+    private val screenshotListData = database.screenshotDao().getScreenshots()
+
     override fun addScreenshot(screenshot: ScreenshotModel) {
-        categoryList.find { model -> model.name == screenshot.category }?.let {
-            screenshotList.add(screenshot)
-            screenshotListData.value = screenshotList
-        } ?: run {
-            categoryList.add(CategoryModel(screenshot.category))
-            categoryListData.value = categoryList
-
-            screenshotList.add(screenshot)
-            screenshotListData.value = screenshotList
+        executor.submit {
+            database.screenshotDao().addScreenshot(screenshot)
         }
     }
 
-    object Holder {
-        val INSTANCE = InMemoryScreenshotRepository()
+    override fun getScreenshots(categoryId: String): LiveData<List<ScreenshotModel>> {
+        return database.screenshotDao().getScreenshots(categoryId)
     }
 
-    private val categoryList = mutableListOf<CategoryModel>()
-    private val categoryListData: MutableLiveData<List<CategoryModel>> = MutableLiveData()
-
-    private val screenshotList = mutableListOf<ScreenshotModel>()
-    private val screenshotListData: MutableLiveData<List<ScreenshotModel>> = MutableLiveData()
-
-    init {
-        categoryList.add(CategoryModel("Music"))
-        categoryList.add(CategoryModel("Shopping"))
-        categoryList.add(CategoryModel("Secret"))
-        for (i in 1..20) {
-            categoryList.add(CategoryModel("C$i"))
-        }
-        categoryListData.value = categoryList
-
-        for (i in 1..5) {
-            val screenshot = ScreenshotModel("music$i", "Music")
-            screenshotList.add(screenshot)
-        }
-
-        for (i in 1..3) {
-            val screenshot = ScreenshotModel("shopping$i", "Shopping")
-            screenshotList.add(screenshot)
-        }
-
-        for (i in 1..2) {
-            val screenshot = ScreenshotModel("secret$i", "Secret")
-            screenshotList.add(screenshot)
-        }
-        screenshotListData.value = screenshotList
+    override fun getScreenshots(): LiveData<List<ScreenshotModel>> {
+        return screenshotListData
     }
 
     override fun getCategories(): LiveData<List<CategoryModel>> {
@@ -77,11 +56,8 @@ class InMemoryScreenshotRepository : ScreenshotRepository() {
     }
 
     override fun addCategory(category: CategoryModel) {
-        categoryList.add(category)
-        categoryListData.value = categoryList
-    }
-
-    override fun getScreenshots(): LiveData<List<ScreenshotModel>> {
-        return screenshotListData
+        executor.submit {
+            database.categoryDao().addCategory(category)
+        }
     }
 }

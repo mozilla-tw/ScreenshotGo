@@ -1,9 +1,3 @@
-/*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-
 /* -*- Mode: Java; c-basic-offset: 4; tab-width: 4; indent-tabs-mode: nil; -*-
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -17,15 +11,16 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
-import android.database.ContentObserver
-import android.net.Uri
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
-import android.provider.MediaStore
+import android.os.Looper
 import android.support.v4.app.NotificationCompat
 import org.mozilla.scryer.capture.ChooseCollectionActivity
 import org.mozilla.scryer.capture.ScreenCaptureListener
 import org.mozilla.scryer.capture.ScreenCaptureManager
+import org.mozilla.scryer.filemonitor.FileMonitor
+import org.mozilla.scryer.filemonitor.MediaProviderDelegate
 import org.mozilla.scryer.overlay.OverlayPermission
 import org.mozilla.scryer.overlay.ScreenshotButtonController
 
@@ -91,40 +86,12 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     private fun initFileMonitor() {
-        val context = applicationContext
-        val contentResolver = context.contentResolver
-        val contentObserver = object : ContentObserver(null) {
-            override fun onChange(selfChange: Boolean, uri: Uri) {
-                if (!uri.toString().contains(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
-                    return
-                }
-
-                val cursor = contentResolver.query(uri,
-                        arrayOf(MediaStore.Images.Media.DISPLAY_NAME,
-                                MediaStore.Images.Media.DATA,
-                                MediaStore.Images.Media.DATE_ADDED),
-                        null,
-                        null,
-                        MediaStore.Images.Media.DATE_ADDED + " DESC")
-
-                cursor.use {
-                    if (cursor.moveToFirst()) {
-                        val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
-                        val dateAdded = cursor!!.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED))
-                        val currentTime = System.currentTimeMillis() / 1000
-                        if (path.contains("screenshot", true) &&
-                                Math.abs(currentTime - dateAdded) <= 10) {
-                            startChooseCollectionActivity(path)
-                        }
-                    }
-                }
-
-                super.onChange(selfChange, uri)
+        val monitor = FileMonitor(MediaProviderDelegate(this))
+        monitor.startMonitor(Handler(Looper.getMainLooper()), object : FileMonitor.ChangeListener {
+            override fun onChangeFinish(path: String) {
+                startChooseCollectionActivity(path)
             }
-        }
-        contentResolver.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                true,
-                contentObserver)
+        })
     }
 
     override fun onScreenshotButtonClicked() {

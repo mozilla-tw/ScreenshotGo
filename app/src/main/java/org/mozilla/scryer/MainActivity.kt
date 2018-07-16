@@ -18,7 +18,6 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import org.mozilla.scryer.overlay.OverlayPermission
-import org.mozilla.scryer.overlay.ScreenshotMenuService
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -56,8 +55,8 @@ class MainActivity : AppCompatActivity() {
             REQUEST_CODE_OVERLAY_PERMISSION -> overlayRequested = true
             REQUEST_CODE_WRITE_EXTERNAL_PERMISSION -> {}
             REQUEST_CODE_SCREEN_CAPTURE_PERMISSION -> {
-                val screenshotMenuIntent = Intent(applicationContext, ScreenshotMenuService::class.java)
-                screenshotMenuIntent.putExtra(ScreenshotMenuService.SCREEN_CAPTURE_PERMISSION_RESULT_KEY, data)
+                val screenshotMenuIntent = Intent(applicationContext, ScryerService::class.java)
+                screenshotMenuIntent.putExtra(ScryerService.SCREEN_CAPTURE_PERMISSION_RESULT_KEY, data)
                 applicationContext.startService(screenshotMenuIntent)
             }
             else -> super.onActivityResult(requestCode, resultCode, data)

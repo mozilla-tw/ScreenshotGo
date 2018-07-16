@@ -49,11 +49,6 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
         val view = ImageView(context)
         view.setImageResource(R.mipmap.ic_launcher_round)
         view.scaleType = ImageView.ScaleType.CENTER_INSIDE
-//        view.setOnClickListener { _ -> clickListener?.onScreenshotButtonClicked() }
-//        view.setOnLongClickListener { _ ->
-//            clickListener?.onScreenshotButtonLongClicked()
-//            true
-//        }
         this.view = view
         return view
     }

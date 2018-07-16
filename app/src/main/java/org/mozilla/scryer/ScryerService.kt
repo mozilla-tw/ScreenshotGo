@@ -1,9 +1,15 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 /* -*- Mode: Java; c-basic-offset: 4; tab-width: 4; indent-tabs-mode: nil; -*-
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.scryer.overlay
+package org.mozilla.scryer
 
 import android.annotation.TargetApi
 import android.app.Notification
@@ -17,14 +23,14 @@ import android.os.Build
 import android.os.IBinder
 import android.provider.MediaStore
 import android.support.v4.app.NotificationCompat
-import android.util.Log
 import org.mozilla.scryer.capture.ChooseCollectionActivity
 import org.mozilla.scryer.capture.ScreenCaptureListener
 import org.mozilla.scryer.capture.ScreenCaptureManager
-import java.io.File
+import org.mozilla.scryer.overlay.OverlayPermission
+import org.mozilla.scryer.overlay.ScreenshotButtonController
 
 
-class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListener, ScreenCaptureListener {
+class ScryerService : Service(), ScreenshotButtonController.ClickListener, ScreenCaptureListener {
     companion object {
         // TODO: temp id
         private const val NOTIFICATION_ID_FOREGROUND = 9487
@@ -134,9 +140,9 @@ class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListene
         screenCaptureManager.captureScreen()
     }
 
-    override fun onScreenShotTaken(filePath: String) {
+    override fun onScreenShotTaken(path: String) {
         floatingButtonController.show()
-        startChooseCollectionActivity(filePath)
+        startChooseCollectionActivity(path)
     }
 
     private fun startChooseCollectionActivity(path: String) {

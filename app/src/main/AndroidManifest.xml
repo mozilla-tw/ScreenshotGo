@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".overlay.ScreenshotMenuService" />
+        <service android:name=".ScryerService" />
 
         <activity
             android:name=".capture.ChooseCollectionActivity"
@@ -30,7 +30,7 @@
             android:taskAffinity="org.mozilla.choose_collection"
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="adjustNothing" />
-        <activity android:name=".DetailPageActivity"></activity>
+        <activity android:name=".detailpage.DetailPageActivity"></activity>
     </application>
 
 </manifest>

@@ -203,17 +203,12 @@ class ChooseCollectionActivity : AppCompatActivity() {
 
             val holder = DataViewHolder(view)
             holder.itemView.setOnClickListener { _ ->
-                Log.d("roger_tag", "clicked")
                 holder.adapterPosition.takeIf { position ->
                     position != RecyclerView.NO_POSITION
 
                 }?.let { position: Int ->
-                    Log.d("roger_tag", "let")
                     collectionList?.let {
-                        Log.d("roger_tag", "let sucess")
                         itemClickListener.invoke(it[position - fixedItems.size])
-                    } ?: run {
-                        Log.d("roger_tag", "let failed")
                     }
                 }
             }

@@ -17,9 +17,11 @@ import android.os.Build
 import android.os.IBinder
 import android.provider.MediaStore
 import android.support.v4.app.NotificationCompat
+import android.util.Log
 import org.mozilla.scryer.capture.ChooseCollectionActivity
 import org.mozilla.scryer.capture.ScreenCaptureListener
 import org.mozilla.scryer.capture.ScreenCaptureManager
+import java.io.File
 
 
 class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListener, ScreenCaptureListener {
@@ -104,8 +106,8 @@ class ScreenshotMenuService : Service(), ScreenshotButtonController.ClickListene
                         val path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA))
                         val dateAdded = cursor!!.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED))
                         val currentTime = System.currentTimeMillis() / 1000
-
-                        if (Math.abs(currentTime - dateAdded) <= 10) {
+                        if (path.contains("screenshot", true) &&
+                                Math.abs(currentTime - dateAdded) <= 10) {
                             startChooseCollectionActivity(path)
                         }
                     }

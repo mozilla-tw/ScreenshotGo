@@ -5,9 +5,27 @@
 
 package org.mozilla.scryer.filemonitor
 
-import android.os.Handler
+import android.util.Log
 
-class FileMonitor(var delegate: FileMonitorDelegate): FileMonitorDelegate by delegate {
+class FileMonitor(private val delegate: FileMonitorDelegate): FileMonitorDelegate by delegate {
+    companion object {
+        private const val TAG = "FileMonitor"
+    }
+
+    override fun startMonitor(listener: ChangeListener) {
+        delegate.startMonitor(object : ChangeListener {
+            override fun onChangeStart(path: String) {
+                Log.d(TAG, "${delegate.javaClass.simpleName} onChangeStart, $path")
+                listener.onChangeStart(path)
+            }
+
+            override fun onChangeFinish(path: String) {
+                Log.d(TAG, "${delegate.javaClass.simpleName} onChangeFinish, $path")
+                listener.onChangeFinish(path)
+            }
+        })
+    }
+
     interface ChangeListener {
         fun onChangeStart(path: String) {}
         fun onChangeFinish(path: String) {}
@@ -15,5 +33,5 @@ class FileMonitor(var delegate: FileMonitorDelegate): FileMonitorDelegate by del
 }
 
 interface FileMonitorDelegate {
-    fun startMonitor(handler: Handler, listener: FileMonitor.ChangeListener)
+    fun startMonitor(listener: FileMonitor.ChangeListener)
 }

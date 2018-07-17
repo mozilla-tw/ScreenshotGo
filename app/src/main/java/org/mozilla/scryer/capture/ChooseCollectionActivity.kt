@@ -8,7 +8,6 @@ package org.mozilla.scryer.capture
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
@@ -22,14 +21,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
-import org.mozilla.scryer.repository.ScreenshotRepository
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import org.mozilla.scryer.viewmodel.ScreenshotViewModelFactory
 import java.io.File
@@ -43,73 +41,56 @@ class ChooseCollectionActivity : AppCompatActivity() {
         const val EXTRA_PATH = "path"
     }
 
-    private val adapter: ChooseCollectionAdapter by lazy {
-        ChooseCollectionAdapter(this, this::onItemClicked)
-    }
+    private val adapter = ChooseCollectionAdapter(this, this::onItemClicked)
 
     private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.recycler_view) }
-    private lateinit var screenshotViewModel: ScreenshotViewModel
+    private val screenshotViewModel: ScreenshotViewModel by lazy {
+        val factory = ScreenshotViewModelFactory(ScryerApplication.instance.screenshotRepository)
+        ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
+    }
+
+    private val filePath: String by lazy {
+        val path = intent.getStringExtra(EXTRA_PATH)
+        val file = File(path)
+        if (file.exists()) file.absolutePath else ""
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_collection)
 
-        val factory = ScreenshotViewModelFactory(getScreenshotRepository())
-        screenshotViewModel = ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
-        val data = screenshotViewModel.getCollections()
-        data.observe(this, Observer { collections ->
-            collections?.let {
-                adapter.collectionList = it
-                adapter.notifyDataSetChanged()
-            }
-        })
+        if (filePath.isEmpty()) {
+            finish()
+        }
+        Glide.with(this).load(File(filePath)).into(findViewById(R.id.image_view))
 
         initRecyclerView()
 
-        val path = intent.getStringExtra(EXTRA_PATH)
-        val file = File(path)
-        if (file.exists()) {
-            val bmp = BitmapFactory.decodeFile(file.absolutePath)
-            findViewById<ImageView>(R.id.image_view).setImageBitmap(bmp)
-        }
-        getImagePath()?.let {
-            val bmp = BitmapFactory.decodeFile(file.absolutePath)
-            findViewById<ImageView>(R.id.image_view).setImageBitmap(bmp)
-        } ?: finish()
-    }
-
-    private fun getImagePath(): String? {
-        val path = intent.getStringExtra(EXTRA_PATH)
-        val file = File(path)
-        if (file.exists()) {
-            return file.absolutePath
-        }
-        return null
-    }
-
-    private fun getScreenshotRepository(): ScreenshotRepository {
-        return ScryerApplication.instance.screenshotRepository
+        screenshotViewModel.getCollections()
+                .observe(this, Observer { collections ->
+                    collections?.let {
+                        adapter.collectionList = it
+                        adapter.notifyDataSetChanged()
+                    }
+                })
     }
 
     private fun initRecyclerView() {
         recyclerView.layoutManager = GridLayoutManager(this, GRID_SPAN_COUNT,
                 GridLayoutManager.VERTICAL,
                 false)
-        recyclerView.addItemDecoration(GridItemDecoration(dp2px(this, GRID_CELL_SPACE_DP), GRID_SPAN_COUNT))
-
+        recyclerView.addItemDecoration(GridItemDecoration(dp2px(this, GRID_CELL_SPACE_DP),
+                GRID_SPAN_COUNT))
         recyclerView.adapter = this.adapter
     }
 
     private fun onItemClicked(collection: CollectionModel) {
         Toast.makeText(this, "save to ${collection.name}", Toast.LENGTH_SHORT).show()
 
-        val path = getImagePath()
-        path?.let {
-            val screenshot = ScreenshotModel(UUID.randomUUID().toString(), it,
-                    System.currentTimeMillis(),
-                    collection.id)
-            getScreenshotRepository().addScreenshot(screenshot)
-        }
+        val screenshot = ScreenshotModel(UUID.randomUUID().toString(), filePath,
+                System.currentTimeMillis(),
+                collection.id)
+        screenshotViewModel.addScreenshot(screenshot)
 
         finish()
     }
@@ -121,18 +102,18 @@ class ChooseCollectionActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
                 .setView(dialogView)
                 .setPositiveButton("DONE") { _, _ ->
-                    val model = CollectionModel(UUID.randomUUID().toString(), editText.text.toString(), System.currentTimeMillis())
+                    val model = CollectionModel(UUID.randomUUID().toString(),
+                            editText.text.toString(),
+                            System.currentTimeMillis())
                     screenshotViewModel.addCollection(model)
-                    //recyclerView.adapter.notifyItemInserted(recyclerView.adapter.itemCount - 1)
-                }
-                .create()
+                }.create()
         dialog.show()
         editText.requestFocus()
         dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
     }
 
     private class ChooseCollectionAdapter(private var activity: ChooseCollectionActivity,
-                                  private var itemClickListener: (CollectionModel) -> Unit)
+                                          private var itemClickListener: (CollectionModel) -> Unit)
         : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         companion object {
             private const val TYPE_FIXED_ITEM = 0

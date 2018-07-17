@@ -37,9 +37,15 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     private val floatingButtonController: ScreenshotButtonController by lazy {
         ScreenshotButtonController(applicationContext)
     }
+
     private lateinit var screenCapturePermissionIntent: Intent
     private val screenCaptureManager: ScreenCaptureManager by lazy {
         ScreenCaptureManager(applicationContext, screenCapturePermissionIntent, this)
+    }
+
+    private val fileMonitor: FileMonitor by lazy {
+        //FileMonitor(FileObserverDelegate(Handler(Looper.getMainLooper())))
+        FileMonitor(MediaProviderDelegate(this, Handler(Looper.getMainLooper())))
     }
 
     override fun onCreate() {
@@ -65,7 +71,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
         if (!isRunning) {
             isRunning = true
             initFloatingButton()
-            initFileMonitor()
+            initFileMonitors()
             screenCapturePermissionIntent = intent.extras.getParcelable(SCREEN_CAPTURE_PERMISSION_RESULT_KEY)
         }
 
@@ -85,9 +91,8 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
         floatingButtonController.init()
     }
 
-    private fun initFileMonitor() {
-        val monitor = FileMonitor(MediaProviderDelegate(this))
-        monitor.startMonitor(Handler(Looper.getMainLooper()), object : FileMonitor.ChangeListener {
+    private fun initFileMonitors() {
+        fileMonitor.startMonitor(object : FileMonitor.ChangeListener {
             override fun onChangeFinish(path: String) {
                 startChooseCollectionActivity(path)
             }

@@ -29,6 +29,10 @@ class ScreenshotViewModel(private val repository: ScreenshotRepository) : ViewMo
     fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>> {
         return repository.getScreenshots(collectionId)
     }
+
+    fun addScreenshot(screenshot: ScreenshotModel) {
+        repository.addScreenshot(screenshot)
+    }
 }
 
 class ScreenshotViewModelFactory(private val repository: ScreenshotRepository)

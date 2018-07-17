@@ -11,9 +11,9 @@ import android.net.Uri
 import android.os.Handler
 import android.provider.MediaStore
 
-class MediaProviderDelegate(private val context: Context) : FileMonitorDelegate {
+class MediaProviderDelegate(private val context: Context, private val handler: Handler?) : FileMonitorDelegate {
 
-    override fun startMonitor(handler: Handler, listener: FileMonitor.ChangeListener) {
+    override fun startMonitor(listener: FileMonitor.ChangeListener) {
         val observer: ContentObserver = object : ContentObserver(handler) {
             override fun onChange(selfChange: Boolean, uri: Uri?) {
                 if (!uri.toString().contains(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {

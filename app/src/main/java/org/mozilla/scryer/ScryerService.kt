@@ -6,10 +6,7 @@
 package org.mozilla.scryer
 
 import android.annotation.TargetApi
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
+import android.app.*
 import android.content.Intent
 import android.os.Build
 import android.os.Handler
@@ -29,6 +26,11 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     companion object {
         // TODO: temp id
         private const val NOTIFICATION_ID_FOREGROUND = 9487
+        private const val ACTION_CAPTURE_SCREEN = "action_capture"
+        private const val ACTION_STOP = "action_stop"
+
+        private const val DELAY_CAPTURE_NOTIFICATION = 1000L
+        private const val DELAY_CAPTURE_FAB = 0L
 
         const val SCREEN_CAPTURE_PERMISSION_RESULT_KEY = "SCREEN_CAPTURE_PERMISSION_RESULT"
     }
@@ -47,6 +49,8 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
         //FileMonitor(FileObserverDelegate(Handler(Looper.getMainLooper())))
         FileMonitor(MediaProviderDelegate(this, Handler(Looper.getMainLooper())))
     }
+
+    private val handler = Handler(Looper.getMainLooper())
 
     override fun onCreate() {
         super.onCreate()
@@ -73,6 +77,13 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
             initFloatingButton()
             initFileMonitors()
             screenCapturePermissionIntent = intent.extras.getParcelable(SCREEN_CAPTURE_PERMISSION_RESULT_KEY)
+
+        } else when (intent.action) {
+            ACTION_CAPTURE_SCREEN -> postTakeScreenshot(DELAY_CAPTURE_NOTIFICATION)
+            ACTION_STOP -> {
+                stopSelf()
+                sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+            }
         }
 
         return START_STICKY
@@ -100,12 +111,18 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     override fun onScreenshotButtonClicked() {
-        floatingButtonController.hide()
-        takeScreenshot()
+        postTakeScreenshot(DELAY_CAPTURE_FAB)
     }
 
     override fun onScreenshotButtonLongClicked() {
         stopSelf()
+    }
+
+    private fun postTakeScreenshot(delayed: Long) {
+        handler.postDelayed({
+            floatingButtonController.hide()
+            takeScreenshot()
+        }, delayed)
     }
 
     private fun takeScreenshot() {
@@ -135,11 +152,27 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
             ""
         }
 
+        val tapIntent = Intent(ACTION_CAPTURE_SCREEN)
+        tapIntent.setClass(this, ScryerService::class.java)
+        val tapPendingIntent = PendingIntent.getService(this, 0, tapIntent, 0)
+
+        val stopIntent = Intent(ACTION_STOP)
+        stopIntent.setClass(this, ScryerService::class.java)
+        val stopPendingIntent = PendingIntent.getService(this, 0, stopIntent, 0)
+        val stopAction = NotificationCompat.Action(android.R.drawable.ic_menu_close_clear_cancel,
+                "Stop",
+                stopPendingIntent)
+
+        val style = NotificationCompat.BigTextStyle()
+        style.bigText("Tap to take screenshot")
         return NotificationCompat.Builder(this, channelId)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
                 .setContentTitle("Hello Screenshot+")
-                .setContentText("Screenshot+ is running")
+                .setContentText("Tap to take screenshot")
+                .setContentIntent(tapPendingIntent)
+                .setStyle(style)
+                .addAction(stopAction)
                 .build()
     }
 

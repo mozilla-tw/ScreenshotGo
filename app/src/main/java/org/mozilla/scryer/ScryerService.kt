@@ -21,13 +21,15 @@ import org.mozilla.scryer.filemonitor.FileMonitor
 import org.mozilla.scryer.filemonitor.MediaProviderDelegate
 import org.mozilla.scryer.overlay.OverlayPermission
 import org.mozilla.scryer.overlay.ScreenshotButtonController
+import org.mozilla.scryer.persistence.ScreenshotModel
+import java.util.*
 
 
 class ScryerService : Service(), ScreenshotButtonController.ClickListener, ScreenCaptureListener {
     companion object {
         // TODO: temp id
         private const val ID_FOREGROUND = 9487
-        private const val ID_SCREENSHOT_DETECTED = 9487
+        private const val ID_SCREENSHOT_DETECTED = 9488
 
         private const val ACTION_CAPTURE_SCREEN = "action_capture"
         private const val ACTION_STOP = "action_stop"
@@ -110,6 +112,10 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
         fileMonitor.startMonitor(object : FileMonitor.ChangeListener {
             override fun onChangeFinish(path: String) {
                 postNotification(getScreenshotDetectedNotification())
+                val model = ScreenshotModel(UUID.randomUUID().toString(), path,
+                        System.currentTimeMillis(),
+                        "")
+                ScryerApplication.instance.screenshotRepository.addScreenshot(model)
             }
         })
     }

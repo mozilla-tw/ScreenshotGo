@@ -33,6 +33,10 @@ class ScreenshotViewModel(private val repository: ScreenshotRepository) : ViewMo
     fun addScreenshot(screenshot: ScreenshotModel) {
         repository.addScreenshot(screenshot)
     }
+
+    fun updateScreenshot(screenshot: ScreenshotModel) {
+        repository.updateScreenshot(screenshot)
+    }
 }
 
 class ScreenshotViewModelFactory(private val repository: ScreenshotRepository)

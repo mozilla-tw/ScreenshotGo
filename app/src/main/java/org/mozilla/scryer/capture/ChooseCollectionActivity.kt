@@ -8,6 +8,7 @@ package org.mozilla.scryer.capture
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
@@ -49,20 +50,15 @@ class ChooseCollectionActivity : AppCompatActivity() {
         ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
     }
 
-    private val filePath: String by lazy {
-        val path = intent.getStringExtra(EXTRA_PATH)
-        val file = File(path)
-        if (file.exists()) file.absolutePath else ""
-    }
+    private lateinit var screenshotModel: ScreenshotModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_collection)
 
-        if (filePath.isEmpty()) {
-            finish()
-        }
-        Glide.with(this).load(File(filePath)).into(findViewById(R.id.image_view))
+        getValidModel(intent)?.let {
+            onNewModelAvailable(it)
+        } ?: finish()
 
         initRecyclerView()
 
@@ -73,6 +69,38 @@ class ChooseCollectionActivity : AppCompatActivity() {
                         adapter.notifyDataSetChanged()
                     }
                 })
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        getValidModel(intent)?.let {
+            onNewModelAvailable(it)
+        } ?: finish()
+    }
+
+    private fun onNewModelAvailable(model: ScreenshotModel) {
+        screenshotModel = model
+        Glide.with(this).load(File(screenshotModel.path)).into(findViewById(R.id.image_view))
+        screenshotViewModel.addScreenshot(screenshotModel)
+    }
+
+    private fun getValidModel(intent: Intent?): ScreenshotModel? {
+        return intent?.let {
+            val path = getFilePath(it)
+            if (path.isEmpty()) {
+                return null
+            }
+
+            return ScreenshotModel(UUID.randomUUID().toString(), path,
+                    System.currentTimeMillis(),
+                    "")
+        }
+    }
+
+    private fun getFilePath(intent: Intent): String {
+        val path = intent.getStringExtra(EXTRA_PATH)
+        val file = File(path)
+        return if (file.exists()) file.absolutePath else ""
     }
 
     private fun initRecyclerView() {
@@ -86,16 +114,12 @@ class ChooseCollectionActivity : AppCompatActivity() {
 
     private fun onItemClicked(collection: CollectionModel) {
         Toast.makeText(this, "save to ${collection.name}", Toast.LENGTH_SHORT).show()
-
-        val screenshot = ScreenshotModel(UUID.randomUUID().toString(), filePath,
-                System.currentTimeMillis(),
-                collection.id)
-        screenshotViewModel.addScreenshot(screenshot)
-
+        screenshotModel.collectionId = collection.id
+        screenshotViewModel.updateScreenshot(screenshotModel)
         finish()
     }
 
-    fun onNewCollectionClicked() {
+    private fun onNewCollectionClicked() {
         val dialogView = View.inflate(this, R.layout.dialog_add_collection, null)
         val editText = dialogView.findViewById<EditText>(R.id.edit_text)
 
@@ -207,10 +231,10 @@ class ChooseCollectionActivity : AppCompatActivity() {
                 }
             }
         }
-    }
 
-    class DataViewHolder(view: View) : RecyclerView.ViewHolder(view)
-    class FixedViewHolder(view: View) : RecyclerView.ViewHolder(view)
+        class DataViewHolder(view: View) : RecyclerView.ViewHolder(view)
+        class FixedViewHolder(view: View) : RecyclerView.ViewHolder(view)
+    }
 }
 
 class GridItemDecoration(private val space: Int, private val span: Int) : RecyclerView.ItemDecoration() {

@@ -9,6 +9,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.Query
+import android.arch.persistence.room.Update
 
 @Dao
 interface ScreenshotDao {
@@ -18,8 +19,11 @@ interface ScreenshotDao {
 
 
     @Query("SELECT * FROM screenshot WHERE collection_id = :collectionId")
-    fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
+    fun getScreenshots(collectionId: String?): LiveData<List<ScreenshotModel>>
 
     @Insert
     fun addScreenshot(screenshot: ScreenshotModel)
+
+    @Update
+    fun updateScreenshot(screenshot: ScreenshotModel)
 }

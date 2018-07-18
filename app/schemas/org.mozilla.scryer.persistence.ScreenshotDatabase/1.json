@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "3bbe0d8ab4fb8d9d26358ac206927847",
+    "identityHash": "a191a95545b008019b2ad3979d5d72a9",
     "entities": [
       {
         "tableName": "collection",
@@ -38,7 +38,7 @@
       },
       {
         "tableName": "screenshot",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `path` TEXT NOT NULL, `date` INTEGER NOT NULL, `collection_id` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`collection_id`) REFERENCES `collection`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `path` TEXT NOT NULL, `date` INTEGER NOT NULL, `collection_id` TEXT, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -62,7 +62,7 @@
             "fieldPath": "collectionId",
             "columnName": "collection_id",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -81,24 +81,12 @@
             "createSql": "CREATE  INDEX `index_screenshot_collection_id` ON `${TABLE_NAME}` (`collection_id`)"
           }
         ],
-        "foreignKeys": [
-          {
-            "table": "collection",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "collection_id"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "foreignKeys": []
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"3bbe0d8ab4fb8d9d26358ac206927847\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"a191a95545b008019b2ad3979d5d72a9\")"
     ]
   }
 }

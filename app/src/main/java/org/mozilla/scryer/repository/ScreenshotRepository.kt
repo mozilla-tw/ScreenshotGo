@@ -35,6 +35,7 @@ abstract class ScreenshotRepository {
     abstract fun getCollections(): LiveData<List<CollectionModel>>
 
     abstract fun addScreenshot(screenshot: ScreenshotModel)
+    abstract fun updateScreenshot(screenshot: ScreenshotModel)
     abstract fun getScreenshots(): LiveData<List<ScreenshotModel>>
     abstract fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
     abstract fun setupDefaultContent()
@@ -49,6 +50,12 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
     override fun addScreenshot(screenshot: ScreenshotModel) {
         executor.submit {
             database.screenshotDao().addScreenshot(screenshot)
+        }
+    }
+
+    override fun updateScreenshot(screenshot: ScreenshotModel) {
+        executor.submit {
+            database.screenshotDao().updateScreenshot(screenshot)
         }
     }
 

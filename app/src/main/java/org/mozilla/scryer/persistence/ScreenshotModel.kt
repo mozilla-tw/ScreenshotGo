@@ -8,13 +8,13 @@ package org.mozilla.scryer.persistence
 import android.arch.persistence.room.*
 
 @Entity(tableName = "screenshot",
-        foreignKeys = [(ForeignKey(
-                entity = CollectionModel::class,
-                parentColumns = ["id"],
-                childColumns = ["collection_id"]))],
+//        foreignKeys = [(ForeignKey(
+//                entity = CollectionModel::class,
+//                parentColumns = ["id"],
+//                childColumns = ["collection_id"]))],
         indices = [(Index("collection_id"))])
 data class ScreenshotModel(
         @PrimaryKey(autoGenerate = false) var id: String,
         @ColumnInfo(name = "path") var path: String,
         @ColumnInfo(name = "date") var date: Long,
-        @ColumnInfo(name = "collection_id") var collectionId: String)
+        @ColumnInfo(name = "collection_id") var collectionId: String?)

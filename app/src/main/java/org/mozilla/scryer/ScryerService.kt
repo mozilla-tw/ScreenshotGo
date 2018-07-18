@@ -7,6 +7,7 @@ package org.mozilla.scryer
 
 import android.annotation.TargetApi
 import android.app.*
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Handler
@@ -25,9 +26,12 @@ import org.mozilla.scryer.overlay.ScreenshotButtonController
 class ScryerService : Service(), ScreenshotButtonController.ClickListener, ScreenCaptureListener {
     companion object {
         // TODO: temp id
-        private const val NOTIFICATION_ID_FOREGROUND = 9487
+        private const val ID_FOREGROUND = 9487
+        private const val ID_SCREENSHOT_DETECTED = 9487
+
         private const val ACTION_CAPTURE_SCREEN = "action_capture"
         private const val ACTION_STOP = "action_stop"
+        private const val ACTION_LAUNCH_APP = "action_launch_app"
 
         private const val DELAY_CAPTURE_NOTIFICATION = 1000L
         private const val DELAY_CAPTURE_FAB = 0L
@@ -105,7 +109,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     private fun initFileMonitors() {
         fileMonitor.startMonitor(object : FileMonitor.ChangeListener {
             override fun onChangeFinish(path: String) {
-                startChooseCollectionActivity(path)
+                postNotification(getScreenshotDetectedNotification())
             }
         })
     }
@@ -142,12 +146,12 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     private fun getForegroundNotificationId(): Int {
-        return NOTIFICATION_ID_FOREGROUND
+        return ID_FOREGROUND
     }
 
     private fun getForegroundNotification(): Notification? {
         val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel()
+            createForegroundChannel()
         } else {
             ""
         }
@@ -176,12 +180,49 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
                 .build()
     }
 
+    private fun getScreenshotDetectedNotification(): Notification {
+        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createMessageChannel()
+        } else {
+            ""
+        }
+
+        val tapIntent = Intent(ACTION_LAUNCH_APP)
+        tapIntent.setClass(this, MainActivity::class.java)
+        val tapPendingIntent = PendingIntent.getActivity(this, 0, tapIntent, 0)
+
+        return NotificationCompat.Builder(this, channelId)
+                .setCategory(Notification.CATEGORY_PROMO)
+                .setSmallIcon(android.R.drawable.ic_menu_upload)
+                .setContentTitle("Smart Screenshot")
+                .setContentText("Click to collect captured screens")
+                .setContentIntent(tapPendingIntent)
+                .build()
+    }
+
+    private fun postNotification(notification: Notification) {
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(ID_SCREENSHOT_DETECTED, notification)
+    }
+
     @TargetApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel(): String {
-        val channelId = "scryer_ongoing_id"
-        val channelName = "Screenshot+ Service"
+    private fun createForegroundChannel(): String {
+        val channelId = "foreground_channel"
+        val channelName = "ScreenshotPlus Service"
         val channel = NotificationChannel(channelId, channelName,
                 NotificationManager.IMPORTANCE_NONE)
+
+        val manager = applicationContext.getSystemService(NotificationManager::class.java)
+        manager?.createNotificationChannel(channel)
+        return channelId
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private fun createMessageChannel(): String {
+        val channelId = "message_channel"
+        val channelName = "ScreenshotPlus Message"
+        val channel = NotificationChannel(channelId, channelName,
+                NotificationManager.IMPORTANCE_HIGH)
 
         val manager = applicationContext.getSystemService(NotificationManager::class.java)
         manager?.createNotificationChannel(channel)

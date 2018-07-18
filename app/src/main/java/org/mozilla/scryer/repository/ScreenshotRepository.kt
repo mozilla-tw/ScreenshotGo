@@ -13,10 +13,8 @@ import android.content.Context
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotDatabase
 import org.mozilla.scryer.persistence.ScreenshotModel
-import java.util.*
-import java.util.concurrent.Executors
 
-abstract class ScreenshotRepository {
+interface ScreenshotRepository {
     companion object Factory {
         fun createRepository(context: Context, onCreated: () -> Unit): ScreenshotRepository {
             val callback = object : RoomDatabase.Callback() {
@@ -28,61 +26,21 @@ abstract class ScreenshotRepository {
                     ScreenshotDatabase::class.java, "screenshot-db")
                     .addCallback(callback)
                     .build())
+
+
         }
     }
 
-    abstract fun addCollection(collection: CollectionModel)
-    abstract fun getCollections(): LiveData<List<CollectionModel>>
+    fun addCollection(collection: CollectionModel)
+    fun getCollections(): LiveData<List<CollectionModel>>
+    /** collection_id to model */
+    fun getCollectionCovers(): LiveData<Map<String, ScreenshotModel>>
 
-    abstract fun addScreenshot(screenshot: ScreenshotModel)
-    abstract fun updateScreenshot(screenshot: ScreenshotModel)
-    abstract fun getScreenshots(): LiveData<List<ScreenshotModel>>
-    abstract fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
-    abstract fun setupDefaultContent()
-}
-
-class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : ScreenshotRepository() {
-    private val executor = Executors.newSingleThreadExecutor()
-
-    private var collectionListData = database.collectionDao().getCollections()
-    private val screenshotListData = database.screenshotDao().getScreenshots()
-
-    override fun addScreenshot(screenshot: ScreenshotModel) {
-        executor.submit {
-            database.screenshotDao().addScreenshot(screenshot)
-        }
-    }
-
-    override fun updateScreenshot(screenshot: ScreenshotModel) {
-        executor.submit {
-            database.screenshotDao().updateScreenshot(screenshot)
-        }
-    }
-
-    override fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>> {
-        return database.screenshotDao().getScreenshots(collectionId)
-    }
-
-    override fun getScreenshots(): LiveData<List<ScreenshotModel>> {
-        return screenshotListData
-    }
-
-    override fun getCollections(): LiveData<List<CollectionModel>> {
-        return collectionListData
-    }
-
-    override fun addCollection(collection: CollectionModel) {
-        executor.submit {
-            database.collectionDao().addCollection(collection)
-        }
-    }
-
-    override fun setupDefaultContent() {
-        val music = CollectionModel(UUID.randomUUID().toString(), "Music", System.currentTimeMillis())
-        val shopping = CollectionModel(UUID.randomUUID().toString(), "Shopping", System.currentTimeMillis())
-        val secret = CollectionModel(UUID.randomUUID().toString(), "Secret", System.currentTimeMillis())
-        addCollection(music)
-        addCollection(shopping)
-        addCollection(secret)
+    fun addScreenshot(screenshot: ScreenshotModel)
+    fun updateScreenshot(screenshot: ScreenshotModel)
+    fun getScreenshots(): LiveData<List<ScreenshotModel>>
+    fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
+    fun setupDefaultContent() {
+        TODO("not implemented")
     }
 }

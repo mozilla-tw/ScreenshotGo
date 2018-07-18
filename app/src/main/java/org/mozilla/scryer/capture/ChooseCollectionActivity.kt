@@ -16,6 +16,8 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -64,7 +66,9 @@ class ChooseCollectionActivity : AppCompatActivity() {
 
         screenshotViewModel.getCollections()
                 .observe(this, Observer { collections ->
-                    collections?.let {
+                    collections?.filter {
+                        it.id != CollectionModel.CATEGORY_NONE
+                    }?.let {
                         adapter.collectionList = it
                         adapter.notifyDataSetChanged()
                     }
@@ -126,11 +130,21 @@ class ChooseCollectionActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
                 .setView(dialogView)
                 .setPositiveButton("DONE") { _, _ ->
-                    val model = CollectionModel(UUID.randomUUID().toString(),
-                            editText.text.toString(),
-                            System.currentTimeMillis())
+                    val model = CollectionModel(editText.text.toString(), System.currentTimeMillis())
                     screenshotViewModel.addCollection(model)
                 }.create()
+
+        dialog.setOnShowListener { dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false }
+        editText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !s.isNullOrEmpty()
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
         dialog.show()
         editText.requestFocus()
         dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)

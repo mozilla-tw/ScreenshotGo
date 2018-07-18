@@ -138,6 +138,10 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return item.path.substring(item.path.lastIndexOf(File.separator) + 1)
     }
 
+    fun getItem(position: Int): ScreenshotModel {
+        return screenshotList[position]
+    }
+
     open fun setScreenshotList(list: List<ScreenshotModel>) {
         screenshotList = list
     }

@@ -17,4 +17,4 @@ data class ScreenshotModel(
         @PrimaryKey(autoGenerate = false) var id: String,
         @ColumnInfo(name = "path") var path: String,
         @ColumnInfo(name = "date") var date: Long,
-        @ColumnInfo(name = "collection_id") var collectionId: String?)
+        @ColumnInfo(name = "collection_id") var collectionId: String)

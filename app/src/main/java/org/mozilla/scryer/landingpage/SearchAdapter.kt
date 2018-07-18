@@ -12,7 +12,9 @@ import android.text.Spanned
 import android.text.style.BackgroundColorSpan
 import android.widget.Filter
 import android.widget.Filterable
+import com.bumptech.glide.Glide
 import org.mozilla.scryer.persistence.ScreenshotModel
+import java.io.File
 
 class SearchAdapter : ScreenshotAdapter(), Filterable {
     private lateinit var originalList: List<ScreenshotModel>
@@ -24,14 +26,23 @@ class SearchAdapter : ScreenshotAdapter(), Filterable {
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val titleView = (holder as ScreenshotItemHolder).title
+        val titleView = (holder as? ScreenshotItemHolder)?.title
         titleView?.apply {
             val name = getItemFileName(position)
             val spannable = SpannableString(name)
             val start = name.indexOf(searchTarget)
-            spannable.setSpan(BackgroundColorSpan(Color.RED), start, start + searchTarget.length,
-                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            if (start >= 0) {
+                spannable.setSpan(BackgroundColorSpan(Color.RED), start, start + searchTarget.length,
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
+            }
             titleView.text = spannable
+        }
+
+        val imageView = (holder as? ScreenshotItemHolder)?.image
+        imageView?.let {
+            Glide.with(holder.itemView.context)
+                    .load(File(getItem(position).path))
+                    .into(it)
         }
     }
 
@@ -41,7 +52,8 @@ class SearchAdapter : ScreenshotAdapter(), Filterable {
                 val newList = mutableListOf<ScreenshotModel>()
                 constraint?.takeIf { it.isNotEmpty() }?.let {
                     for (screenshot in originalList) {
-                        if (screenshot.path.toLowerCase().contains(constraint.toString().toLowerCase())) {
+                        val name = screenshot.path.substring(screenshot.path.lastIndexOf(File.separator) + 1)
+                        if (name.toLowerCase().contains(constraint.toString().toLowerCase())) {
                             newList.add(screenshot)
                         }
                     }

@@ -5,39 +5,12 @@
 
 package org.mozilla.scryer.viewmodel
 
-import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
-import org.mozilla.scryer.persistence.CollectionModel
-import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.repository.ScreenshotRepository
 
-class ScreenshotViewModel(private val repository: ScreenshotRepository) : ViewModel() {
-
-    fun getCollections(): LiveData<List<CollectionModel>> {
-        return repository.getCollections()
-    }
-
-    fun addCollection(collection: CollectionModel) {
-        repository.addCollection(collection)
-    }
-
-    fun getScreenshots(): LiveData<List<ScreenshotModel>> {
-        return repository.getScreenshots()
-    }
-
-    fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>> {
-        return repository.getScreenshots(collectionId)
-    }
-
-    fun addScreenshot(screenshot: ScreenshotModel) {
-        repository.addScreenshot(screenshot)
-    }
-
-    fun updateScreenshot(screenshot: ScreenshotModel) {
-        repository.updateScreenshot(screenshot)
-    }
-}
+class ScreenshotViewModel(private val repository: ScreenshotRepository) : ViewModel(),
+        ScreenshotRepository by repository
 
 class ScreenshotViewModelFactory(private val repository: ScreenshotRepository)
     : ViewModelProvider.NewInstanceFactory() {

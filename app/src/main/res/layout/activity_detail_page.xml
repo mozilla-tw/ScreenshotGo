@@ -20,4 +20,12 @@
         android:transitionName="shared_in"
         android:scaleType="centerInside"/>
 
+    <org.mozilla.scryer.detailpage.GraphicOverlay
+        android:id="@+id/graphic_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true" />
+
 </android.support.constraint.ConstraintLayout>

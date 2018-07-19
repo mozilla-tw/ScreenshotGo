@@ -53,6 +53,9 @@ dependencies {
     kapt "android.arch.persistence.room:compiler:1.1.1"
 
     implementation "com.github.bumptech.glide:glide:4.7.1"
+
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.firebase:firebase-ml-vision:16.0.0'
 }
 repositories {
     mavenCentral()
@@ -64,4 +67,5 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     }
 }
 
+apply plugin: 'com.google.gms.google-services'
 apply plugin: 'kotlin-android-extensions'

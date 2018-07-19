@@ -19,8 +19,10 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.view.*
+import androidx.navigation.Navigation
 import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
+import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.getSupportActionBar
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
@@ -33,6 +35,7 @@ import org.mozilla.scryer.viewmodel.ScreenshotViewModelFactory
 class MainFragment : Fragment() {
     companion object {
         const val COLLECTION_LIST_COLUMN_COUNT = 2
+        const val MAX_QUICK_ACCESS_ITEM_COUNT = 5
     }
 
     private lateinit var quickAccessListView: RecyclerView
@@ -128,6 +131,16 @@ class MainFragment : Fragment() {
         val manager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         quickAccessListView.layoutManager = manager
         quickAccessListView.adapter = quickAccessAdapter
+        quickAccessAdapter.clickListener = object : QuickAccessAdapter.ItemClickListener {
+            override fun onItemClick(screenshotModel: ScreenshotModel, holder: ScreenshotItemHolder) {
+                DetailPageActivity.showDetailPage(context, screenshotModel.path, holder.image)
+            }
+
+            override fun onMoreClick(holder: ScreenshotItemHolder) {
+                Navigation.findNavController(holder.itemView).navigate(R.id.action_navigate_to_collection, Bundle())
+            }
+        }
+
         val space = 8f.dpToPx(context.resources.displayMetrics)
         quickAccessListView.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
@@ -142,7 +155,7 @@ class MainFragment : Fragment() {
         viewModel.getScreenshots().observe(this, Observer { screenshots ->
             screenshots?.let { newList ->
                 val finalList = newList.sortedByDescending { it.date }
-                        .subList(0, Math.min(newList.size, 5))
+                        .subList(0, Math.min(newList.size, MAX_QUICK_ACCESS_ITEM_COUNT))
                 updateQuickAccessListView(finalList)
             }
         })

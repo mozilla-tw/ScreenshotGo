@@ -5,18 +5,26 @@
 
 package org.mozilla.scryer.landingpage
 
+import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
-import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.R
 import org.mozilla.scryer.persistence.ScreenshotModel
 import java.io.File
 
 class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
+    companion object {
+        const val TYPE_ITEM = 0
+        const val TYPE_MORE = 1
+    }
+
     var list: List<ScreenshotModel> = emptyList()
+    var clickListener: ItemClickListener? = null
+
+    private val maxItemsToDisplay = MainFragment.MAX_QUICK_ACCESS_ITEM_COUNT
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScreenshotItemHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
@@ -34,17 +42,36 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
                 position != RecyclerView.NO_POSITION
 
             }?.let { position: Int ->
-                DetailPageActivity.showDetailPage(parent.context, list[position].path, holder.image)
+                if (position >= maxItemsToDisplay) {
+                    clickListener?.onMoreClick(holder)
+                } else {
+                    clickListener?.onItemClick(list[position], holder)
+                }
             }
         }
         return holder
     }
 
     override fun getItemCount(): Int {
-        return list.size
+        return list.size + (if (hasMoreItem()) 1 else 0)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        if (hasMoreItem() && position >= maxItemsToDisplay) {
+            return TYPE_MORE
+        }
+        return TYPE_ITEM
     }
 
     override fun onBindViewHolder(holder: ScreenshotItemHolder, position: Int) {
+        val viewType = getItemViewType(position)
+        when (viewType) {
+            TYPE_ITEM -> bindItemHolder(holder, position)
+            TYPE_MORE -> bindMoreHolder(holder)
+        }
+    }
+
+    private fun bindItemHolder(holder: ScreenshotItemHolder, position: Int) {
         val path = list[position].path
         val fileName = path.substring(path.lastIndexOf(File.separator) + 1)
         holder.title?.text = fileName
@@ -54,10 +81,23 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun bindMoreHolder(holder: ScreenshotItemHolder) {
+        holder.title?.text = "view more"
+        holder.image?.setImageResource(android.R.drawable.ic_dialog_info)
+    }
+
     override fun onViewRecycled(holder: ScreenshotItemHolder) {
         super.onViewRecycled(holder)
         holder.image?.let {
             Glide.with(holder.itemView.context).clear(it)
         }
+    }
+
+    private fun hasMoreItem() = list.size >= maxItemsToDisplay
+
+    interface ItemClickListener {
+        fun onItemClick(screenshotModel: ScreenshotModel, holder: ScreenshotItemHolder)
+        fun onMoreClick(holder: ScreenshotItemHolder)
     }
 }

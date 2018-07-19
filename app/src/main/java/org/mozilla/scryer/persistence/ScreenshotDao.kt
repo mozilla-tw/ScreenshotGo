@@ -27,6 +27,6 @@ interface ScreenshotDao {
     @Update
     fun updateScreenshot(screenshot: ScreenshotModel)
 
-    @Query("SELECT * FROM (SELECT id, MAX(date) AS max_date FROM screenshot GROUP BY collection_id) AS latest INNER JOIN screenshot AS screenshot ON screenshot.id = latest.id AND screenshot.date = latest.max_date")
+    @Query("SELECT screenshot.* FROM (SELECT id, max(date) AS max_date FROM screenshot GROUP BY collection_id) AS latest INNER JOIN screenshot ON latest.id = screenshot.id AND screenshot.date = latest.max_date")
     fun getCollectionCovers(): LiveData<List<ScreenshotModel>>
 }

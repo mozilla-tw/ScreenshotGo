@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import org.mozilla.scryer.R
-import org.mozilla.scryer.capture.dp2px
+import org.mozilla.scryer.ui.dpToPx
 
 class ScreenshotButtonController(private val context: Context) : DefaultLifecycleObserver {
     private var floatingContainer: FloatingView? = null
@@ -26,9 +26,8 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
     fun init() {
         floatingContainer = FloatingView(context).apply {
             setOnClickListener { clickListener?.onScreenshotButtonClicked() }
-            addView(onCreateView(context, this),
-                    dp2px(context, 50f),
-                    dp2px(context, 50f))
+            val size = 50f.dpToPx(context.resources.displayMetrics)
+            addView(onCreateView(context, this), size, size)
             addToWindow()
         }
     }

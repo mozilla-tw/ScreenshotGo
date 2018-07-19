@@ -10,6 +10,7 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -20,16 +21,20 @@ import android.support.v7.widget.SearchView
 import android.view.*
 import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
-import org.mozilla.scryer.capture.GridItemDecoration
-import org.mozilla.scryer.capture.dp2px
 import org.mozilla.scryer.getSupportActionBar
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.repository.ScreenshotRepository
+import org.mozilla.scryer.ui.GridItemDecoration
+import org.mozilla.scryer.ui.dpToPx
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import org.mozilla.scryer.viewmodel.ScreenshotViewModelFactory
 
 class MainFragment : Fragment() {
+    companion object {
+        const val COLLECTION_LIST_COLUMN_COUNT = 2
+    }
+
     private lateinit var quickAccessListView: RecyclerView
     private val quickAccessAdapter: QuickAccessAdapter = QuickAccessAdapter()
 
@@ -123,6 +128,16 @@ class MainFragment : Fragment() {
         val manager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         quickAccessListView.layoutManager = manager
         quickAccessListView.adapter = quickAccessAdapter
+        val space = 8f.dpToPx(context.resources.displayMetrics)
+        quickAccessListView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                val position = parent.getChildAdapterPosition(view)
+                if (position == 0) {
+                    outRect.left = space
+                }
+                outRect.right = space
+            }
+        })
 
         viewModel.getScreenshots().observe(this, Observer { screenshots ->
             screenshots?.let { newList ->
@@ -134,14 +149,15 @@ class MainFragment : Fragment() {
     }
 
     private fun initCollectionList(context: Context) {
-        val manager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-        manager.spanSizeLookup = mainAdapter.spanSizeLookup
+        val manager = GridLayoutManager(context, COLLECTION_LIST_COLUMN_COUNT, GridLayoutManager.VERTICAL, false)
+        manager.spanSizeLookup = MainAdapter.SpanSizeLookup(COLLECTION_LIST_COLUMN_COUNT)
         mainListView.layoutManager = manager
 
         mainAdapter.quickAccessListView = quickAccessListView
         mainListView.adapter = mainAdapter
 
-        mainListView.addItemDecoration(mainAdapter.itemDecoration)
+        val space = 8f.dpToPx(context.resources.displayMetrics)
+        mainListView.addItemDecoration(MainAdapter.ItemDecoration(COLLECTION_LIST_COLUMN_COUNT, space))
 
         viewModel.getCollections().observe(this, Observer { collections ->
             collections?.let { newData ->
@@ -158,10 +174,11 @@ class MainFragment : Fragment() {
     }
 
     private fun initSearchList(context: Context) {
-        val manager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+        val manager = GridLayoutManager(context, COLLECTION_LIST_COLUMN_COUNT, GridLayoutManager.VERTICAL, false)
         searchListView.layoutManager = manager
         searchListView.adapter = searchListAdapter
-        searchListView.addItemDecoration(GridItemDecoration(dp2px(context, 8f), 2))
+        val space = 8f.dpToPx(context.resources.displayMetrics)
+        searchListView.addItemDecoration(GridItemDecoration(COLLECTION_LIST_COLUMN_COUNT, space))
     }
 
     private fun updateQuickAccessListView(screenshots: List<ScreenshotModel>) {

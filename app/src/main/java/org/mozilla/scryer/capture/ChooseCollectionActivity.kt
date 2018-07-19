@@ -7,10 +7,8 @@ package org.mozilla.scryer.capture
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.Rect
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -18,7 +16,6 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +28,8 @@ import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.ui.GridItemDecoration
+import org.mozilla.scryer.ui.dpToPx
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import org.mozilla.scryer.viewmodel.ScreenshotViewModelFactory
 import java.io.File
@@ -111,8 +110,9 @@ class ChooseCollectionActivity : AppCompatActivity() {
         recyclerView.layoutManager = GridLayoutManager(this, GRID_SPAN_COUNT,
                 GridLayoutManager.VERTICAL,
                 false)
-        recyclerView.addItemDecoration(GridItemDecoration(dp2px(this, GRID_CELL_SPACE_DP),
-                GRID_SPAN_COUNT))
+
+        recyclerView.addItemDecoration(GridItemDecoration(GRID_SPAN_COUNT,
+                GRID_CELL_SPACE_DP.dpToPx(this.resources.displayMetrics)))
         recyclerView.adapter = this.adapter
     }
 
@@ -249,25 +249,4 @@ class ChooseCollectionActivity : AppCompatActivity() {
         class DataViewHolder(view: View) : RecyclerView.ViewHolder(view)
         class FixedViewHolder(view: View) : RecyclerView.ViewHolder(view)
     }
-}
-
-class GridItemDecoration(private val space: Int, private val span: Int) : RecyclerView.ItemDecoration() {
-
-    override fun getItemOffsets(outRect: Rect, view: View,
-                                parent: RecyclerView, state: RecyclerView.State) {
-        val position = parent.getChildAdapterPosition(view) % span
-        outRect.left = if (position == 0) space else space / 2
-        outRect.right = if (position == span - 1) space else space / 2
-        outRect.bottom = space
-
-        if (parent.getChildLayoutPosition(view) < span) {
-            outRect.top = space
-        } else {
-            outRect.top = 0
-        }
-    }
-}
-
-fun dp2px(context: Context, dp: Float): Int {
-    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics).toInt()
 }

@@ -5,6 +5,7 @@
 
 package org.mozilla.scryer.landingpage
 
+import android.content.res.Resources
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -19,6 +20,11 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScreenshotItemHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
+        val metrics = Resources.getSystem().displayMetrics
+        val ratio = metrics.widthPixels / metrics.heightPixels.toFloat()
+        val width = view.layoutParams.height * ratio
+        view.layoutParams.width = width.toInt()
+        view.layoutParams = view.layoutParams
 
         val holder = ScreenshotItemHolder(view)
         holder.title = view.findViewById(R.id.title)

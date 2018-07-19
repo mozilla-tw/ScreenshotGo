@@ -21,13 +21,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
-import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
-import org.mozilla.scryer.capture.GridItemDecoration
-import org.mozilla.scryer.capture.dp2px
+import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.getSupportActionBar
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.ui.GridItemDecoration
+import org.mozilla.scryer.ui.dpToPx
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import org.mozilla.scryer.viewmodel.ScreenshotViewModelFactory
 import java.io.File
@@ -71,7 +71,8 @@ class CollectionFragment : Fragment() {
         val manager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
         screenshotListView.layoutManager = manager
         screenshotListView.adapter = screenshotAdapter
-        screenshotListView.addItemDecoration(GridItemDecoration(dp2px(context, 8f), 2))
+        screenshotListView.addItemDecoration(GridItemDecoration(2,
+                8f.dpToPx(context.resources.displayMetrics)))
         val factory = ScreenshotViewModelFactory(ScryerApplication.instance.screenshotRepository)
         ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
                 .getScreenshots(arguments?.getString(ARG_COLLECTION_ID)?:"")

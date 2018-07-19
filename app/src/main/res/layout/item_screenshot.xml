@@ -5,15 +5,14 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="140dp"
-    android:layout_height="210dp"
-    android:paddingStart="8dp"
-    android:paddingEnd="0dp">
+    android:layout_height="210dp">
 
     <ImageView
         android:id="@+id/image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray"
+        android:scaleType="centerInside"
         android:transitionName="shared_in"/>
 
     <TextView

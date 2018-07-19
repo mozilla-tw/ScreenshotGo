@@ -19,9 +19,10 @@ import android.widget.TextView
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
-import org.mozilla.scryer.capture.dp2px
+import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.ui.dpToPx
 import java.io.File
 
 class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -35,38 +36,12 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         const val POS_COLLECTION_LIST_TITLE = 2
 
         const val FIXED_ITEM_COUNT = 3
-        const val COLUMN_COUNT = 2
     }
 
     lateinit var quickAccessListView: RecyclerView
 
     var collectionList: List<CollectionModel> = emptyList()
     var coverList: Map<String, ScreenshotModel> = HashMap()
-
-    val spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-        override fun getSpanSize(position: Int): Int {
-            return when (position) {
-                POS_COLLECTION_LIST_TITLE -> COLUMN_COUNT
-                POS_QUICK_ACCESS_TITLE -> COLUMN_COUNT
-                POS_QUICK_ACCESS_LIST -> COLUMN_COUNT
-                else -> 1
-            }
-        }
-    }
-
-    val itemDecoration = object : RecyclerView.ItemDecoration() {
-        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-            val position = parent.getChildViewHolder(view).adapterPosition - FIXED_ITEM_COUNT
-            if (position < 0) {
-                return
-            }
-
-            val space = dp2px(view.context, 8f)
-            outRect.right = space
-            outRect.bottom = space
-            outRect.left = if (position % COLUMN_COUNT == 0) space else 0
-        }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         when (viewType) {
@@ -124,7 +99,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private fun createSectionNameHolder(parent: ViewGroup): SectionNameHolder {
         val textView = TextView(parent.context)
-        val padding = dp2px(parent.context, 10f)
+        val padding = 10f.dpToPx(parent.context.resources.displayMetrics)
         textView.setPadding(padding, padding, padding, padding)
         textView.setTextColor(Color.BLACK)
 
@@ -171,5 +146,27 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     class CollectionHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         var image: ImageView? = null
         var title: TextView? = null
+    }
+
+    class SpanSizeLookup(private val columnCount: Int) : GridLayoutManager.SpanSizeLookup() {
+        override fun getSpanSize(position: Int): Int {
+            return when (position) {
+                POS_COLLECTION_LIST_TITLE -> columnCount
+                POS_QUICK_ACCESS_TITLE -> columnCount
+                POS_QUICK_ACCESS_LIST -> columnCount
+                else -> 1
+            }
+        }
+    }
+
+    class ItemDecoration(columnCount: Int, space: Int)
+        : GridItemDecoration(columnCount, space, 0, space, space, space) {
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+            val position = parent.getChildAdapterPosition(view) - FIXED_ITEM_COUNT
+            if (position < 0) {
+                return
+            }
+            setSpaces(outRect, position)
+        }
     }
 }

@@ -134,11 +134,14 @@ class MainFragment : Fragment() {
     }
 
     private fun initCollectionList(context: Context) {
-        val manager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        val manager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+        manager.spanSizeLookup = mainAdapter.spanSizeLookup
         mainListView.layoutManager = manager
-        mainListView.adapter = mainAdapter
-        mainListView.recycledViewPool.setMaxRecycledViews(MainAdapter.TYPE_QUICK_ACCESS, 1)
+
         mainAdapter.quickAccessListView = quickAccessListView
+        mainListView.adapter = mainAdapter
+
+        mainListView.addItemDecoration(mainAdapter.itemDecoration)
 
         viewModel.getCollections().observe(this, Observer { collections ->
             collections?.let { newData ->
@@ -174,5 +177,4 @@ class MainFragment : Fragment() {
     private fun getScreenshotRepository(): ScreenshotRepository {
         return ScryerApplication.instance.screenshotRepository
     }
-
 }

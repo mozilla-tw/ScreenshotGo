@@ -33,7 +33,7 @@ class DetailPageActivity : AppCompatActivity() {
                 val option = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         context as Activity, srcView, ViewCompat.getTransitionName(it))
                 option.toBundle()
-            } ?: null
+            }
             intent.putExtra("path", path)
             (context as AppCompatActivity).startActivity(intent, bundle)
         }

@@ -42,7 +42,7 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
                 position != RecyclerView.NO_POSITION
 
             }?.let { position: Int ->
-                if (position >= maxItemsToDisplay) {
+                if (isPositionForMoreButton(position)) {
                     clickListener?.onMoreClick(holder)
                 } else {
                     clickListener?.onItemClick(list[position], holder)
@@ -53,11 +53,15 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
     }
 
     override fun getItemCount(): Int {
-        return list.size + (if (hasMoreItem()) 1 else 0)
+        return if (hasMoreItem()) {
+            maxItemsToDisplay + 1
+        } else {
+            Math.min(list.size, maxItemsToDisplay)
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (hasMoreItem() && position >= maxItemsToDisplay) {
+        if (isPositionForMoreButton(position)) {
             return TYPE_MORE
         }
         return TYPE_ITEM
@@ -94,7 +98,9 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
         }
     }
 
-    private fun hasMoreItem() = list.size >= maxItemsToDisplay
+    private fun isPositionForMoreButton(position: Int) = position >= maxItemsToDisplay
+
+    private fun hasMoreItem() = list.size > maxItemsToDisplay
 
     interface ItemClickListener {
         fun onItemClick(screenshotModel: ScreenshotModel, holder: ScreenshotItemHolder)

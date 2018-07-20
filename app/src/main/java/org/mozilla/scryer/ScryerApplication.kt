@@ -6,20 +6,28 @@
 package org.mozilla.scryer
 
 import android.app.Application
-
 import org.mozilla.scryer.repository.ScreenshotRepository
 
 class ScryerApplication : Application() {
     companion object {
+        private val instance: ScryerApplication by lazy {
+            ApplicationHolder.instance
+        }
+
+        fun getScreenshotRepository(): ScreenshotRepository {
+            return instance.screenshotRepository
+        }
+    }
+
+    private object ApplicationHolder {
         lateinit var instance: ScryerApplication
-            private set
     }
 
     lateinit var screenshotRepository: ScreenshotRepository
 
     override fun onCreate() {
         super.onCreate()
-        instance = this
+        ApplicationHolder.instance = this
         screenshotRepository = ScreenshotRepository.createRepository(this) {
             screenshotRepository.setupDefaultContent()
         }

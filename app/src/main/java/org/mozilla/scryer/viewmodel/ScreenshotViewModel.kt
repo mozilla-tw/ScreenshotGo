@@ -25,7 +25,7 @@ class ScreenshotViewModel(private val delegate: ScreenshotRepository) : ViewMode
         }
 
         private fun getFactory(): ScreenshotViewModelFactory {
-            return ScreenshotViewModelFactory(ScryerApplication.instance.screenshotRepository)
+            return ScreenshotViewModelFactory(ScryerApplication.getScreenshotRepository())
         }
     }
 }

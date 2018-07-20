@@ -26,8 +26,6 @@ interface ScreenshotRepository {
                     ScreenshotDatabase::class.java, "screenshot-db")
                     .addCallback(callback)
                     .build())
-
-
         }
     }
 

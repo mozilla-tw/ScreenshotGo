@@ -150,7 +150,7 @@ class MainFragment : Fragment() {
         viewModel.getScreenshots().observe(this, Observer { screenshots ->
             screenshots?.let { newList ->
                 val finalList = newList.sortedByDescending { it.date }
-                        .subList(0, Math.min(newList.size, MAX_QUICK_ACCESS_ITEM_COUNT))
+                        .subList(0, Math.min(newList.size, MAX_QUICK_ACCESS_ITEM_COUNT + 1))
                 updateQuickAccessListView(finalList)
             }
         })

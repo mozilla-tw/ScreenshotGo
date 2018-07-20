@@ -44,6 +44,7 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
         view?.visibility = View.INVISIBLE
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun onCreateView(context: Context, container: ViewGroup): android.view.View {
         val view = ImageView(context)
         view.setImageResource(R.mipmap.ic_launcher_round)

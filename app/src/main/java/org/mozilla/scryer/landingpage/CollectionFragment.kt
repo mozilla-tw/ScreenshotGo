@@ -10,7 +10,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
+import android.support.v7.app.ActionBar
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -26,6 +26,7 @@ import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.getSupportActionBar
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.setSupportActionBar
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.ui.dpToPx
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
@@ -35,10 +36,20 @@ import java.io.File
 class CollectionFragment : Fragment() {
     companion object {
         const val ARG_COLLECTION_ID = "collection_id"
+        const val ARG_COLLECTION_NAME = "collection_name"
     }
 
     private lateinit var screenshotListView: RecyclerView
+
     private val screenshotAdapter = ScreenshotAdapter()
+
+    private val collectionId: String? by lazy {
+        arguments?.getString(ARG_COLLECTION_ID)
+    }
+
+    private val collectionName: String? by lazy {
+        arguments?.getString(ARG_COLLECTION_NAME)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.fragment_collection, container, false)
@@ -50,21 +61,35 @@ class CollectionFragment : Fragment() {
         initScreenshotList(view.context)
     }
 
+    override fun getView(): View {
+        return super.getView()!!
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setHasOptionsMenu(true)
-        (activity as? AppCompatActivity)?.setSupportActionBar(view?.findViewById(R.id.toolbar))
-        getSupportActionBar(activity)?.setDisplayHomeAsUpEnabled(true)
+        setupActionBar()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        item?.let {
-            when(it.itemId) {
-                android.R.id.home -> Navigation.findNavController(view!!).navigateUp()
-                else -> return super.onOptionsItemSelected(item)
-            }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            android.R.id.home -> Navigation.findNavController(view).navigateUp()
+            else -> return super.onOptionsItemSelected(item)
         }
+
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun setupActionBar() {
+        setSupportActionBar(activity, view.findViewById(R.id.toolbar))
+        getSupportActionBar(activity).apply {
+            setDisplayHomeAsUpEnabled(true)
+            updateActionBarTitle(this)
+        }
+    }
+
+    private fun updateActionBarTitle(actionBar: ActionBar) {
+        actionBar.title = collectionName?.let { it } ?: "All"
     }
 
     private fun initScreenshotList(context: Context) {
@@ -73,17 +98,16 @@ class CollectionFragment : Fragment() {
         screenshotListView.adapter = screenshotAdapter
         screenshotListView.addItemDecoration(GridItemDecoration(2,
                 8f.dpToPx(context.resources.displayMetrics)))
+
         val factory = ScreenshotViewModelFactory(ScryerApplication.instance.screenshotRepository)
         val viewModel = ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
-        val liveData = arguments?.getString(ARG_COLLECTION_ID)?.let {
-            viewModel.getScreenshots(it)
-        } ?: viewModel.getScreenshots()
+        val liveData = collectionId?.let { viewModel.getScreenshots(it) } ?: viewModel.getScreenshots()
 
         liveData.observe(this, Observer { screenshots ->
             screenshots?.let {
                 screenshotAdapter.setScreenshotList(it)
                 screenshotAdapter.notifyDataSetChanged()
-                getSupportActionBar(activity)?.setSubtitle("${it.size} shots")
+                getSupportActionBar(activity).subtitle = "${it.size} shots"
             }
         })
     }

@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.Toolbar
 import org.mozilla.scryer.overlay.OverlayPermission
 
 class MainActivity : AppCompatActivity() {
@@ -88,6 +89,12 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-fun getSupportActionBar(activity: FragmentActivity?): ActionBar? {
-    return (activity as? AppCompatActivity)?.supportActionBar
+fun setSupportActionBar(activity: FragmentActivity?, toolbar: Toolbar) {
+    (activity as AppCompatActivity).setSupportActionBar(toolbar)
 }
+
+fun getSupportActionBar(activity: FragmentActivity?): ActionBar {
+    val actionBar = (activity as AppCompatActivity).supportActionBar
+    return actionBar?: throw RuntimeException("no action bar set")
+}
+

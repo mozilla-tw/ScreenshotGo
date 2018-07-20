@@ -89,7 +89,9 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }?.let { position: Int ->
                 val itemIndex = position - FIXED_ITEM_COUNT
                 val bundle = Bundle().apply {
-                    putString(CollectionFragment.ARG_COLLECTION_ID, collectionList[itemIndex].id)
+                    val model = collectionList[itemIndex]
+                    putString(CollectionFragment.ARG_COLLECTION_ID, model.id)
+                    putString(CollectionFragment.ARG_COLLECTION_NAME, model.name)
                 }
                 Navigation.findNavController(parent).navigate(R.id.action_navigate_to_collection, bundle)
             }

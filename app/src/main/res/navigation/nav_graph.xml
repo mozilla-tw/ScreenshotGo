@@ -23,5 +23,6 @@
         android:name="org.mozilla.scryer.landingpage.CollectionFragment"
         android:label="Collection">
         <argument android:name="collection_id" />
+        <argument android:name="collection_name" />
     </fragment>
 </navigation>

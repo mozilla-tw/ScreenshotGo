@@ -22,7 +22,7 @@ import org.mozilla.scryer.R
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
-import org.mozilla.scryer.ui.dpToPx
+import org.mozilla.scryer.extension.dpToPx
 import java.io.File
 
 class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {

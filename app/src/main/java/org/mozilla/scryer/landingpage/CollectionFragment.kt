@@ -6,7 +6,6 @@
 package org.mozilla.scryer.landingpage
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -22,15 +21,13 @@ import android.widget.TextView
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
-import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.detailpage.DetailPageActivity
+import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.getSupportActionBar
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.setSupportActionBar
 import org.mozilla.scryer.ui.GridItemDecoration
-import org.mozilla.scryer.ui.dpToPx
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
-import org.mozilla.scryer.viewmodel.ScreenshotViewModelFactory
 import java.io.File
 
 class CollectionFragment : Fragment() {
@@ -99,8 +96,7 @@ class CollectionFragment : Fragment() {
         screenshotListView.addItemDecoration(GridItemDecoration(2,
                 8f.dpToPx(context.resources.displayMetrics)))
 
-        val factory = ScreenshotViewModelFactory(ScryerApplication.instance.screenshotRepository)
-        val viewModel = ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
+        val viewModel = ScreenshotViewModel.get(this)
         val liveData = collectionId?.let { viewModel.getScreenshots(it) } ?: viewModel.getScreenshots()
 
         liveData.observe(this, Observer { screenshots ->

@@ -6,7 +6,6 @@
 package org.mozilla.scryer.capture
 
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -25,13 +24,11 @@ import android.widget.TextView
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
-import org.mozilla.scryer.ScryerApplication
+import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.ui.GridItemDecoration
-import org.mozilla.scryer.ui.dpToPx
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
-import org.mozilla.scryer.viewmodel.ScreenshotViewModelFactory
 import java.io.File
 import java.util.*
 
@@ -47,8 +44,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
 
     private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.recycler_view) }
     private val screenshotViewModel: ScreenshotViewModel by lazy {
-        val factory = ScreenshotViewModelFactory(ScryerApplication.instance.screenshotRepository)
-        ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
+        ScreenshotViewModel.get(this)
     }
 
     private lateinit var screenshotModel: ScreenshotModel

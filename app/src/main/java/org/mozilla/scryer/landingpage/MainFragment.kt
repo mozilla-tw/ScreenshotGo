@@ -7,13 +7,11 @@ package org.mozilla.scryer.landingpage
 
 import android.app.SearchManager
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -21,16 +19,14 @@ import android.support.v7.widget.SearchView
 import android.view.*
 import androidx.navigation.Navigation
 import org.mozilla.scryer.R
-import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.detailpage.DetailPageActivity
+import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.getSupportActionBar
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
-import org.mozilla.scryer.repository.ScreenshotRepository
+import org.mozilla.scryer.setSupportActionBar
 import org.mozilla.scryer.ui.GridItemDecoration
-import org.mozilla.scryer.ui.dpToPx
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
-import org.mozilla.scryer.viewmodel.ScreenshotViewModelFactory
 
 class MainFragment : Fragment() {
     companion object {
@@ -48,8 +44,7 @@ class MainFragment : Fragment() {
     private val searchListAdapter: SearchAdapter = SearchAdapter()
 
     private val viewModel: ScreenshotViewModel by lazy {
-        val factory = ScreenshotViewModelFactory(getScreenshotRepository())
-        ViewModelProviders.of(this, factory).get(ScreenshotViewModel::class.java)
+        ScreenshotViewModel.get(this)
     }
 
     private val searchObserver = Observer<List<ScreenshotModel>> { screenshots ->
@@ -69,8 +64,8 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setHasOptionsMenu(true)
-        (activity as AppCompatActivity).setSupportActionBar(view?.findViewById(R.id.toolbar))
-        getSupportActionBar(activity)?.setDisplayHomeAsUpEnabled(false)
+        setSupportActionBar(activity, view!!.findViewById(R.id.toolbar))
+        getSupportActionBar(activity).setDisplayHomeAsUpEnabled(false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -202,9 +197,5 @@ class MainFragment : Fragment() {
     private fun updateCollectionListView(collections: List<CollectionModel>) {
         mainAdapter.collectionList = collections
         mainAdapter.notifyDataSetChanged()
-    }
-
-    private fun getScreenshotRepository(): ScreenshotRepository {
-        return ScryerApplication.instance.screenshotRepository
     }
 }

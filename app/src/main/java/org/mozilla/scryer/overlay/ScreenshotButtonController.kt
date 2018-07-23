@@ -25,6 +25,7 @@ import org.mozilla.scryer.extension.dpToPx
 class ScreenshotButtonController(private val context: Context) : DefaultLifecycleObserver {
     companion object {
         const val BUTTON_SIZE_DP = 75f
+        const val DEFAULT_POS_Y_PERCENTAGE = 1 / 3f
     }
 
     private var debugView = false
@@ -43,6 +44,27 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
     private val position: PointF = PointF()
 
     private val tmpPoint = PointF()
+
+    private val onLayoutChangeListener = View.OnLayoutChangeListener {
+        _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+        if (left != oldLeft || top != oldTop || right != oldRight || bottom != oldBottom) {
+            val oldWidth = oldRight - oldLeft
+            val newX = if (buttonView.x < oldWidth / 2) {
+                -buttonSize * 0.1f
+            } else {
+                buttonContainer.width - buttonSize * 0.9f
+            }
+
+            val oldHeight = oldBottom - oldTop
+            val yRatio = if (oldHeight != 0) buttonView.y / oldHeight.toFloat() else DEFAULT_POS_Y_PERCENTAGE
+            val newY = (bottom - top) * yRatio
+
+            position.set(newX, newY)
+            dragView.moveTo(position.x.toInt(), position.y.toInt())
+            buttonView.x = position.x
+            buttonView.y = position.y
+        }
+    }
 
     private val dragListener = object : FloatingView.DragHelper.DragListener {
         override fun onTap() {
@@ -88,7 +110,7 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
 
     private fun getTargetX(x: Float): Float {
         return if (x > metrics.widthPixels / 2) {
-            metrics.widthPixels - buttonView.measuredWidth * 0.9f
+            buttonContainer.width - buttonView.measuredWidth * 0.9f
         } else {
             -buttonView.measuredWidth * 0.1f
         }
@@ -122,6 +144,8 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
         buttonView.x = position.x
         buttonView.y = position.y
 
+        buttonContainer.addOnLayoutChangeListener(onLayoutChangeListener)
+
         buttonContainer.addToWindow(WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
                 false)
@@ -146,7 +170,9 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
     }
 
     fun destroy() {
+        buttonContainer.removeOnLayoutChangeListener(onLayoutChangeListener)
         buttonContainer.removeFromWindow()
+        dragView.removeFromWindow()
     }
 
     fun show() {
@@ -165,6 +191,7 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
         return view
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun onCreateTrashView(context: Context, container: ViewGroup): View {
         val view = TextView(context)
         view.text = "X"

@@ -5,14 +5,20 @@
 
 package org.mozilla.scryer.overlay
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PointF
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.animation.AccelerateInterpolator
 import android.view.animation.OvershootInterpolator
+import android.widget.RelativeLayout
+import android.widget.TextView
 import org.mozilla.scryer.R
 import org.mozilla.scryer.extension.dpToPx
 
@@ -25,6 +31,7 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
 
     private lateinit var buttonContainer: FloatingView
     private lateinit var buttonView: View
+    private lateinit var trashView: View
     private lateinit var dragView: FloatingView
 
     private var clickListener: ClickListener? = null
@@ -42,18 +49,36 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
             clickListener?.onScreenshotButtonClicked()
         }
 
+        override fun onLongPress() {
+            trashView.visibility = View.VISIBLE
+        }
+
         override fun onRelease(x: Float, y: Float) {
             tmpPoint.set(x, y)
             convertToOrigin(tmpPoint, buttonView)
-            val targetX = getTargetX(tmpPoint.x)
-            val animator = buttonView.animate().x(targetX).setUpdateListener {
-                dragView.moveTo(buttonView.x.toInt(), tmpPoint.y.toInt())
+
+            if (y >= trashView.y) {
+                val animator = buttonView.animate().scaleX(0f).scaleY(0f)
+                animator.duration = 200
+                animator.interpolator = AccelerateInterpolator()
+                animator.setListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator?) {
+                        clickListener?.onScreenshotButtonLongClicked()
+                    }
+                })
+            } else {
+                val targetX = getTargetX(tmpPoint.x)
+                val animator = buttonView.animate().x(targetX).setUpdateListener {
+                    dragView.moveTo(buttonView.x.toInt(), tmpPoint.y.toInt())
+                }
+                animator.duration = 500
+                animator.interpolator = OvershootInterpolator()
             }
-            animator.duration = 500
-            animator.interpolator = OvershootInterpolator()
+            trashView.visibility = View.GONE
         }
 
         override fun onDrag(x: Float, y: Float) {
+            trashView.visibility = View.VISIBLE
             tmpPoint.set(x, y)
             convertToOrigin(tmpPoint, buttonView)
             buttonView.x = tmpPoint.x
@@ -84,21 +109,25 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
     }
 
     private fun initButton(buttonContainer: FloatingView)  {
-        buttonContainer.setOnClickListener {
-            clickListener?.onScreenshotButtonClicked()
-        }
-        val size = 75f.dpToPx(context.resources.displayMetrics)
+        trashView = onCreateTrashView(context, buttonContainer)
+        val trashParams = RelativeLayout.LayoutParams(ViewGroup.MarginLayoutParams.MATCH_PARENT,
+                120f.dpToPx(metrics))
+        trashParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+        trashView.visibility = View.GONE
+        buttonContainer.addView(trashView, trashParams)
 
+        val size = 75f.dpToPx(context.resources.displayMetrics)
         buttonView = onCreateButtonView(context, buttonContainer)
         buttonContainer.addView(buttonView, size, size)
+        buttonView.x = position.x
+        buttonView.y = position.y
+
         buttonContainer.addToWindow(WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
                 false)
         if (debugView) {
             buttonContainer.setBackgroundColor(Color.parseColor("#55ff0000"))
         }
-        buttonView.x = position.x
-        buttonView.y = position.y
     }
 
     private fun initDragView(dragView: FloatingView) {
@@ -129,10 +158,20 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
     }
 
     @Suppress("UNUSED_PARAMETER")
-    private fun onCreateButtonView(context: Context, container: ViewGroup): android.view.View {
+    private fun onCreateButtonView(context: Context, container: ViewGroup): View {
         val view = View(context)
         view.setBackgroundResource(R.drawable.circle_bg)
         this.view = view
+        return view
+    }
+
+    private fun onCreateTrashView(context: Context, container: ViewGroup): View {
+        val view = TextView(context)
+        view.text = "X"
+        view.textSize = 15f.dpToPx(metrics).toFloat()
+        view.gravity = Gravity.CENTER
+        view.setTextColor(Color.parseColor("#ff8800"))
+        view.setBackgroundColor(Color.parseColor("#88000000"))
         return view
     }
 

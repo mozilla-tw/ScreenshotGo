@@ -8,6 +8,8 @@ package org.mozilla.scryer.overlay
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PointF
+import android.os.Handler
+import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -63,15 +65,27 @@ class FloatingView(context: Context) : RelativeLayout(context) {
 
     class DragHelper(private val targetView: View,
                      private val windowController: WindowController) : OnTouchListener {
+        companion object {
+            const val DURATION_LONG_PRESS = 500L
+        }
+
         var dragListener: DragListener? = null
 
         private var dragging: Boolean = false
+        private var longPressed = false
 
         private var oldPosition = PointF()
         private var currentPosition = PointF()
         private val oldTouchPosition = PointF()
 
         private val tmpPosition = PointF()
+
+        private val handler = Handler(Looper.getMainLooper())
+        private val longClickRunnable  = Runnable {
+            longPressed = true
+            dragging = false
+            dragListener?.onLongPress()
+        }
 
         private val dragSlop: Int by lazy {
             ViewConfiguration.get(targetView.context).scaledTouchSlop
@@ -82,9 +96,11 @@ class FloatingView(context: Context) : RelativeLayout(context) {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     dragging = false
+                    longPressed = false
                     getViewCenter(oldPosition)
                     currentPosition.set(oldPosition.x, oldPosition.y)
                     oldTouchPosition.set(event.rawX, event.rawY)
+                    handler.postDelayed(longClickRunnable, DURATION_LONG_PRESS)
                     return true
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -97,12 +113,14 @@ class FloatingView(context: Context) : RelativeLayout(context) {
                         dragListener?.onDrag(currentPosition.x, currentPosition.y)
                     } else if (shouldStartDrag(dragDeltaX, dragDeltaY)) {
                         dragging = true
+                        handler.removeCallbacks(longClickRunnable)
                     }
 
                     return true
                 }
                 MotionEvent.ACTION_UP -> {
-                    if (!dragging) {
+                    handler.removeCallbacks(longClickRunnable)
+                    if (!dragging && !longPressed) {
                         dragListener?.onTap()
                     } else {
                         dragListener?.onRelease(currentPosition.x, currentPosition.y)
@@ -142,6 +160,7 @@ class FloatingView(context: Context) : RelativeLayout(context) {
 
         interface DragListener {
             fun onTap()
+            fun onLongPress()
             fun onRelease(x: Float, y: Float)
             fun onDrag(x: Float, y: Float)
         }

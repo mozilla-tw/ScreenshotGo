@@ -5,164 +5,128 @@
 
 package org.mozilla.scryer.overlay
 
-import android.annotation.SuppressLint
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.TimeInterpolator
 import android.content.Context
 import android.graphics.PointF
-import android.os.Handler
-import android.os.Looper
-import android.view.MotionEvent
 import android.view.View
-import android.view.ViewConfiguration
-import android.view.WindowManager
-import android.widget.RelativeLayout
+import android.widget.FrameLayout
 
-// TODO:
-// state save/restore (e.g. view position)
-// parameterize position
+class FloatingView(context: Context) : FrameLayout(context) {
 
-class FloatingView(context: Context) : RelativeLayout(context) {
-    private var isAddedToWindow = false
-    private var windowController: WindowController =
-            WindowController(context.getSystemService(Context.WINDOW_SERVICE) as WindowManager)
+    companion object {
+        fun create(view: View, dock: Dock, width: Int, height: Int, draggable: Boolean,
+                   windowCtrl: WindowController): FloatingView {
+            val floatingView = FloatingView(view.context)
+            floatingView.contentView = view
+            floatingView.dock = dock
+            floatingView.contentWidth = width
+            floatingView.contentHeight = height
+            floatingView.draggable = draggable
+            floatingView.windowCtrl = windowCtrl
+            return floatingView
+        }
+    }
 
-    private var clickListener: OnClickListener? = null
+    private lateinit var contentView: View
+    private lateinit var dock: Dock
+    private var contentWidth: Int = 0
+    private var contentHeight: Int = 0
+    private var draggable: Boolean = false
+    private lateinit var windowCtrl: WindowController
 
-    private val dragHelper: DragHelper = DragHelper(this, windowController)
+    private val dragger: Dragger by lazy {
+        Dragger(context, this, contentWidth, contentHeight, windowCtrl)
+    }
+
+    private val point = PointF()
+
     var dragListener: DragHelper.DragListener? = null
+    var stickToCurrentPosition = false
 
-    init {
-        init()
-    }
-
-    private fun init() {
-        //setFocusableInTouchMode(true); // hardware back button presses.
-    }
-
-    override fun setOnClickListener(l: OnClickListener?) {
-        clickListener = l
-    }
-
-    fun addToWindow(width: Int, height: Int, touchable: Boolean) {
-        if (isAddedToWindow) {
-            return
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        addView(this.contentView, this.contentWidth, this.contentHeight)
+        if (this.draggable) {
+            initDragger()
         }
-
-        dragHelper.dragListener = dragListener
-        setOnTouchListener(dragHelper)
-
-        windowController.addView(width, height, touchable, this)
-        isAddedToWindow = true
     }
 
-    fun removeFromWindow() {
-        isAddedToWindow = false
-        windowController.removeView(this)
+    fun moveTo(dock: Dock) {
+        val self = this@FloatingView
+        self.x = dock.resolveX(this.contentWidth) - this.contentWidth / 2
+        self.y = dock.resolveY(this.contentHeight) - this.contentHeight / 2
+        this.dragger.updatePosition()
     }
 
-    fun moveTo(x: Int, y: Int) {
-        windowController.moveViewTo(this@FloatingView, x, y)
-    }
+    fun animateTo(dock: Dock, interpolator: TimeInterpolator, duration: Long) {
+        val self = this@FloatingView
 
-    class DragHelper(private val targetView: View,
-                     private val windowController: WindowController) : OnTouchListener {
-        companion object {
-            const val DURATION_LONG_PRESS = 500L
-        }
+        val resolveX = dock.resolveX(self.width)
+        val resolveY = dock.resolveY(self.height)
+        convertToOrigin(point.apply { set(resolveX, resolveY) }, self)
 
-        var dragListener: DragListener? = null
-
-        private var dragging: Boolean = false
-        private var longPressed = false
-
-        private var oldPosition = PointF()
-        private var currentPosition = PointF()
-        private val oldTouchPosition = PointF()
-
-        private val tmpPosition = PointF()
-
-        private val handler = Handler(Looper.getMainLooper())
-        private val longClickRunnable  = Runnable {
-            longPressed = true
-            dragging = false
-            dragListener?.onLongPress()
-        }
-
-        private val dragSlop: Int by lazy {
-            ViewConfiguration.get(targetView.context).scaledTouchSlop
-        }
-
-        @SuppressLint("ClickableViewAccessibility")
-        override fun onTouch(v: View, event: MotionEvent): Boolean {
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    dragging = false
-                    longPressed = false
-                    getViewCenter(oldPosition)
-                    currentPosition.set(oldPosition.x, oldPosition.y)
-                    oldTouchPosition.set(event.rawX, event.rawY)
-                    handler.postDelayed(longClickRunnable, DURATION_LONG_PRESS)
-                    return true
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    val dragDeltaX = event.rawX - oldTouchPosition.x
-                    val dragDeltaY = event.rawY - oldTouchPosition.y
-                    currentPosition.set(oldPosition.x + dragDeltaX, oldPosition.y + dragDeltaY)
-
-                    if (dragging) {
-                        moveViewTo(currentPosition)
-                        dragListener?.onDrag(currentPosition.x, currentPosition.y)
-                    } else if (shouldStartDrag(dragDeltaX, dragDeltaY)) {
-                        dragging = true
-                        handler.removeCallbacks(longClickRunnable)
+        val animator = self.animate().x(point.x).y(point.y)
+                .setUpdateListener {
+                    if (draggable) {
+                        dragger.updatePosition()
                     }
-
-                    return true
                 }
-                MotionEvent.ACTION_UP -> {
-                    handler.removeCallbacks(longClickRunnable)
-                    if (!dragging && !longPressed) {
-                        dragListener?.onTap()
-                    } else {
-                        dragListener?.onRelease(currentPosition.x, currentPosition.y)
-                    }
+        animator.setListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator?) {
+                dock.updatePosition(self.x.toInt(), self.y.toInt())
+            }
+        })
+        animator.duration = duration
+        animator.interpolator = interpolator
+    }
 
-                    return true
+    fun detachFromWindow() {
+        this.dragger.detachFromWindow()
+    }
+
+    private fun initDragger() {
+        this.dragger.dragListener = object : DragHelper.DragListener {
+            override fun onTap() {
+                dragListener?.onTap()
+            }
+
+            override fun onLongPress() {
+                dragListener?.onLongPress()
+            }
+
+            override fun onDrag(x: Float, y: Float) {
+                if (!stickToCurrentPosition) {
+                    val self = this@FloatingView
+                    point.set(x, y)
+                    convertToOrigin(point, self)
+                    self.x = point.x
+                    self.y = point.y
                 }
-                else -> return false
+                dragListener?.onDrag(x, y)
+            }
+
+            override fun onRelease(x: Float, y: Float) {
+                dragListener?.onRelease(x, y)
             }
         }
-
-        private fun shouldStartDrag(dx: Float, dy: Float): Boolean {
-            val distance = Math.sqrt(Math.pow(dx.toDouble(), 2.0) + Math.pow(dy.toDouble(), 2.0))
-            return distance >= dragSlop
-        }
-
-        private fun getViewCenter(result: PointF) {
-            val originX = windowController.getViewPositionX(targetView)
-            val originY = windowController.getViewPositionY(targetView)
-            tmpPosition.set(originX.toFloat(), originY.toFloat())
-            return originToCenter(tmpPosition, result)
-        }
-
-        private fun originToCenter(origin: PointF, result: PointF) {
-            result.set(origin.x + targetView.width / 2, origin.y + targetView.height / 2)
-        }
-
-        private fun centerToOrigin(centerPosition: PointF, result: PointF) {
-            return result.set(centerPosition.x - targetView.width / 2,
-                    centerPosition.y - targetView.height / 2)
-        }
-
-        private fun moveViewTo(centerPosition: PointF) {
-            centerToOrigin(centerPosition, tmpPosition)
-            windowController.moveViewTo(targetView, tmpPosition.x.toInt(), tmpPosition.y.toInt())
-        }
-
-        interface DragListener {
-            fun onTap()
-            fun onLongPress()
-            fun onRelease(x: Float, y: Float)
-            fun onDrag(x: Float, y: Float)
-        }
+        this.dragger.attachToWindow()
     }
+}
+
+fun convertToOrigin(center: PointF, view: View) {
+    val x = center.x
+    val y = center.y
+    val width = view.measuredWidth
+    val height = view.measuredHeight
+    center.set(x - width / 2f, y - height / 2f)
+}
+
+fun convertToCenter(origin: PointF, view: View) {
+    val x = origin.x
+    val y = origin.y
+    val width = view.measuredWidth
+    val height = view.measuredHeight
+    origin.set(x + width / 2f, y + height / 2f)
 }

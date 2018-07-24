@@ -116,7 +116,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
         Toast.makeText(this, "save to ${collection.name}", Toast.LENGTH_SHORT).show()
         screenshotModel.collectionId = collection.id
         screenshotViewModel.updateScreenshot(screenshotModel)
-        finish()
+        finishAndRemoveTask()
     }
 
     private fun onNewCollectionClicked() {

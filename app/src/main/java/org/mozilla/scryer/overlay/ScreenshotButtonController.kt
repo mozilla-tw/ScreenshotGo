@@ -10,7 +10,6 @@ import android.animation.AnimatorListenerAdapter
 import android.arch.lifecycle.DefaultLifecycleObserver
 import android.content.Context
 import android.graphics.Color
-import android.graphics.PointF
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -25,174 +24,133 @@ import org.mozilla.scryer.extension.dpToPx
 class ScreenshotButtonController(private val context: Context) : DefaultLifecycleObserver {
     companion object {
         const val BUTTON_SIZE_DP = 75f
-        const val DEFAULT_POS_Y_PERCENTAGE = 1 / 3f
+        const val EXIT_VIEW_HEIGHT_DP = 180f
     }
 
-    private var debugView = false
+    private lateinit var screen: Screen
+    private lateinit var sideDock: Dock
+    private lateinit var exitDock: Dock
 
-    private lateinit var buttonContainer: FloatingView
-    private lateinit var buttonView: View
-    private lateinit var trashView: View
-    private lateinit var dragView: FloatingView
+    private lateinit var buttonView: FloatingView
+    private lateinit var exitView: FloatingView
 
     private var clickListener: ClickListener? = null
 
-    var view: View? = null
+    private var windowController: WindowController = WindowController(
+            context.getSystemService(Context.WINDOW_SERVICE) as WindowManager)
 
     private val metrics = context.resources.displayMetrics
     private val buttonSize = BUTTON_SIZE_DP.dpToPx(metrics)
-    private val position: PointF = PointF()
-
-    private val tmpPoint = PointF()
-
-    private val onLayoutChangeListener = View.OnLayoutChangeListener {
-        _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-        if (left != oldLeft || top != oldTop || right != oldRight || bottom != oldBottom) {
-            val oldWidth = oldRight - oldLeft
-            val newX = if (buttonView.x < oldWidth / 2) {
-                -buttonSize * 0.1f
-            } else {
-                buttonContainer.width - buttonSize * 0.9f
-            }
-
-            val oldHeight = oldBottom - oldTop
-            val yRatio = if (oldHeight != 0) buttonView.y / oldHeight.toFloat() else DEFAULT_POS_Y_PERCENTAGE
-            val newY = (bottom - top) * yRatio
-
-            position.set(newX, newY)
-            dragView.moveTo(position.x.toInt(), position.y.toInt())
-            buttonView.x = position.x
-            buttonView.y = position.y
-        }
-    }
-
-    private val dragListener = object : FloatingView.DragHelper.DragListener {
-        override fun onTap() {
-            clickListener?.onScreenshotButtonClicked()
-        }
-
-        override fun onLongPress() {
-            trashView.visibility = View.VISIBLE
-        }
-
-        override fun onRelease(x: Float, y: Float) {
-            tmpPoint.set(x, y)
-            convertToOrigin(tmpPoint, buttonView)
-
-            if (y >= trashView.y) {
-                val animator = buttonView.animate().scaleX(0f).scaleY(0f)
-                animator.duration = 200
-                animator.interpolator = AccelerateInterpolator()
-                animator.setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
-                        clickListener?.onScreenshotButtonLongClicked()
-                    }
-                })
-            } else {
-                val targetX = getTargetX(tmpPoint.x)
-                val animator = buttonView.animate().x(targetX).setUpdateListener {
-                    dragView.moveTo(buttonView.x.toInt(), tmpPoint.y.toInt())
-                }
-                animator.duration = 500
-                animator.interpolator = OvershootInterpolator()
-            }
-            trashView.visibility = View.GONE
-        }
-
-        override fun onDrag(x: Float, y: Float) {
-            trashView.visibility = View.VISIBLE
-            tmpPoint.set(x, y)
-            convertToOrigin(tmpPoint, buttonView)
-            buttonView.x = tmpPoint.x
-            buttonView.y = tmpPoint.y
-        }
-    }
-
-    private fun getTargetX(x: Float): Float {
-        return if (x > metrics.widthPixels / 2) {
-            buttonContainer.width - buttonView.measuredWidth * 0.9f
-        } else {
-            -buttonView.measuredWidth * 0.1f
-        }
-    }
 
     fun setOnClickListener(listener: ClickListener) {
         this.clickListener = listener
     }
 
     fun init() {
-        position.set(metrics.widthPixels - buttonSize * 0.9f, metrics.heightPixels / 3f)
+        screen = Screen(context, windowController)
+        sideDock = Dock(screen)
+        initExitView()
+        buttonView = initScreenshotButton(screen, sideDock)
 
-        dragView = FloatingView(context)
-        initDragView(dragView)
-
-        buttonContainer = FloatingView(context)
-        initButton(buttonContainer)
+        screen.onBoundaryUpdateListener = Runnable {
+            buttonView.moveTo(sideDock)
+        }
     }
 
-    private fun initButton(buttonContainer: FloatingView)  {
-        trashView = onCreateTrashView(context, buttonContainer)
+    private fun initScreenshotButton(screen: Screen, dock: Dock): FloatingView {
+        val buttonView = FloatingView.create(createButtonView(context), dock, buttonSize, buttonSize,
+                true, windowController)
+
+        buttonView.dragListener = object : DragHelper.DragListener {
+            override fun onTap() {
+                clickListener?.onScreenshotButtonClicked()
+            }
+
+            override fun onLongPress() {
+
+            }
+
+            override fun onDrag(x: Float, y: Float) {
+                exitView.visibility = View.VISIBLE
+                if (y >= exitView.y) {
+                    if (!buttonView.stickToCurrentPosition) {
+                        buttonView.stickToCurrentPosition = true
+                        buttonView.animateTo(exitDock, OvershootInterpolator(), 300)
+                    }
+                } else {
+                    buttonView.stickToCurrentPosition = false
+                }
+            }
+
+            override fun onRelease(x: Float, y: Float) {
+                if (y < exitView.top) {
+                    dock.updatePosition(x.toInt(), y.toInt())
+                    buttonView.animateTo(dock, OvershootInterpolator(), 500)
+                } else {
+                    val animator = buttonView.animate().scaleX(0f).scaleY(0f)
+                    animator.duration = 200
+                    animator.interpolator = AccelerateInterpolator()
+                    animator.setListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator?) {
+                            clickListener?.onScreenshotButtonLongClicked()
+                        }
+                    })
+                }
+                exitView.visibility = View.INVISIBLE
+            }
+        }
+
+        screen.addView(buttonView, buttonSize, buttonSize)
+        buttonView.post {
+            buttonView.moveTo(sideDock)
+        }
+        return buttonView
+    }
+
+    private fun initExitView()  {
+        exitView = FloatingView.create(createExitView(context), sideDock, ViewGroup.LayoutParams.MATCH_PARENT,
+                EXIT_VIEW_HEIGHT_DP.dpToPx(metrics), false, windowController)
         val trashParams = RelativeLayout.LayoutParams(ViewGroup.MarginLayoutParams.MATCH_PARENT,
-                120f.dpToPx(metrics))
+                EXIT_VIEW_HEIGHT_DP.dpToPx(metrics))
         trashParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
-        trashView.visibility = View.GONE
-        buttonContainer.addView(trashView, trashParams)
+        exitView.visibility = View.INVISIBLE
+        screen.containerView.addView(exitView, trashParams)
 
-        val size = 75f.dpToPx(context.resources.displayMetrics)
-        buttonView = onCreateButtonView(context, buttonContainer)
-        buttonContainer.addView(buttonView, size, size)
-        buttonView.x = position.x
-        buttonView.y = position.y
+        exitDock = object : Dock(screen) {
+            override fun resolveX(targetSize: Int): Float {
+                return (exitView.left + exitView.right) / 2f
+            }
 
-        buttonContainer.addOnLayoutChangeListener(onLayoutChangeListener)
+            override fun resolveY(targetSize: Int): Float {
+                return (exitView.top + exitView.bottom) / 2f
+            }
 
-        buttonContainer.addToWindow(WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                false)
-        if (debugView) {
-            buttonContainer.setBackgroundColor(Color.parseColor("#55ff0000"))
+            override fun updatePosition(x: Int, y: Int) {
+
+            }
         }
-    }
-
-    private fun initDragView(dragView: FloatingView) {
-        val size = 75f.dpToPx(context.resources.displayMetrics)
-        val view = View(context)
-
-        dragView.dragListener = dragListener
-        dragView.addView(view, size, size)
-        if (debugView) {
-            dragView.setBackgroundColor(Color.parseColor("#88cccc00"))
-        }
-        dragView.addToWindow(WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                true)
-        dragView.moveTo(position.x.toInt(), position.y.toInt())
     }
 
     fun destroy() {
-        buttonContainer.removeOnLayoutChangeListener(onLayoutChangeListener)
-        buttonContainer.removeFromWindow()
-        dragView.removeFromWindow()
+        buttonView.detachFromWindow()
+        screen.detachFromWindow()
     }
 
     fun show() {
-        view?.visibility = View.VISIBLE
+        buttonView.visibility = View.VISIBLE
     }
 
     fun hide() {
-        view?.visibility = View.INVISIBLE
+        buttonView.visibility = View.INVISIBLE
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    private fun onCreateButtonView(context: Context, container: ViewGroup): View {
+    private fun createButtonView(context: Context): View {
         val view = View(context)
         view.setBackgroundResource(R.drawable.circle_bg)
-        this.view = view
         return view
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    private fun onCreateTrashView(context: Context, container: ViewGroup): View {
+    private fun createExitView(context: Context): View {
         val view = TextView(context)
         view.text = "X"
         view.textSize = 15f.dpToPx(metrics).toFloat()
@@ -200,14 +158,6 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
         view.setTextColor(Color.parseColor("#ff8800"))
         view.setBackgroundColor(Color.parseColor("#88000000"))
         return view
-    }
-
-    private fun convertToOrigin(center: PointF, view: View) {
-        val x = center.x
-        val y = center.y
-        val width = view.measuredWidth
-        val height = view.measuredHeight
-        center.set(x - width / 2f, y - height / 2f)
     }
 
     interface ClickListener {

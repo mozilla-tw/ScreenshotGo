@@ -30,8 +30,7 @@
             android:noHistory="true"
             android:taskAffinity="org.mozilla.choose_collection"
             android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="adjustNothing"
-            android:excludeFromRecents="true"/>
+            android:windowSoftInputMode="adjustNothing" />
         <activity android:name=".detailpage.DetailPageActivity"></activity>
     </application>
 

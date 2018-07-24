@@ -34,6 +34,8 @@ class CollectionFragment : Fragment() {
     companion object {
         const val ARG_COLLECTION_ID = "collection_id"
         const val ARG_COLLECTION_NAME = "collection_name"
+
+        private const val SPAN_COUNT = 3
     }
 
     private lateinit var screenshotListView: RecyclerView
@@ -90,10 +92,10 @@ class CollectionFragment : Fragment() {
     }
 
     private fun initScreenshotList(context: Context) {
-        val manager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+        val manager = GridLayoutManager(context, SPAN_COUNT, GridLayoutManager.VERTICAL, false)
         screenshotListView.layoutManager = manager
         screenshotListView.adapter = screenshotAdapter
-        screenshotListView.addItemDecoration(GridItemDecoration(2,
+        screenshotListView.addItemDecoration(GridItemDecoration(SPAN_COUNT,
                 8f.dpToPx(context.resources.displayMetrics)))
 
         val viewModel = ScreenshotViewModel.get(this)

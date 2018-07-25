@@ -2,9 +2,11 @@ package org.mozilla.scryer.capture
 
 import android.app.Activity
 import android.content.Context
+import android.content.Context.WINDOW_SERVICE
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
+import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.Image
@@ -14,6 +16,9 @@ import android.media.projection.MediaProjectionManager
 import android.os.Environment
 import android.os.Handler
 import android.os.HandlerThread
+import android.util.DisplayMetrics
+import android.view.Display
+import android.view.WindowManager
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -24,10 +29,12 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
     private var imageReader: ImageReader? = null
     private val workerHandler: Handler
     private val uiHandler: Handler
+    private var defaultDisplay: Display
     private var virtualDisplay: VirtualDisplay? = null
+    private val metrics: DisplayMetrics = DisplayMetrics()
     private val density: Int
-    private val width: Int
-    private val height: Int
+    private var width = 0
+    private var height = 0
     private val screenshotPath: String
 
     init {
@@ -35,10 +42,10 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
         ensureDir(screenshotDirectory)
         screenshotPath = screenshotDirectory.absolutePath
 
-        val metrics = context.resources.displayMetrics
+        val windowManager = context.getSystemService(WINDOW_SERVICE) as WindowManager
+        defaultDisplay = windowManager.defaultDisplay
+        defaultDisplay.getMetrics(metrics)
         density = metrics.densityDpi
-        width = metrics.widthPixels
-        height = metrics.heightPixels
 
         val handlerThread = HandlerThread("ScreenCaptureThread")
         handlerThread.start()
@@ -66,10 +73,15 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
     }
 
     private fun createVirtualDisplay() {
+        val size = Point()
+        defaultDisplay.getRealSize(size)
+        width = size.x
+        height = size.y
+
         // start capture reader
-        imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
+        imageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
         virtualDisplay = mediaProjection?.createVirtualDisplay("screen-capture",
-                width, height, density, VIRTUAL_DISPLAY_FLAGS, imageReader?.surface, null, workerHandler)
+                width, height, density, DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION, imageReader?.surface, null, workerHandler)
         imageReader?.setOnImageAvailableListener(ImageAvailableListener(), workerHandler)
     }
 
@@ -103,10 +115,13 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
                     bitmap = Bitmap.createBitmap(width + rowPadding / pixelStride, height, Bitmap.Config.ARGB_8888)
                     bitmap?.copyPixelsFromBuffer(buffer)
 
+                    // trim the screenshot to the correct size.
+                    val croppedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height);
+
                     // write bitmap to a file
-                    filePath = screenshotPath + "/my_screenshot_" + System.currentTimeMillis() + ".png"
+                    filePath = screenshotPath + "/my_screenshot_" + System.currentTimeMillis() + ".jpg"
                     fos = FileOutputStream(filePath)
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                    croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
                 }
 
             } catch (e: Exception) {
@@ -140,9 +155,4 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
             }
         }
     }
-
-    companion object {
-        private const val VIRTUAL_DISPLAY_FLAGS = DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY or DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC
-    }
-
 }

@@ -60,10 +60,12 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
     }
 
     private fun startProjection() {
-        mediaProjection = projectionManager.getMediaProjection(Activity.RESULT_OK, screenCapturePermissionIntent)
-        createVirtualDisplay()
-        // register media projection stop callback
-        mediaProjection?.registerCallback(MediaProjectionStopCallback(), workerHandler)
+        uiHandler.post {
+            mediaProjection = projectionManager.getMediaProjection(Activity.RESULT_OK, screenCapturePermissionIntent)
+            createVirtualDisplay()
+            // register media projection stop callback
+            mediaProjection?.registerCallback(MediaProjectionStopCallback(), workerHandler)
+        }
     }
 
     private fun stopProjection() {

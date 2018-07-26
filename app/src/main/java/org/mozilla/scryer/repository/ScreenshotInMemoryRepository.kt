@@ -35,8 +35,8 @@ class ScreenshotInMemoryRepository : ScreenshotRepository {
         return MutableLiveData<Map<String, ScreenshotModel>>()
     }
 
-    override fun addScreenshot(screenshot: ScreenshotModel) {
-        screenshotList.add(screenshot)
+    override fun addScreenshot(screenshots: List<ScreenshotModel>) {
+        screenshotList.addAll(screenshots)
         screenshotData.value = screenshotList
     }
 

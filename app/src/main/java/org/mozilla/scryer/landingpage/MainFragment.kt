@@ -17,6 +17,7 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
@@ -38,6 +39,8 @@ import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
+import java.io.File
+import java.util.*
 
 class MainFragment : Fragment(), PermissionFlow.ViewDelegate {
     companion object {
@@ -58,6 +61,8 @@ class MainFragment : Fragment(), PermissionFlow.ViewDelegate {
 
     private lateinit var permissionFlow: PermissionFlow
     private var storagePermissionView: View? = null
+
+    private var overlayPermissionDialog: AlertDialog? = null
 
     private val viewModel: ScreenshotViewModel by lazy {
         ScreenshotViewModel.get(this)
@@ -132,9 +137,11 @@ class MainFragment : Fragment(), PermissionFlow.ViewDelegate {
     override fun onStorageGranted() {
         log(LOG_TAG, "onStorageGranted")
         storagePermissionView?.visibility = View.GONE
-    }
 
-    private var overlayPermissionDialog: AlertDialog? = null
+        // TODO: Currently this will sync screenshots to the database every time after onResume()
+        // TODO: Find a better syncing strategy
+        readScreenshotsFromSdcard()
+    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun askForOverlayPermission() {
@@ -162,6 +169,21 @@ class MainFragment : Fragment(), PermissionFlow.ViewDelegate {
         context?.applicationContext?.apply {
             val intent = Intent(this, ScryerService::class.java)
             this.startService(intent)
+        }
+    }
+
+    private fun readScreenshotsFromSdcard() {
+        // TODO: How to determine the path?
+        val monitorDir = "${Environment.getExternalStorageDirectory()}" +
+                File.separator + "Pictures" +
+                File.separator + "Screenshots"
+
+        val dir = File(monitorDir)
+        if (dir.exists()) {
+            val models = dir.listFiles().map {
+                ScreenshotModel(UUID.randomUUID().toString(), it.absolutePath, it.lastModified(), "")
+            }
+            ScreenshotViewModel.get(this).addScreenshot(models)
         }
     }
 

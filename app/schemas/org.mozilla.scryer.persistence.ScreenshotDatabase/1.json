@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e2938e77b6f2b32ede06bc84fd59c002",
+    "identityHash": "b422886c73420655a98816c53474a10d",
     "entities": [
       {
         "tableName": "collection",
@@ -79,6 +79,14 @@
               "collection_id"
             ],
             "createSql": "CREATE  INDEX `index_screenshot_collection_id` ON `${TABLE_NAME}` (`collection_id`)"
+          },
+          {
+            "name": "index_screenshot_path",
+            "unique": true,
+            "columnNames": [
+              "path"
+            ],
+            "createSql": "CREATE UNIQUE INDEX `index_screenshot_path` ON `${TABLE_NAME}` (`path`)"
           }
         ],
         "foreignKeys": []
@@ -86,7 +94,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"e2938e77b6f2b32ede06bc84fd59c002\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"b422886c73420655a98816c53474a10d\")"
     ]
   }
 }

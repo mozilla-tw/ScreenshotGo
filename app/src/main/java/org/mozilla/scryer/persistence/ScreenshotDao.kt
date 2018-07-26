@@ -8,6 +8,7 @@ package org.mozilla.scryer.persistence
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Insert
+import android.arch.persistence.room.OnConflictStrategy.REPLACE
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Update
 
@@ -21,8 +22,8 @@ interface ScreenshotDao {
     @Query("SELECT * FROM screenshot WHERE collection_id = :collectionId")
     fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
 
-    @Insert
-    fun addScreenshot(screenshot: ScreenshotModel)
+    @Insert(onConflict = REPLACE)
+    fun addScreenshot(screenshot: List<ScreenshotModel>)
 
     @Update
     fun updateScreenshot(screenshot: ScreenshotModel)

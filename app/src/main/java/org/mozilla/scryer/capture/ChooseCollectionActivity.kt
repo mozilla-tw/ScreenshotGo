@@ -80,7 +80,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
     private fun onNewModelAvailable(model: ScreenshotModel) {
         screenshotModel = model
         Glide.with(this).load(File(screenshotModel.path)).into(findViewById(R.id.image_view))
-        screenshotViewModel.addScreenshot(screenshotModel)
+        screenshotViewModel.addScreenshot(listOf(screenshotModel))
     }
 
     private fun getValidModel(intent: Intent?): ScreenshotModel? {

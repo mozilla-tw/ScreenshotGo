@@ -115,7 +115,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
                 val model = ScreenshotModel(UUID.randomUUID().toString(), path,
                         System.currentTimeMillis(),
                         "")
-                ScryerApplication.getScreenshotRepository().addScreenshot(model)
+                ScryerApplication.getScreenshotRepository().addScreenshot(listOf(model))
             }
         })
     }

@@ -19,9 +19,9 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
     private var collectionListData = database.collectionDao().getCollections()
     private val screenshotListData = database.screenshotDao().getScreenshots()
 
-    override fun addScreenshot(screenshot: ScreenshotModel) {
+    override fun addScreenshot(screenshots: List<ScreenshotModel>) {
         executor.submit {
-            database.screenshotDao().addScreenshot(screenshot)
+            database.screenshotDao().addScreenshot(screenshots)
         }
     }
 

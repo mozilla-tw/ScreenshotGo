@@ -5,56 +5,34 @@
 
 package org.mozilla.scryer
 
-import android.Manifest
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.projection.MediaProjectionManager
-import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
 import android.support.v4.app.FragmentActivity
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
-import org.mozilla.scryer.overlay.OverlayPermission
+import org.mozilla.scryer.permission.PermissionViewModel
 
 class MainActivity : AppCompatActivity() {
+
     companion object {
-        private const val REQUEST_CODE_OVERLAY_PERMISSION = 1000
-        private const val REQUEST_CODE_WRITE_EXTERNAL_PERMISSION = 1001
+        const val REQUEST_CODE_OVERLAY_PERMISSION = 1000
+        const val REQUEST_CODE_WRITE_EXTERNAL_PERMISSION = 1001
         private const val REQUEST_CODE_SCREEN_CAPTURE_PERMISSION = 1002
     }
 
-    private var overlayRequested = false
-    private var storageRequested = false
     private var screenCaptureRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        ensureOverlayPermission()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (OverlayPermission.hasPermission(this)) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
-                if (!screenCaptureRequested) {
-                    ensureScreenCapturePermission()
-                }
-            } else if (!storageRequested) {
-                ensureStoragePermission()
-            }
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            REQUEST_CODE_OVERLAY_PERMISSION -> overlayRequested = true
-            REQUEST_CODE_WRITE_EXTERNAL_PERMISSION -> {}
             REQUEST_CODE_SCREEN_CAPTURE_PERMISSION -> {
                 val screenshotMenuIntent = Intent(applicationContext, ScryerService::class.java)
                 screenshotMenuIntent.putExtra(ScryerService.SCREEN_CAPTURE_PERMISSION_RESULT_KEY, data)
@@ -64,21 +42,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun ensureOverlayPermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M || OverlayPermission.hasPermission(this)) {
-            overlayRequested = true
-
-        } else if (!overlayRequested) {
-            val intent = OverlayPermission.createPermissionIntent(this)
-            startActivityForResult(intent, REQUEST_CODE_OVERLAY_PERMISSION)
-        }
-    }
-
-    private fun ensureStoragePermission() {
-        storageRequested = true
-        ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        val viewModel = ViewModelProviders.of(this).get(PermissionViewModel::class.java)
+        viewModel.permission(requestCode).onResult(grantResults)
     }
 
     private fun ensureScreenCapturePermission() {

@@ -5,33 +5,46 @@
 
 package org.mozilla.scryer.landingpage
 
+import android.Manifest
+import android.app.Activity
+import android.app.AlertDialog
 import android.app.SearchManager
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
+import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
+import android.util.Log
 import android.view.*
+import android.widget.Button
 import androidx.navigation.Navigation
-import org.mozilla.scryer.R
+import org.mozilla.scryer.*
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.extension.dpToPx
-import org.mozilla.scryer.getSupportActionBar
+import org.mozilla.scryer.overlay.OverlayPermission
+import org.mozilla.scryer.permission.PermissionFlow
+import org.mozilla.scryer.permission.PermissionViewModel
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
-import org.mozilla.scryer.setSupportActionBar
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 
-class MainFragment : Fragment() {
+class MainFragment : Fragment(), PermissionFlow.ViewDelegate {
     companion object {
-        const val COLLECTION_LIST_COLUMN_COUNT = 2
-        const val MAX_QUICK_ACCESS_ITEM_COUNT = 5
+        private const val LOG_TAG = "MainFragment"
+
+        const val COLLECTION_COLUMN_COUNT = 2
+        const val QUICK_ACCESS_ITEM_COUNT = 5
     }
 
     private lateinit var quickAccessListView: RecyclerView
@@ -42,6 +55,9 @@ class MainFragment : Fragment() {
 
     private lateinit var searchListView: RecyclerView
     private val searchListAdapter: SearchAdapter = SearchAdapter()
+
+    private lateinit var permissionFlow: PermissionFlow
+    private var storagePermissionView: View? = null
 
     private val viewModel: ScreenshotViewModel by lazy {
         ScreenshotViewModel.get(this)
@@ -68,58 +84,136 @@ class MainFragment : Fragment() {
         getSupportActionBar(activity).setDisplayHomeAsUpEnabled(false)
     }
 
+    override fun onResume() {
+        super.onResume()
+        permissionFlow = PermissionFlow(activity!!, this)
+        permissionFlow.start()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initQuickAccessList(view.context)
         initCollectionList(view.context)
         initSearchList(view.context)
-        super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        menu?.let {
-            createOptionsMenuSearchView(menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        activity?.let {
+            createOptionsMenuSearchView(it, menu, inflater)
         }
     }
 
-    private fun createOptionsMenuSearchView(menu: Menu) {
-        activity?.run {
-            menuInflater.inflate(R.menu.menu_main, menu)
-            val searchItem = menu.findItem(R.id.action_search)
+    override fun askForStoragePermission() {
+        val activity = activity?: return
 
-            val searchView = searchItem.actionView as SearchView
-            searchView.setIconifiedByDefault(true)
-            searchView.findViewById<View>(R.id.search_plate)?.setBackgroundColor(Color.TRANSPARENT)
+        val viewModel = ViewModelProviders.of(activity).get(PermissionViewModel::class.java)
+        val liveData = viewModel.permission(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
+        log(LOG_TAG, "storage viewModel: $viewModel, liveData: $liveData")
 
-            val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-            searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        liveData.observe(activity, Observer {
+            viewModel.consume(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
+            log(LOG_TAG, "storage liveData observed: $liveData")
+            permissionFlow.next()
+        })
 
-            searchView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-                override fun onViewDetachedFromWindow(v: View?) {
-                    searchListView.visibility = View.INVISIBLE
-                    mainListView.visibility = View.VISIBLE
-                    viewModel.getScreenshots().removeObserver(searchObserver)
-                }
+        storagePermissionView?.let {
+            it.visibility = View.VISIBLE
 
-                override fun onViewAttachedToWindow(v: View?) {
-                    searchListView.visibility = View.VISIBLE
-                    mainListView.visibility = View.INVISIBLE
-                    viewModel.getScreenshots().observe(this@MainFragment, searchObserver)
-                }
-
-            })
-
-            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    searchListAdapter.filter.filter(query)
-                    return false
-                }
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    searchListAdapter.filter.filter(newText)
-                    return false
-                }
-            })
+        }?: apply {
+            val stub = view!!.findViewById<ViewStub>(R.id.storage_permission_stub)
+            val permissionView = stub.inflate()
+            val buttonView = permissionView.findViewById<Button>(R.id.action_button)
+            buttonView.setOnClickListener {
+                requestPermissionsViaActivity(activity)
+            }
+            storagePermissionView = permissionView
         }
+    }
+
+    override fun onStorageGranted() {
+        log(LOG_TAG, "onStorageGranted")
+        storagePermissionView?.visibility = View.GONE
+    }
+
+    private var overlayPermissionDialog: AlertDialog? = null
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun askForOverlayPermission() {
+        val activity = activity?: return
+
+        overlayPermissionDialog?.show() ?: run {
+            val dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
+                    .setTitle("YOU SHALL NOT PASS!!!!")
+                    .setPositiveButton("PLEASE!!!!") { _, _ ->
+                        requestOverlayPermissionViaActivity(activity)
+                    }
+                    .create()
+
+            dialog.setCanceledOnTouchOutside(false)
+            dialog.setOnKeyListener { _, keyCode, _ -> keyCode == KeyEvent.KEYCODE_BACK }
+            dialog.show()
+
+            overlayPermissionDialog = dialog
+        }
+    }
+
+    override fun onOverlayGranted() {
+        log(LOG_TAG, "onOverlayGranted")
+        overlayPermissionDialog?.dismiss()
+        context?.applicationContext?.apply {
+            val intent = Intent(this, ScryerService::class.java)
+            this.startService(intent)
+        }
+    }
+
+    private fun requestPermissionsViaActivity(activity: Activity) {
+        log(LOG_TAG, "request permission: ${MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION}")
+        ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun requestOverlayPermissionViaActivity(activity: Activity) {
+        val intent = OverlayPermission.createPermissionIntent(activity)
+        activity.startActivityForResult(intent, MainActivity.REQUEST_CODE_OVERLAY_PERMISSION)
+    }
+
+    private fun createOptionsMenuSearchView(activity: Activity, menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_main, menu)
+        val searchItem = menu.findItem(R.id.action_search)
+
+        val searchView = searchItem.actionView as SearchView
+        searchView.setIconifiedByDefault(true)
+        searchView.findViewById<View>(R.id.search_plate)?.setBackgroundColor(Color.TRANSPARENT)
+
+        val searchManager = activity.getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(activity.componentName))
+
+        searchView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewDetachedFromWindow(v: View?) {
+                searchListView.visibility = View.INVISIBLE
+                mainListView.visibility = View.VISIBLE
+                viewModel.getScreenshots().removeObserver(searchObserver)
+            }
+
+            override fun onViewAttachedToWindow(v: View?) {
+                searchListView.visibility = View.VISIBLE
+                mainListView.visibility = View.INVISIBLE
+                viewModel.getScreenshots().observe(this@MainFragment, searchObserver)
+            }
+
+        })
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                searchListAdapter.filter.filter(query)
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                searchListAdapter.filter.filter(newText)
+                return false
+            }
+        })
     }
 
     private fun initQuickAccessList(context: Context) {
@@ -150,22 +244,22 @@ class MainFragment : Fragment() {
         viewModel.getScreenshots().observe(this, Observer { screenshots ->
             screenshots?.let { newList ->
                 val finalList = newList.sortedByDescending { it.date }
-                        .subList(0, Math.min(newList.size, MAX_QUICK_ACCESS_ITEM_COUNT + 1))
+                        .subList(0, Math.min(newList.size, QUICK_ACCESS_ITEM_COUNT + 1))
                 updateQuickAccessListView(finalList)
             }
         })
     }
 
     private fun initCollectionList(context: Context) {
-        val manager = GridLayoutManager(context, COLLECTION_LIST_COLUMN_COUNT, GridLayoutManager.VERTICAL, false)
-        manager.spanSizeLookup = MainAdapter.SpanSizeLookup(COLLECTION_LIST_COLUMN_COUNT)
+        val manager = GridLayoutManager(context, COLLECTION_COLUMN_COUNT, GridLayoutManager.VERTICAL, false)
+        manager.spanSizeLookup = MainAdapter.SpanSizeLookup(COLLECTION_COLUMN_COUNT)
         mainListView.layoutManager = manager
 
         mainAdapter.quickAccessListView = quickAccessListView
         mainListView.adapter = mainAdapter
 
         val space = 8f.dpToPx(context.resources.displayMetrics)
-        mainListView.addItemDecoration(MainAdapter.ItemDecoration(COLLECTION_LIST_COLUMN_COUNT, space))
+        mainListView.addItemDecoration(MainAdapter.ItemDecoration(COLLECTION_COLUMN_COUNT, space))
 
         viewModel.getCollections().observe(this, Observer { collections ->
             collections?.let { newData ->
@@ -182,11 +276,11 @@ class MainFragment : Fragment() {
     }
 
     private fun initSearchList(context: Context) {
-        val manager = GridLayoutManager(context, COLLECTION_LIST_COLUMN_COUNT, GridLayoutManager.VERTICAL, false)
+        val manager = GridLayoutManager(context, COLLECTION_COLUMN_COUNT, GridLayoutManager.VERTICAL, false)
         searchListView.layoutManager = manager
         searchListView.adapter = searchListAdapter
         val space = 8f.dpToPx(context.resources.displayMetrics)
-        searchListView.addItemDecoration(GridItemDecoration(COLLECTION_LIST_COLUMN_COUNT, space))
+        searchListView.addItemDecoration(GridItemDecoration(COLLECTION_COLUMN_COUNT, space))
     }
 
     private fun updateQuickAccessListView(screenshots: List<ScreenshotModel>) {
@@ -197,5 +291,9 @@ class MainFragment : Fragment() {
     private fun updateCollectionListView(collections: List<CollectionModel>) {
         mainAdapter.collectionList = collections
         mainAdapter.notifyDataSetChanged()
+    }
+
+    private fun log(tag: String, msg: String) {
+        Log.d(tag, msg)
     }
 }

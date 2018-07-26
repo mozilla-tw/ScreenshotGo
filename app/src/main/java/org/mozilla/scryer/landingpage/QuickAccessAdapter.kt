@@ -24,7 +24,7 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
     var list: List<ScreenshotModel> = emptyList()
     var clickListener: ItemClickListener? = null
 
-    private val maxItemsToDisplay = MainFragment.MAX_QUICK_ACCESS_ITEM_COUNT
+    private val maxItemsToDisplay = MainFragment.QUICK_ACCESS_ITEM_COUNT
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScreenshotItemHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)

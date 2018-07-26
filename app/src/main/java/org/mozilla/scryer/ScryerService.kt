@@ -82,7 +82,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
             isRunning = true
             initFloatingButton()
             initFileMonitors()
-            screenCapturePermissionIntent = intent.extras.getParcelable(SCREEN_CAPTURE_PERMISSION_RESULT_KEY)
+            //screenCapturePermissionIntent = intent.extras.getParcelable(SCREEN_CAPTURE_PERMISSION_RESULT_KEY)
 
         } else when (intent.action) {
             ACTION_CAPTURE_SCREEN -> postTakeScreenshot(DELAY_CAPTURE_NOTIFICATION)

@@ -34,4 +34,10 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <ViewStub
+        android:id="@+id/storage_permission_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout="@layout/view_storage_permission"/>
+
 </android.support.constraint.ConstraintLayout>

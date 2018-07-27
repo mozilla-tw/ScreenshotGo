@@ -16,6 +16,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.support.v4.app.NotificationCompat
+import android.text.TextUtils
 import org.mozilla.scryer.capture.ChooseCollectionActivity
 import org.mozilla.scryer.capture.RequestCaptureActivity
 import org.mozilla.scryer.capture.ScreenCaptureListener
@@ -145,8 +146,12 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
                 override fun onReceive(context: Context, intent: Intent) {
                     applicationContext.unregisterReceiver(requestCaptureReceiver)
 
-                    //val resultCode = intent.getIntExtra(RequestCaptureActivity.RESULT_EXTRA_CODE,
-                    //        Activity.RESULT_CANCELED)
+                    val resultCode = intent.getIntExtra(RequestCaptureActivity.RESULT_EXTRA_CODE, Activity.RESULT_CANCELED)
+                    if (resultCode != Activity.RESULT_OK) {
+                        onScreenShotTaken("")
+                        return
+                    }
+
                     screenCapturePermissionIntent = intent.getParcelableExtra(RequestCaptureActivity.RESULT_EXTRA_DATA)
                     screenCaptureManager = ScreenCaptureManager(applicationContext, screenCapturePermissionIntent!!, this@ScryerService)
 
@@ -166,7 +171,9 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
 
     override fun onScreenShotTaken(path: String) {
         floatingButtonController.show()
-        startChooseCollectionActivity(path)
+        if (!TextUtils.isEmpty(path)) {
+            startChooseCollectionActivity(path)
+        }
     }
 
     private fun startChooseCollectionActivity(path: String) {

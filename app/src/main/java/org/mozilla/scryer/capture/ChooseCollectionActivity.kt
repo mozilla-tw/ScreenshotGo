@@ -5,45 +5,31 @@
 
 package org.mozilla.scryer.capture
 
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.support.design.widget.BottomSheetBehavior
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
-import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
-import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
-import org.mozilla.scryer.ui.GridItemDecoration
+import org.mozilla.scryer.sortingpanel.SortingPanel
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.util.*
 
 class ChooseCollectionActivity : AppCompatActivity() {
     companion object {
-        private const val GRID_SPAN_COUNT = 2
-        private const val GRID_CELL_SPACE_DP = 6f
-
         const val EXTRA_PATH = "path"
     }
 
-    private val adapter = ChooseCollectionAdapter(this, this::onItemClicked)
-
-    private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.panel_recycler_view) }
+    private val sortingPanel: SortingPanel by lazy { findViewById<SortingPanel>(R.id.sorting_panel) }
 
     private val screenshotViewModel: ScreenshotViewModel by lazy {
         ScreenshotViewModel.get(this)
@@ -59,18 +45,17 @@ class ChooseCollectionActivity : AppCompatActivity() {
             onNewModelAvailable(it)
         } ?: finish()
 
-        initRecyclerView()
-        initPanel()
+        sortingPanel.collectionSource = screenshotViewModel.getCollections()
+        sortingPanel.callback = object : SortingPanel.Callback {
+            override fun onClick(collection: CollectionModel) {
+                onItemClicked(collection)
+            }
 
-        screenshotViewModel.getCollections()
-                .observe(this, Observer { collections ->
-                    collections?.filter {
-                        it.id != CollectionModel.CATEGORY_NONE
-                    }?.let {
-                        adapter.collectionList = it
-                        adapter.notifyDataSetChanged()
-                    }
-                })
+            override fun onNewCollectionClick() {
+                onNewCollectionClicked()
+            }
+        }
+        lifecycle.addObserver(sortingPanel)
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -82,7 +67,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
 
     private fun onNewModelAvailable(model: ScreenshotModel) {
         screenshotModel = model
-        Glide.with(this).load(File(screenshotModel.path)).into(findViewById(R.id.image_view))
+        sortingPanel.screenshot = screenshotModel
         screenshotViewModel.addScreenshot(listOf(screenshotModel))
     }
 
@@ -105,51 +90,6 @@ class ChooseCollectionActivity : AppCompatActivity() {
         return if (file.exists()) file.absolutePath else ""
     }
 
-    private fun initRecyclerView() {
-        recyclerView.layoutManager = GridLayoutManager(this, GRID_SPAN_COUNT,
-                GridLayoutManager.VERTICAL,
-                false)
-
-        recyclerView.addItemDecoration(GridItemDecoration(GRID_SPAN_COUNT,
-                GRID_CELL_SPACE_DP.dpToPx(this.resources.displayMetrics)))
-        recyclerView.adapter = this.adapter
-    }
-
-    private fun initPanel() {
-        val panelView = findViewById<View>(R.id.panel_container)
-        val behavior = BottomSheetBehavior.from(panelView)
-
-        behavior.state = BottomSheetBehavior.STATE_EXPANDED
-        behavior.peekHeight = resources.getDimensionPixelSize(
-                R.dimen.sorting_panel_title_height)
-
-        val panelTitle = panelView.findViewById<View>(R.id.panel_title)
-        panelTitle.setOnClickListener {
-            if (behavior.state != BottomSheetBehavior.STATE_EXPANDED) {
-                behavior.state = BottomSheetBehavior.STATE_EXPANDED
-            }
-        }
-
-        val rootView = findViewById<View>(R.id.root_view)
-        rootView.setOnClickListener {
-            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-
-        val overlay = findViewById<View>(R.id.background_overlay)
-        when (behavior.state) {
-            BottomSheetBehavior.STATE_EXPANDED -> overlay.alpha = 1f
-            BottomSheetBehavior.STATE_COLLAPSED -> overlay.alpha = 0f
-        }
-
-        behavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                overlay.alpha = slideOffset
-            }
-
-            override fun onStateChanged(bottomSheet: View, newState: Int) {}
-        })
-    }
-
     private fun onItemClicked(collection: CollectionModel) {
         Toast.makeText(this, "save to ${collection.name}", Toast.LENGTH_SHORT).show()
         screenshotModel.collectionId = collection.id
@@ -161,10 +101,11 @@ class ChooseCollectionActivity : AppCompatActivity() {
         val dialogView = View.inflate(this, R.layout.dialog_add_collection, null)
         val editText = dialogView.findViewById<EditText>(R.id.edit_text)
 
+        val random = Random()
         val dialog = AlertDialog.Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
                 .setView(dialogView)
                 .setPositiveButton("DONE") { _, _ ->
-                    val model = CollectionModel(editText.text.toString(), System.currentTimeMillis())
+                    val model = CollectionModel(editText.text.toString(), System.currentTimeMillis(), Color.argb(255, random.nextInt(255), random.nextInt(255), random.nextInt(255)))
                     screenshotViewModel.addCollection(model)
                 }.create()
 
@@ -182,105 +123,5 @@ class ChooseCollectionActivity : AppCompatActivity() {
         dialog.show()
         editText.requestFocus()
         dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-    }
-
-    private class ChooseCollectionAdapter(private var activity: ChooseCollectionActivity,
-                                          private var itemClickListener: (CollectionModel) -> Unit)
-        : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-        companion object {
-            private const val TYPE_FIXED_ITEM = 0
-            private const val TYPE_DATA_ITEM = 1
-
-            private const val POSITION_NEW_COLLECTION = 0
-        }
-
-        var collectionList: List<CollectionModel>? = null
-        private val fixedItems = listOf("Create new collection")
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            when (viewType) {
-                TYPE_FIXED_ITEM -> {
-                    return createFixedViewHolder(parent)
-                }
-
-                TYPE_DATA_ITEM -> {
-                    return createDataViewHolder(parent)
-                }
-            }
-            throw IllegalStateException("unexpected item type $viewType")
-        }
-
-        override fun getItemCount(): Int {
-            return fixedItems.size + (collectionList?.size?:0)
-        }
-
-        override fun getItemViewType(position: Int): Int {
-            return if (position < fixedItems.size) TYPE_FIXED_ITEM else TYPE_DATA_ITEM
-        }
-
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            if (holder is DataViewHolder) {
-                (holder.itemView as TextView).text = collectionList?.let {
-                    it[position - fixedItems.size].name
-                }
-            } else if (holder is FixedViewHolder) {
-                (holder.itemView as TextView).text = fixedItems[position]
-            }
-        }
-
-        private fun createFixedViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
-            val view = TextView(parent.context)
-            view.setBackgroundColor(Color.LTGRAY)
-            view.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500)
-            view.setTextColor(Color.BLACK)
-            view.gravity = Gravity.CENTER
-
-            val holder = FixedViewHolder(view)
-            holder.itemView.setOnClickListener { _ ->
-                holder.adapterPosition.takeIf { position ->
-                    position != RecyclerView.NO_POSITION
-
-                }?.let { position: Int ->
-                    onFixedItemClicked(position)
-                }
-            }
-            return holder
-        }
-
-        private fun createDataViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
-            val view = TextView(parent.context)
-            view.setBackgroundColor(Color.LTGRAY)
-            view.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500)
-            view.setTextColor(Color.BLACK)
-            view.gravity = Gravity.CENTER
-
-            val holder = DataViewHolder(view)
-            holder.itemView.setOnClickListener { _ ->
-                holder.adapterPosition.takeIf { position ->
-                    position != RecyclerView.NO_POSITION
-
-                }?.let { position: Int ->
-                    collectionList?.let {
-                        itemClickListener.invoke(it[position - fixedItems.size])
-                    }
-                }
-            }
-            return holder
-        }
-
-        private fun createNewCollection() {
-            activity.onNewCollectionClicked()
-        }
-
-        private fun onFixedItemClicked(position :Int) {
-            when (position) {
-                POSITION_NEW_COLLECTION -> {
-                    createNewCollection()
-                }
-            }
-        }
-
-        class DataViewHolder(view: View) : RecyclerView.ViewHolder(view)
-        class FixedViewHolder(view: View) : RecyclerView.ViewHolder(view)
     }
 }

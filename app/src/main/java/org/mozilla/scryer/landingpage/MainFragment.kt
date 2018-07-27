@@ -140,7 +140,7 @@ class MainFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         // TODO: Currently this will sync screenshots to the database every time after onResume()
         // TODO: Find a better syncing strategy
-        readScreenshotsFromSdcard()
+        //readScreenshotsFromSdcard()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

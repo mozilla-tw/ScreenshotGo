@@ -14,6 +14,7 @@ import java.util.*
 data class CollectionModel constructor(
         @ColumnInfo(name = "name") val name: String,
         @ColumnInfo(name = "date") val date: Long,
+        @ColumnInfo(name = "color") val color: Int,
         @PrimaryKey(autoGenerate = false) val id: String = UUID.randomUUID().toString()) {
 
     companion object {

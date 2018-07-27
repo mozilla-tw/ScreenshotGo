@@ -25,7 +25,7 @@ interface ScreenshotDao {
     @Insert(onConflict = REPLACE)
     fun addScreenshot(screenshot: List<ScreenshotModel>)
 
-    @Update
+    @Update(onConflict = REPLACE)
     fun updateScreenshot(screenshot: ScreenshotModel)
 
     @Query("SELECT screenshot.* FROM (SELECT id, max(date) AS max_date FROM screenshot GROUP BY collection_id) AS latest INNER JOIN screenshot ON latest.id = screenshot.id AND screenshot.date = latest.max_date")

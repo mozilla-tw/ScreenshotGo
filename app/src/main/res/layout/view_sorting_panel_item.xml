@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/sorting_panel_item_height"
+    android:background="@drawable/sorting_panel_bkg">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/sorting_panel_item_ripple" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@android:color/black"
+        tools:text = "Collection" />
+
+</android.support.constraint.ConstraintLayout>

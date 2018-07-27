@@ -8,6 +8,7 @@ package org.mozilla.scryer.repository
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
+import android.graphics.Color
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotDatabase
 import org.mozilla.scryer.persistence.ScreenshotModel
@@ -58,13 +59,13 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
     }
 
     override fun setupDefaultContent() {
-        val none = CollectionModel("Unsorted", 0, CollectionModel.CATEGORY_NONE)
-        val music = CollectionModel("Music", System.currentTimeMillis())
-        val shopping = CollectionModel("Shopping", System.currentTimeMillis())
-        val secret = CollectionModel("Secret", System.currentTimeMillis())
+        val none = CollectionModel("Unsorted", 0, Color.parseColor("#559fd8"), CollectionModel.CATEGORY_NONE)
+        val shopping = CollectionModel("Shopping", System.currentTimeMillis(), Color.parseColor("#f28dd2"))
+        val music = CollectionModel("Music", System.currentTimeMillis(), Color.parseColor("#fdd757"))
+        val secret = CollectionModel("Secret", System.currentTimeMillis(), Color.parseColor("#8ce2d0"))
         addCollection(none)
-        addCollection(music)
         addCollection(shopping)
+        addCollection(music)
         addCollection(secret)
     }
 }

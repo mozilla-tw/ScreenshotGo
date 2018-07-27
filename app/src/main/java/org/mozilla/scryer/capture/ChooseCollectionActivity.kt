@@ -9,6 +9,7 @@ import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.support.design.widget.BottomSheetBehavior
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
@@ -42,7 +43,8 @@ class ChooseCollectionActivity : AppCompatActivity() {
 
     private val adapter = ChooseCollectionAdapter(this, this::onItemClicked)
 
-    private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.recycler_view) }
+    private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.panel_recycler_view) }
+
     private val screenshotViewModel: ScreenshotViewModel by lazy {
         ScreenshotViewModel.get(this)
     }
@@ -58,6 +60,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
         } ?: finish()
 
         initRecyclerView()
+        initPanel()
 
         screenshotViewModel.getCollections()
                 .observe(this, Observer { collections ->
@@ -110,6 +113,41 @@ class ChooseCollectionActivity : AppCompatActivity() {
         recyclerView.addItemDecoration(GridItemDecoration(GRID_SPAN_COUNT,
                 GRID_CELL_SPACE_DP.dpToPx(this.resources.displayMetrics)))
         recyclerView.adapter = this.adapter
+    }
+
+    private fun initPanel() {
+        val panelView = findViewById<View>(R.id.panel_container)
+        val behavior = BottomSheetBehavior.from(panelView)
+
+        behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        behavior.peekHeight = resources.getDimensionPixelSize(
+                R.dimen.sorting_panel_title_height)
+
+        val panelTitle = panelView.findViewById<View>(R.id.panel_title)
+        panelTitle.setOnClickListener {
+            if (behavior.state != BottomSheetBehavior.STATE_EXPANDED) {
+                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+
+        val rootView = findViewById<View>(R.id.root_view)
+        rootView.setOnClickListener {
+            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+
+        val overlay = findViewById<View>(R.id.background_overlay)
+        when (behavior.state) {
+            BottomSheetBehavior.STATE_EXPANDED -> overlay.alpha = 1f
+            BottomSheetBehavior.STATE_COLLAPSED -> overlay.alpha = 0f
+        }
+
+        behavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                overlay.alpha = slideOffset
+            }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {}
+        })
     }
 
     private fun onItemClicked(collection: CollectionModel) {

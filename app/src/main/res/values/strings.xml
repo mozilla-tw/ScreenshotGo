@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Scryer</string>
+
+    <!-- Sorting panel -->
+    <string name="sorting_panel_title">Add to collection</string>
+    <string name="skip">skip</string>
 </resources>

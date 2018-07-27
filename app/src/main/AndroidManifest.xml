@@ -32,6 +32,11 @@
             android:theme="@style/Theme.AppCompat.NoActionBar"
             android:windowSoftInputMode="adjustNothing" />
         <activity android:name=".detailpage.DetailPageActivity"></activity>
+        <activity
+            android:name=".capture.RequestCaptureActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar.Translucent" />
     </application>
 
 </manifest>

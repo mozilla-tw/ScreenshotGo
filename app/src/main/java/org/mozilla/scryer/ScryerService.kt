@@ -7,14 +7,17 @@ package org.mozilla.scryer
 
 import android.annotation.TargetApi
 import android.app.*
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.support.v4.app.NotificationCompat
 import org.mozilla.scryer.capture.ChooseCollectionActivity
+import org.mozilla.scryer.capture.RequestCaptureActivity
 import org.mozilla.scryer.capture.ScreenCaptureListener
 import org.mozilla.scryer.capture.ScreenCaptureManager
 import org.mozilla.scryer.filemonitor.FileMonitor
@@ -37,8 +40,6 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
 
         private const val DELAY_CAPTURE_NOTIFICATION = 1000L
         private const val DELAY_CAPTURE_FAB = 0L
-
-        const val SCREEN_CAPTURE_PERMISSION_RESULT_KEY = "SCREEN_CAPTURE_PERMISSION_RESULT"
     }
 
     private var isRunning: Boolean = false
@@ -46,10 +47,10 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
         ScreenshotButtonController(applicationContext)
     }
 
-    private lateinit var screenCapturePermissionIntent: Intent
-    private val screenCaptureManager: ScreenCaptureManager by lazy {
-        ScreenCaptureManager(applicationContext, screenCapturePermissionIntent, this)
-    }
+    private var screenCapturePermissionIntent: Intent? = null
+    private var screenCaptureManager: ScreenCaptureManager? = null
+    private lateinit var requestCaptureFilter: IntentFilter
+    private lateinit var requestCaptureReceiver: BroadcastReceiver
 
     private val fileMonitor: FileMonitor by lazy {
         //FileMonitor(FileObserverDelegate(Handler(Looper.getMainLooper())))
@@ -82,7 +83,6 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
             isRunning = true
             initFloatingButton()
             initFileMonitors()
-            //screenCapturePermissionIntent = intent.extras.getParcelable(SCREEN_CAPTURE_PERMISSION_RESULT_KEY)
 
         } else when (intent.action) {
             ACTION_CAPTURE_SCREEN -> postTakeScreenshot(DELAY_CAPTURE_NOTIFICATION)
@@ -136,7 +136,32 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     private fun takeScreenshot() {
-        screenCaptureManager.captureScreen()
+        if (screenCapturePermissionIntent != null) {
+            screenCaptureManager?.captureScreen()
+        } else {
+
+            requestCaptureFilter = IntentFilter(RequestCaptureActivity.getResultBroadcastAction(applicationContext))
+            requestCaptureReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    applicationContext.unregisterReceiver(requestCaptureReceiver)
+
+                    //val resultCode = intent.getIntExtra(RequestCaptureActivity.RESULT_EXTRA_CODE,
+                    //        Activity.RESULT_CANCELED)
+                    screenCapturePermissionIntent = intent.getParcelableExtra(RequestCaptureActivity.RESULT_EXTRA_DATA)
+                    screenCaptureManager = ScreenCaptureManager(applicationContext, screenCapturePermissionIntent!!, this@ScryerService)
+
+                    if (intent.getBooleanExtra(RequestCaptureActivity.RESULT_EXTRA_PROMPT_SHOWN, true)) {
+                        // Delay capture until after the permission dialog is gone.
+                        handler.postDelayed({ screenCaptureManager?.captureScreen() }, 500)
+                    } else {
+                        screenCaptureManager?.captureScreen()
+                    }
+                }
+            }
+
+            applicationContext.registerReceiver(requestCaptureReceiver, requestCaptureFilter)
+            applicationContext.startActivity(Intent(applicationContext, RequestCaptureActivity::class.java))
+        }
     }
 
     override fun onScreenShotTaken(path: String) {

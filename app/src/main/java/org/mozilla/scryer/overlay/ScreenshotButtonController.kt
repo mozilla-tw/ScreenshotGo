@@ -137,11 +137,11 @@ class ScreenshotButtonController(private val context: Context) : DefaultLifecycl
     }
 
     fun show() {
-        buttonView.visibility = View.VISIBLE
+        screen.containerView.visibility = View.VISIBLE
     }
 
     fun hide() {
-        buttonView.visibility = View.INVISIBLE
+        screen.containerView.visibility = View.INVISIBLE
     }
 
     private fun createButtonView(context: Context): View {

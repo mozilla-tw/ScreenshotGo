@@ -13,8 +13,10 @@ import android.provider.MediaStore
 
 class MediaProviderDelegate(private val context: Context, private val handler: Handler?) : FileMonitorDelegate {
 
+    private var observer: ContentObserver? = null
+
     override fun startMonitor(listener: FileMonitor.ChangeListener) {
-        val observer: ContentObserver = object : ContentObserver(handler) {
+        observer = object : ContentObserver(handler) {
             override fun onChange(selfChange: Boolean, uri: Uri?) {
                 if (!uri.toString().contains(MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())) {
                     return
@@ -48,5 +50,11 @@ class MediaProviderDelegate(private val context: Context, private val handler: H
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 true,
                 observer)
+    }
+
+    override fun stopMonitor() {
+        observer?.let {
+            context.contentResolver.unregisterContentObserver(it)
+        }
     }
 }

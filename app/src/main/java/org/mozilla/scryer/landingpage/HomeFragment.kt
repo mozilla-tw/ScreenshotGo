@@ -42,9 +42,9 @@ import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.util.*
 
-class MainFragment : Fragment(), PermissionFlow.ViewDelegate {
+class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     companion object {
-        private const val LOG_TAG = "MainFragment"
+        private const val LOG_TAG = "HomeFragment"
 
         const val COLLECTION_COLUMN_COUNT = 2
         const val QUICK_ACCESS_ITEM_COUNT = 5
@@ -82,23 +82,21 @@ class MainFragment : Fragment(), PermissionFlow.ViewDelegate {
         return layout
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        setHasOptionsMenu(true)
-        setSupportActionBar(activity, view!!.findViewById(R.id.toolbar))
-        getSupportActionBar(activity).setDisplayHomeAsUpEnabled(false)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        permissionFlow = PermissionFlow(activity!!, this)
-        permissionFlow.start()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initQuickAccessList(view.context)
         initCollectionList(view.context)
         initSearchList(view.context)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        initActionBar()
+        permissionFlow = PermissionFlow(activity!!, this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        permissionFlow.start()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -172,6 +170,12 @@ class MainFragment : Fragment(), PermissionFlow.ViewDelegate {
         }
     }
 
+    private fun initActionBar() {
+        setHasOptionsMenu(true)
+        setSupportActionBar(activity, view!!.findViewById(R.id.toolbar))
+        getSupportActionBar(activity).setDisplayHomeAsUpEnabled(false)
+    }
+
     private fun readScreenshotsFromSdcard() {
         // TODO: How to determine the path?
         val monitorDir = "${Environment.getExternalStorageDirectory()}" +
@@ -220,7 +224,7 @@ class MainFragment : Fragment(), PermissionFlow.ViewDelegate {
             override fun onViewAttachedToWindow(v: View?) {
                 searchListView.visibility = View.VISIBLE
                 mainListView.visibility = View.INVISIBLE
-                viewModel.getScreenshots().observe(this@MainFragment, searchObserver)
+                viewModel.getScreenshots().observe(this@HomeFragment, searchObserver)
             }
 
         })

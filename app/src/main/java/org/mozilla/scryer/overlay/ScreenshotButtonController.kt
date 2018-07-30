@@ -7,7 +7,6 @@ package org.mozilla.scryer.overlay
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.arch.lifecycle.DefaultLifecycleObserver
 import android.content.Context
 import android.graphics.Color
 import android.view.Gravity
@@ -21,7 +20,7 @@ import android.widget.TextView
 import org.mozilla.scryer.R
 import org.mozilla.scryer.extension.dpToPx
 
-class ScreenshotButtonController(private val context: Context) : DefaultLifecycleObserver {
+class ScreenshotButtonController(private val context: Context) {
     companion object {
         const val BUTTON_SIZE_DP = 75f
         const val EXIT_VIEW_HEIGHT_DP = 180f

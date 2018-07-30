@@ -11,7 +11,8 @@ import android.os.Handler
 import java.io.File
 
 class FileObserverDelegate(private val handler: Handler) : FileMonitorDelegate {
-    private lateinit var observer: FileObserver
+
+    private var observer: FileObserver? = null
 
     override fun startMonitor(listener: FileMonitor.ChangeListener) {
         val monitorDir = "${Environment.getExternalStorageDirectory()}" +
@@ -29,7 +30,12 @@ class FileObserverDelegate(private val handler: Handler) : FileMonitorDelegate {
                     }
                 }
             }
+        }.apply {
+            startWatching()
         }
-        observer.startWatching()
+    }
+
+    override fun stopMonitor() {
+        observer?.stopWatching()
     }
 }

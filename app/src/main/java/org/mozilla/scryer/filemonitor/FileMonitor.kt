@@ -34,4 +34,5 @@ class FileMonitor(private val delegate: FileMonitorDelegate): FileMonitorDelegat
 
 interface FileMonitorDelegate {
     fun startMonitor(listener: FileMonitor.ChangeListener)
+    fun stopMonitor()
 }

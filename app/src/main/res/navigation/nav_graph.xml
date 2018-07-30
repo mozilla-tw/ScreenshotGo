@@ -8,7 +8,7 @@
     app:startDestination="@id/MainFragment">
     <fragment
         android:id="@+id/MainFragment"
-        android:name="org.mozilla.scryer.landingpage.MainFragment"
+        android:name="org.mozilla.scryer.landingpage.HomeFragment"
         android:label="Main">
         <action
             android:id="@+id/action_navigate_to_collection"

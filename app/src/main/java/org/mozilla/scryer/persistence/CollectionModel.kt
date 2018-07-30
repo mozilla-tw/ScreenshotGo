@@ -7,15 +7,20 @@ package org.mozilla.scryer.persistence
 
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 import java.util.*
 
 @Entity(tableName = "collection")
 data class CollectionModel constructor(
+        @PrimaryKey(autoGenerate = false) val id: String,
         @ColumnInfo(name = "name") val name: String,
         @ColumnInfo(name = "date") val date: Long,
-        @ColumnInfo(name = "color") val color: Int,
-        @PrimaryKey(autoGenerate = false) val id: String = UUID.randomUUID().toString()) {
+        @ColumnInfo(name = "color") val color: Int) {
+
+    @Ignore
+    constructor(name: String, date: Long, color: Int)
+            : this(UUID.randomUUID().toString(), name, date, color)
 
     companion object {
         const val CATEGORY_NONE = ""

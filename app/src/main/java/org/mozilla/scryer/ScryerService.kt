@@ -100,6 +100,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
         if (isRunning) {
             isRunning = false
             floatingButtonController.destroy()
+            fileMonitor.stopMonitor()
         }
         super.onDestroy()
     }

@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class RequestCaptureActivity extends AppCompatActivity {
     public static final String RESULT_EXTRA_CODE = "code";
@@ -19,6 +22,14 @@ public class RequestCaptureActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Draw transparent status and navigation bar
+        Window window = this.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(ContextCompat.getColor(this, android.R.color.transparent));
+        window.setNavigationBarColor(ContextCompat.getColor(this, android.R.color.transparent));
 
         requestScreenCapturePermission();
     }

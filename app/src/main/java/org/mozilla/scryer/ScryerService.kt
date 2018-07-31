@@ -172,7 +172,9 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
             }
 
             applicationContext.registerReceiver(requestCaptureReceiver, requestCaptureFilter)
-            applicationContext.startActivity(Intent(applicationContext, RequestCaptureActivity::class.java))
+            val intent = Intent(applicationContext, RequestCaptureActivity::class.java)
+            intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
+            applicationContext.startActivity(intent)
         }
     }
 

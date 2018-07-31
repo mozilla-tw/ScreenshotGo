@@ -9,6 +9,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.SearchManager
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -33,6 +34,7 @@ import org.mozilla.scryer.*
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.permission.PermissionFlow
+import org.mozilla.scryer.permission.PermissionViewModel
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.ui.GridItemDecoration
@@ -93,7 +95,6 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     override fun onResume() {
         super.onResume()
         permissionFlow.start()
-        Log.d("roger_tag", "resume")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -103,15 +104,16 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     override fun showWelcomePage(action: Runnable) {
-        askForStoragePermission("welcome!!", action)
+        showStoragePermissionView("welcome!!", action)
     }
 
-    override fun askForStoragePermission(title: String, action: Runnable) {
-//        val activity = activity?: return
-//
-//        val viewModel = ViewModelProviders.of(activity).get(PermissionViewModel::class.java)
-//        val liveData = viewModel.permission(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
-//        log(LOG_TAG, "storage viewModel: $viewModel, liveData: $liveData")
+    override fun showStoragePermissionView(title: String, action: Runnable) {
+        val activity = activity?: return
+
+        val model = ViewModelProviders.of(activity).get(PermissionViewModel::class.java)
+        model.permissionRequest.observe(this, EventObserver {
+            permissionFlow.onPermissionResult(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION, it)
+        })
 
         storagePermissionView?.let {
             it.visibility = View.VISIBLE
@@ -128,17 +130,8 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         }
     }
 
-    override fun onStorageGranted() {
-        log(LOG_TAG, "onStorageGranted")
-        storagePermissionView?.visibility = View.GONE
-
-        // TODO: Currently this will sync screenshots to the database every time after onResume()
-        // TODO: Find a better syncing strategy
-        //readScreenshotsFromSdcard()
-    }
-
     @RequiresApi(Build.VERSION_CODES.M)
-    override fun askForOverlayPermission(action: Runnable, negativeAction: Runnable) {
+    override fun showOverlayPermissionView(action: Runnable, negativeAction: Runnable) {
         permissionDialog?.takeIf { it.isShowing }?.dismiss()
 
         val dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
@@ -158,17 +151,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         permissionDialog = dialog
     }
 
-    override fun onOverlayGranted() {
-        log(LOG_TAG, "onOverlayGranted")
-        permissionDialog?.takeIf { it.isShowing }?.dismiss()
-
-        context?.applicationContext?.apply {
-            val intent = Intent(this, ScryerService::class.java)
-            this.startService(intent)
-        }
-    }
-
-    override fun askForCapturePermission(action: Runnable, negativeAction: Runnable) {
+    override fun showCapturePermissionView(action: Runnable, negativeAction: Runnable) {
         permissionDialog?.takeIf { it.isShowing }?.dismiss()
 
         val dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
@@ -197,6 +180,25 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         dialog.show()
         permissionDialog = dialog
+    }
+
+    override fun onStorageGranted() {
+        log(LOG_TAG, "onStorageGranted")
+        storagePermissionView?.visibility = View.GONE
+
+        // TODO: Currently this will sync screenshots to the database every time after onResume()
+        // TODO: Find a better syncing strategy
+        //readScreenshotsFromSdcard()
+    }
+
+    override fun onOverlayGranted() {
+        log(LOG_TAG, "onOverlayGranted")
+        permissionDialog?.takeIf { it.isShowing }?.dismiss()
+
+        context?.applicationContext?.apply {
+            val intent = Intent(this, ScryerService::class.java)
+            this.startService(intent)
+        }
     }
 
     private fun initActionBar() {

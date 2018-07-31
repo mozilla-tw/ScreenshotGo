@@ -25,10 +25,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
+                                            grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        val viewModel = ViewModelProviders.of(this).get(PermissionViewModel::class.java)
-        viewModel.permission(requestCode).onResult(grantResults)
+        ViewModelProviders.of(this).get(PermissionViewModel::class.java)
+                .permissionRequest.notify(grantResults)
     }
 }
 

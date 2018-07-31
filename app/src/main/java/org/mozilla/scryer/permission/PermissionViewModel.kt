@@ -8,28 +8,16 @@ package org.mozilla.scryer.permission
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.content.pm.PackageManager
+import org.mozilla.scryer.Event
 
 class PermissionViewModel : ViewModel() {
-    private val map = HashMap<Int, PermissionLiveData>()
-    val size: Int
-        get() = map.size
-
-    fun permission(requestCode: Int): PermissionLiveData {
-        val result = map[requestCode]
-        return result?: run {
-            val liveData = PermissionLiveData()
-            map[requestCode] = liveData
-            return liveData
-        }
-    }
-
-    fun consume(requestCode: Int) {
-        map.remove(requestCode)
-    }
+    val permissionRequest = PermissionLiveData()
 }
 
-class PermissionLiveData: MutableLiveData<BooleanArray>() {
-    fun onResult(results: IntArray) {
-        value = results.map { it == PackageManager.PERMISSION_GRANTED }.toBooleanArray()
+class PermissionLiveData: MutableLiveData<Event<BooleanArray>>() {
+    fun notify(results: IntArray) {
+        if (!results.isEmpty()) {
+            value = Event(results.map { it == PackageManager.PERMISSION_GRANTED }.toBooleanArray())
+        }
     }
 }

@@ -32,6 +32,15 @@ class PermissionFlow(private val activity: FragmentActivity, private val viewDel
         startStorageFlow()
     }
 
+    @Suppress("UNUSED_PARAMETER")
+    fun onPermissionResult(requestCode: Int, results: BooleanArray) {
+        when (requestCode) {
+            MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION -> {
+                prefs.edit().putBoolean(KEY_WELCOME_PAGE_SHOWN, true).apply()
+            }
+        }
+    }
+
     private fun startStorageFlow() {
         if (PermissionHelper.hasStoragePermission(activity)) {
             viewDelegate.onStorageGranted()
@@ -56,7 +65,7 @@ class PermissionFlow(private val activity: FragmentActivity, private val viewDel
             }
 
         } else if (!overlayShown) {
-            viewDelegate.askForOverlayPermission(Runnable {
+            viewDelegate.showOverlayPermissionView(Runnable {
                 requestOverlayPermission()
             }, Runnable {
             })
@@ -66,7 +75,7 @@ class PermissionFlow(private val activity: FragmentActivity, private val viewDel
 
     private fun startCaptureFlow() {
         if (!isCapturePageShown()) {
-            viewDelegate.askForCapturePermission(Runnable {
+            viewDelegate.showCapturePermissionView(Runnable {
 
             }, Runnable {
 
@@ -79,14 +88,13 @@ class PermissionFlow(private val activity: FragmentActivity, private val viewDel
         viewDelegate.showWelcomePage(Runnable {
             ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
-            prefs.edit().putBoolean(KEY_WELCOME_PAGE_SHOWN, true).apply()
         })
     }
 
     private fun requestStoragePermission() {
         val shouldShowRational = PermissionHelper.shouldShowStorageRational(activity)
         val title = if (shouldShowRational) "oops! something wrong" else "go to setting and enable permission"
-        viewDelegate.askForStoragePermission(title, Runnable {
+        viewDelegate.showStoragePermissionView(title, Runnable {
             if (shouldShowRational) {
                 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                         MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
@@ -119,9 +127,9 @@ class PermissionFlow(private val activity: FragmentActivity, private val viewDel
     interface ViewDelegate {
         fun showWelcomePage(action: Runnable)
 
-        fun askForStoragePermission(title: String, action: Runnable)
-        fun askForOverlayPermission(action: Runnable, negativeAction: Runnable)
-        fun askForCapturePermission(action: Runnable, negativeAction: Runnable)
+        fun showStoragePermissionView(title: String, action: Runnable)
+        fun showOverlayPermissionView(action: Runnable, negativeAction: Runnable)
+        fun showCapturePermissionView(action: Runnable, negativeAction: Runnable)
 
         fun onStorageGranted()
         fun onOverlayGranted()

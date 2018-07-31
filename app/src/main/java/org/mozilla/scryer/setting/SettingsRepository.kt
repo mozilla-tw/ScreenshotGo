@@ -5,8 +5,8 @@
 
 package org.mozilla.scryer.setting
 
+import android.arch.lifecycle.LiveData
 import android.content.Context
-import android.preference.PreferenceManager
 
 interface SettingsRepository {
     companion object {
@@ -15,21 +15,6 @@ interface SettingsRepository {
         }
     }
 
-    fun isFloatingEnabled(): Boolean
-    fun setFloatingEnabled(enabled: Boolean)
-}
-
-class PreferenceSettingsRepository(context: Context) : SettingsRepository {
-    companion object {
-        private const val KEY_FLOATING_ENABLED = "settings_floating_enabled"
-    }
-    private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-
-    override fun isFloatingEnabled(): Boolean {
-        return prefs.getBoolean(KEY_FLOATING_ENABLED, true)
-    }
-
-    override fun setFloatingEnabled(enabled: Boolean) {
-        return prefs.edit().putBoolean(KEY_FLOATING_ENABLED, enabled).apply()
-    }
+    var floatingEnable: Boolean
+    val floatingEnableObservable: LiveData<Boolean>
 }

@@ -17,7 +17,9 @@ import android.view.animation.AccelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import android.widget.RelativeLayout
 import android.widget.TextView
+import org.mozilla.scryer.Observer
 import org.mozilla.scryer.R
+import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.extension.dpToPx
 
 class ScreenshotButtonController(private val context: Context) {
@@ -41,8 +43,12 @@ class ScreenshotButtonController(private val context: Context) {
     private val metrics = context.resources.displayMetrics
     private val buttonSize = BUTTON_SIZE_DP.dpToPx(metrics)
 
-    fun setOnClickListener(listener: ClickListener) {
-        this.clickListener = listener
+    private val settingObserver = Observer<Boolean> {
+        if (it) {
+            show()
+        } else {
+            hide()
+        }
     }
 
     fun init() {
@@ -54,6 +60,26 @@ class ScreenshotButtonController(private val context: Context) {
         screen.onBoundaryUpdateListener = Runnable {
             buttonView.moveTo(sideDock)
         }
+
+        ScryerApplication.getSettingsRepository().floatingEnableObservable.observeForever(settingObserver)
+    }
+
+    fun setOnClickListener(listener: ClickListener) {
+        this.clickListener = listener
+    }
+
+    fun show() {
+        screen.containerView.visibility = View.VISIBLE
+    }
+
+    fun hide() {
+        screen.containerView.visibility = View.INVISIBLE
+    }
+
+    fun destroy() {
+        ScryerApplication.getSettingsRepository().floatingEnableObservable.removeObserver(settingObserver)
+        buttonView.detachFromWindow()
+        screen.detachFromWindow()
     }
 
     private fun initScreenshotButton(screen: Screen, dock: Dock): FloatingView {
@@ -128,19 +154,6 @@ class ScreenshotButtonController(private val context: Context) {
 
             }
         }
-    }
-
-    fun destroy() {
-        buttonView.detachFromWindow()
-        screen.detachFromWindow()
-    }
-
-    fun show() {
-        screen.containerView.visibility = View.VISIBLE
-    }
-
-    fun hide() {
-        screen.containerView.visibility = View.INVISIBLE
     }
 
     private fun createButtonView(context: Context): View {

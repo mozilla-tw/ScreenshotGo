@@ -37,6 +37,7 @@ import org.mozilla.scryer.permission.PermissionFlow
 import org.mozilla.scryer.permission.PermissionViewModel
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.setting.SettingsActivity
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 
@@ -99,7 +100,14 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         activity?.let {
-            createOptionsMenuSearchView(it, menu, inflater)
+            inflater.inflate(R.menu.menu_main, menu)
+
+            menu.findItem(R.id.action_settings).setOnMenuItemClickListener { _ ->
+                startActivity(Intent(it, SettingsActivity::class.java))
+                true
+            }
+
+            createOptionsMenuSearchView(it, menu)
         }
     }
 
@@ -222,8 +230,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 //        }
 //    }
 
-    private fun createOptionsMenuSearchView(activity: Activity, menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_main, menu)
+    private fun createOptionsMenuSearchView(activity: Activity, menu: Menu) {
         val searchItem = menu.findItem(R.id.action_search)
 
         val searchView = searchItem.actionView as SearchView

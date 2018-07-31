@@ -37,6 +37,11 @@
             android:excludeFromRecents="true"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.NoActionBar.Translucent" />
+
+        <activity
+            android:name=".setting.SettingsActivity"
+            android:launchMode="singleTask"
+            android:exported="false" />
     </application>
 
 </manifest>

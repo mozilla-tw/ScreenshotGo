@@ -5,33 +5,123 @@
 
 package org.mozilla.scryer.permission
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import android.support.annotation.RequiresApi
+import android.support.v4.app.ActivityCompat
+import android.support.v4.app.FragmentActivity
+import org.mozilla.scryer.MainActivity
+import org.mozilla.scryer.overlay.OverlayPermission
 
-class PermissionFlow(private val context: Context, private val viewDelegate: ViewDelegate) {
+class PermissionFlow(private val activity: FragmentActivity, private val viewDelegate: ViewDelegate,
+                     private val prefs: SharedPreferences = activity.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)) {
+    companion object {
+        private const val PREF_NAME = "perm_flow"
+
+        private const val KEY_WELCOME_PAGE_SHOWN = "welcome_page_shown"
+        private const val KEY_OVERLAY_PAGE_SHOWN = "overlay_page_shown"
+        private const val KEY_CAPTURE_PAGE_SHOWN = "capture_page_shown"
+    }
+
     fun start() {
-        if (PermissionHelper.hasStoragePermission(context)) {
+        startStorageFlow()
+    }
+
+    private fun startStorageFlow() {
+        if (PermissionHelper.hasStoragePermission(activity)) {
             viewDelegate.onStorageGranted()
-            checkOverlayPermission()
+            startOverlayFlow()
+
+        } else if (isWelcomePageShown()) {
+            requestStoragePermission()
+
         } else {
-            viewDelegate.askForStoragePermission()
+            showWelcomePage()
         }
     }
 
-    fun next() {
-        start()
-    }
+    private fun startOverlayFlow() {
+        val overlayShown = isOverlayPageShown()
 
-    private fun checkOverlayPermission() {
-        if (PermissionHelper.hasOverlayPermission(context)) {
+        if (PermissionHelper.hasOverlayPermission(activity)) {
             viewDelegate.onOverlayGranted()
-        } else {
-            viewDelegate.askForOverlayPermission()
+
+            if (!overlayShown) {
+                startCaptureFlow()
+            }
+
+        } else if (!overlayShown) {
+            viewDelegate.askForOverlayPermission(Runnable {
+                requestOverlayPermission()
+            }, Runnable {
+            })
+            prefs.edit().putBoolean(KEY_OVERLAY_PAGE_SHOWN, true).apply()
         }
+    }
+
+    private fun startCaptureFlow() {
+        if (!isCapturePageShown()) {
+            viewDelegate.askForCapturePermission(Runnable {
+
+            }, Runnable {
+
+            })
+            prefs.edit().putBoolean(KEY_CAPTURE_PAGE_SHOWN, true).apply()
+        }
+    }
+
+    private fun showWelcomePage() {
+        viewDelegate.showWelcomePage(Runnable {
+            ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
+            prefs.edit().putBoolean(KEY_WELCOME_PAGE_SHOWN, true).apply()
+        })
+    }
+
+    private fun requestStoragePermission() {
+        val shouldShowRational = PermissionHelper.shouldShowStorageRational(activity)
+        val title = if (shouldShowRational) "oops! something wrong" else "go to setting and enable permission"
+        viewDelegate.askForStoragePermission(title, Runnable {
+            if (shouldShowRational) {
+                ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                        MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
+            } else {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                intent.data = Uri.fromParts("package", activity.packageName, null)
+                activity.startActivity(intent)
+            }
+        })
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun requestOverlayPermission() {
+        val intent = OverlayPermission.createPermissionIntent(activity)
+        activity.startActivityForResult(intent, MainActivity.REQUEST_CODE_OVERLAY_PERMISSION)
+    }
+
+    private fun isWelcomePageShown(): Boolean {
+        return prefs.getBoolean(KEY_WELCOME_PAGE_SHOWN, false)
+    }
+
+    private fun isOverlayPageShown(): Boolean {
+        return prefs.getBoolean(KEY_OVERLAY_PAGE_SHOWN, false)
+    }
+
+    private fun isCapturePageShown(): Boolean {
+        return prefs.getBoolean(KEY_CAPTURE_PAGE_SHOWN, false)
     }
 
     interface ViewDelegate {
-        fun askForStoragePermission()
-        fun askForOverlayPermission()
+        fun showWelcomePage(action: Runnable)
+
+        fun askForStoragePermission(title: String, action: Runnable)
+        fun askForOverlayPermission(action: Runnable, negativeAction: Runnable)
+        fun askForCapturePermission(action: Runnable, negativeAction: Runnable)
 
         fun onStorageGranted()
         fun onOverlayGranted()

@@ -16,6 +16,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.support.v4.app.NotificationCompat
+import android.support.v4.content.LocalBroadcastManager
 import android.text.TextUtils
 import org.mozilla.scryer.capture.ChooseCollectionActivity
 import org.mozilla.scryer.capture.RequestCaptureActivity
@@ -41,6 +42,9 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
 
         private const val DELAY_CAPTURE_NOTIFICATION = 1000L
         private const val DELAY_CAPTURE_FAB = 0L
+
+        // Broadcast sent from ScryerServivce
+        const val EVENT_TAKE_SCREENSHOT = "org.mozilla.scryer.take_screenshot"
     }
 
     private var isRunning: Boolean = false
@@ -138,6 +142,8 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     private fun takeScreenshot() {
+        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(EVENT_TAKE_SCREENSHOT))
+
         if (screenCapturePermissionIntent != null) {
             screenCaptureManager?.captureScreen()
         } else {

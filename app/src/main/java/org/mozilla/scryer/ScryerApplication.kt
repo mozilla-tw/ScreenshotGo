@@ -7,6 +7,7 @@ package org.mozilla.scryer
 
 import android.app.Application
 import org.mozilla.scryer.repository.ScreenshotRepository
+import org.mozilla.scryer.setting.SettingsRepository
 
 class ScryerApplication : Application() {
     companion object {
@@ -17,6 +18,10 @@ class ScryerApplication : Application() {
         fun getScreenshotRepository(): ScreenshotRepository {
             return instance.screenshotRepository
         }
+
+        fun getSettingsRepository(): SettingsRepository {
+            return instance.settingsRepository
+        }
     }
 
     private object ApplicationHolder {
@@ -24,6 +29,7 @@ class ScryerApplication : Application() {
     }
 
     lateinit var screenshotRepository: ScreenshotRepository
+    lateinit var settingsRepository: SettingsRepository
 
     override fun onCreate() {
         super.onCreate()
@@ -31,5 +37,6 @@ class ScryerApplication : Application() {
         screenshotRepository = ScreenshotRepository.createRepository(this) {
             screenshotRepository.setupDefaultContent()
         }
+        settingsRepository = SettingsRepository.createRepository(this)
     }
 }

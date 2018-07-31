@@ -6,9 +6,11 @@
 package org.mozilla.scryer.permission
 
 import android.Manifest
+import android.annotation.TargetApi
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import org.mozilla.scryer.overlay.OverlayPermission
 
@@ -16,6 +18,11 @@ class PermissionHelper {
     companion object {
         fun hasStoragePermission(context: Context) = ContextCompat.checkSelfPermission(context,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
+        @TargetApi(Build.VERSION_CODES.M)
+        fun shouldShowStorageRational(activity: FragmentActivity): Boolean {
+            return activity.shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
 
         fun hasOverlayPermission(context: Context): Boolean {
             return Build.VERSION.SDK_INT < Build.VERSION_CODES.M

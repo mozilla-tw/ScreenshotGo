@@ -5,22 +5,21 @@
 
 package org.mozilla.scryer.landingpage
 
-import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.SearchManager
 import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.support.annotation.RequiresApi
-import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -28,19 +27,16 @@ import android.support.v7.widget.SearchView
 import android.util.Log
 import android.view.*
 import android.widget.Button
+import android.widget.TextView
 import androidx.navigation.Navigation
 import org.mozilla.scryer.*
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.extension.dpToPx
-import org.mozilla.scryer.overlay.OverlayPermission
 import org.mozilla.scryer.permission.PermissionFlow
-import org.mozilla.scryer.permission.PermissionViewModel
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
-import java.io.File
-import java.util.*
 
 class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     companion object {
@@ -62,7 +58,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     private lateinit var permissionFlow: PermissionFlow
     private var storagePermissionView: View? = null
 
-    private var overlayPermissionDialog: AlertDialog? = null
+    private var permissionDialog: AlertDialog? = null
 
     private val viewModel: ScreenshotViewModel by lazy {
         ScreenshotViewModel.get(this)
@@ -97,6 +93,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     override fun onResume() {
         super.onResume()
         permissionFlow.start()
+        Log.d("roger_tag", "resume")
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -105,18 +102,16 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         }
     }
 
-    override fun askForStoragePermission() {
-        val activity = activity?: return
+    override fun showWelcomePage(action: Runnable) {
+        askForStoragePermission("welcome!!", action)
+    }
 
-        val viewModel = ViewModelProviders.of(activity).get(PermissionViewModel::class.java)
-        val liveData = viewModel.permission(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
-        log(LOG_TAG, "storage viewModel: $viewModel, liveData: $liveData")
-
-        liveData.observe(activity, Observer {
-            viewModel.consume(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
-            log(LOG_TAG, "storage liveData observed: $liveData")
-            permissionFlow.next()
-        })
+    override fun askForStoragePermission(title: String, action: Runnable) {
+//        val activity = activity?: return
+//
+//        val viewModel = ViewModelProviders.of(activity).get(PermissionViewModel::class.java)
+//        val liveData = viewModel.permission(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
+//        log(LOG_TAG, "storage viewModel: $viewModel, liveData: $liveData")
 
         storagePermissionView?.let {
             it.visibility = View.VISIBLE
@@ -124,11 +119,12 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         }?: apply {
             val stub = view!!.findViewById<ViewStub>(R.id.storage_permission_stub)
             val permissionView = stub.inflate()
-            val buttonView = permissionView.findViewById<Button>(R.id.action_button)
-            buttonView.setOnClickListener {
-                requestPermissionsViaActivity(activity)
-            }
             storagePermissionView = permissionView
+        }
+
+        storagePermissionView?.findViewById<TextView>(R.id.title)?.text = title
+        storagePermissionView?.findViewById<Button>(R.id.action_button)?.setOnClickListener {
+            action.run()
         }
     }
 
@@ -142,32 +138,65 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    override fun askForOverlayPermission() {
-        val activity = activity?: return
+    override fun askForOverlayPermission(action: Runnable, negativeAction: Runnable) {
+        permissionDialog?.takeIf { it.isShowing }?.dismiss()
 
-        overlayPermissionDialog?.show() ?: run {
-            val dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
-                    .setTitle("YOU SHALL NOT PASS!!!!")
-                    .setPositiveButton("PLEASE!!!!") { _, _ ->
-                        requestOverlayPermissionViaActivity(activity)
-                    }
-                    .create()
+        val dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
+                .setTitle("Instant way to Screenshot")
+                .setPositiveButton("GRANT") { _, _ ->
+                    action.run()
+                }
+                .setNegativeButton("CANCEL") { _, _ ->
+                    negativeAction.run()
+                }
+                .create()
 
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.setOnKeyListener { _, keyCode, _ -> keyCode == KeyEvent.KEYCODE_BACK }
-            dialog.show()
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setOnKeyListener { _, keyCode, _ -> keyCode == KeyEvent.KEYCODE_BACK }
+        dialog.show()
 
-            overlayPermissionDialog = dialog
-        }
+        permissionDialog = dialog
     }
 
     override fun onOverlayGranted() {
         log(LOG_TAG, "onOverlayGranted")
-        overlayPermissionDialog?.dismiss()
+        permissionDialog?.takeIf { it.isShowing }?.dismiss()
+
         context?.applicationContext?.apply {
             val intent = Intent(this, ScryerService::class.java)
             this.startService(intent)
         }
+    }
+
+    override fun askForCapturePermission(action: Runnable, negativeAction: Runnable) {
+        permissionDialog?.takeIf { it.isShowing }?.dismiss()
+
+        val dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
+                .setTitle("Try the Screenshot Button")
+                .setNegativeButton("LATER") { _, _ ->
+                    negativeAction.run()
+                }
+                .create()
+
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setOnKeyListener { _, keyCode, _ -> keyCode == KeyEvent.KEYCODE_BACK }
+
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
+                dialog.dismiss()
+            }
+        }
+        context?.let {
+            LocalBroadcastManager.getInstance(it).registerReceiver(receiver,
+                    IntentFilter(ScryerService.EVENT_TAKE_SCREENSHOT))
+            dialog.setOnDismissListener { _ ->
+                LocalBroadcastManager.getInstance(it).unregisterReceiver(receiver)
+            }
+        }
+
+        dialog.show()
+        permissionDialog = dialog
     }
 
     private fun initActionBar() {
@@ -176,32 +205,20 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         getSupportActionBar(activity).setDisplayHomeAsUpEnabled(false)
     }
 
-    private fun readScreenshotsFromSdcard() {
-        // TODO: How to determine the path?
-        val monitorDir = "${Environment.getExternalStorageDirectory()}" +
-                File.separator + "Pictures" +
-                File.separator + "Screenshots"
-
-        val dir = File(monitorDir)
-        if (dir.exists()) {
-            val models = dir.listFiles().map {
-                ScreenshotModel(UUID.randomUUID().toString(), it.absolutePath, it.lastModified(), "")
-            }
-            ScreenshotViewModel.get(this).addScreenshot(models)
-        }
-    }
-
-    private fun requestPermissionsViaActivity(activity: Activity) {
-        log(LOG_TAG, "request permission: ${MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION}")
-        ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun requestOverlayPermissionViaActivity(activity: Activity) {
-        val intent = OverlayPermission.createPermissionIntent(activity)
-        activity.startActivityForResult(intent, MainActivity.REQUEST_CODE_OVERLAY_PERMISSION)
-    }
+//    private fun readScreenshotsFromSdcard() {
+//        // TODO: How to determine the path?
+//        val monitorDir = "${Environment.getExternalStorageDirectory()}" +
+//                File.separator + "Pictures" +
+//                File.separator + "Screenshots"
+//
+//        val dir = File(monitorDir)
+//        if (dir.exists()) {
+//            val models = dir.listFiles().map {
+//                ScreenshotModel(UUID.randomUUID().toString(), it.absolutePath, it.lastModified(), "")
+//            }
+//            ScreenshotViewModel.get(this).addScreenshot(models)
+//        }
+//    }
 
     private fun createOptionsMenuSearchView(activity: Activity, menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_main, menu)
@@ -226,7 +243,6 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 mainListView.visibility = View.INVISIBLE
                 viewModel.getScreenshots().observe(this@HomeFragment, searchObserver)
             }
-
         })
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {

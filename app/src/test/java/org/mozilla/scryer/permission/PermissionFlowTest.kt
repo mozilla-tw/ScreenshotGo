@@ -91,17 +91,25 @@ class PermissionFlowTest {
     }
 
     @Test
-    fun grantStorage_showOverlayPage() {
+    fun noOverlay_grantStorage_showOverlayPage() {
         val flow = PermissionFlow(permissionState, pageState, viewDelegate)
         grantStorage(flow)
+        verifyMethod().onStorageGranted()
         verifyMethod().showOverlayPermissionView(any(), any())
+    }
+
+    @Test
+    fun hasOverlay_grantStorage_showCapturePage() {
+        permissions[1] = true
+        val flow = PermissionFlow(permissionState, pageState, viewDelegate)
+        grantStorage(flow)
+        verifyMethod().onStorageGranted()
+        verifyMethod().showCapturePermissionView(any(), any())
     }
 
     @Test
     fun denyStorage_showStoragePage_clickToRequestAgain() {
         val flow = PermissionFlow(permissionState, pageState, viewDelegate)
-
-        pageState.setWelcomePageShown()
 
         // Setup: Deny permission
         denyStorage(flow, false)
@@ -127,6 +135,28 @@ class PermissionFlowTest {
         // Test: Click action button to launch setting
         runnableCaptor.value.run()
         verifyMethod().launchSystemSettingPage()
+    }
+
+    @Test
+    fun overlayPage_clickToRequestOverlay() {
+        val flow = PermissionFlow(permissionState, pageState, viewDelegate)
+        grantStorage(flow)
+
+        verifyMethod().showOverlayPermissionView(capture(runnableCaptor), any())
+
+        runnableCaptor.value.run()
+        verifyMethod().requestOverlayPermission()
+    }
+
+    @Test
+    fun overlayPage_denyOverlay_clickToRequestOverlay() {
+        val flow = PermissionFlow(permissionState, pageState, viewDelegate)
+        grantStorage(flow)
+
+        verifyMethod().showOverlayPermissionView(capture(runnableCaptor), any())
+
+        runnableCaptor.value.run()
+        verifyMethod().requestOverlayPermission()
     }
 
     private fun verifyMethod(): PermissionFlow.ViewDelegate {

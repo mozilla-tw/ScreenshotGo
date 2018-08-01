@@ -140,7 +140,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun showOverlayPermissionView(action: Runnable, negativeAction: Runnable) {
-        permissionDialog?.takeIf { it.isShowing }?.dismiss()
+        dismissPermissionDialog()
 
         val dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
                 .setTitle("Instant way to Screenshot")
@@ -160,7 +160,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     override fun showCapturePermissionView(action: Runnable, negativeAction: Runnable) {
-        permissionDialog?.takeIf { it.isShowing }?.dismiss()
+        dismissPermissionDialog()
 
         val dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
                 .setTitle("Try the Screenshot Button")
@@ -201,13 +201,14 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
     override fun onOverlayGranted() {
         log(LOG_TAG, "onOverlayGranted")
-        permissionDialog?.takeIf { it.isShowing }?.dismiss()
+        dismissPermissionDialog()
 
-        context?.applicationContext?.apply {
-            val intent = Intent(this, ScryerService::class.java)
-            this.startService(intent)
+        if (ScryerApplication.getSettingsRepository().serviceEnabled) {
+            context?.startService(Intent(context, ScryerService::class.java))
         }
     }
+
+    private fun dismissPermissionDialog() = permissionDialog?.takeIf { it.isShowing }?.dismiss()
 
     private fun initActionBar() {
         setHasOptionsMenu(true)

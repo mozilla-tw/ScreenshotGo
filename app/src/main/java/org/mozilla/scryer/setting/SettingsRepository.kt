@@ -15,6 +15,9 @@ interface SettingsRepository {
         }
     }
 
+    var serviceEnabled: Boolean
+    val serviceEnabledObserver: LiveData<Boolean>
+
     var floatingEnable: Boolean
     val floatingEnableObservable: LiveData<Boolean>
 }

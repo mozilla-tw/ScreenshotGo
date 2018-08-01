@@ -13,12 +13,25 @@ import android.preference.PreferenceManager
 class PreferenceSettingsRepository(context: Context) : SettingsRepository {
 
     companion object {
+        private const val KEY_SERVICE_ENABLED = "settings_service_enabled"
         private const val KEY_FLOATING_ENABLED = "settings_floating_enabled"
     }
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
+    private val serviceLiveData = MutableLiveData<Boolean>()
     private val floatingLiveData = MutableLiveData<Boolean>()
+
+    override var serviceEnabled: Boolean = prefs.getBoolean(KEY_SERVICE_ENABLED, true)
+        get() = prefs.getBoolean(KEY_SERVICE_ENABLED, true)
+        set(value) {
+            prefs.edit().putBoolean(KEY_SERVICE_ENABLED, value).apply()
+            notifyChange(serviceLiveData, field, value)
+            field = value
+        }
+
+    override val serviceEnabledObserver: LiveData<Boolean>
+        get() = serviceLiveData
 
     override var floatingEnable: Boolean = prefs.getBoolean(KEY_FLOATING_ENABLED, true)
         get() = prefs.getBoolean(KEY_FLOATING_ENABLED, true)

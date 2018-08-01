@@ -92,6 +92,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
         } else when (intent.action) {
             ACTION_CAPTURE_SCREEN -> postTakeScreenshot(DELAY_CAPTURE_NOTIFICATION)
             ACTION_STOP -> {
+                ScryerApplication.getSettingsRepository().serviceEnabled = false
                 stopSelf()
                 sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
             }

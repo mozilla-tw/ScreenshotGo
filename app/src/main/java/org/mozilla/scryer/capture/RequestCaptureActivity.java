@@ -6,6 +6,7 @@ import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
@@ -41,7 +42,7 @@ public class RequestCaptureActivity extends AppCompatActivity {
             intent.putExtra(RESULT_EXTRA_CODE, resultCode);
             intent.putExtra(RESULT_EXTRA_DATA, data);
             intent.putExtra(RESULT_EXTRA_PROMPT_SHOWN, promptShown());
-            sendBroadcast(intent);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
             finish();
         } else {
             super.onActivityResult(requestCode, resultCode, data);

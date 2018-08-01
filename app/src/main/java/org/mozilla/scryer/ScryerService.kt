@@ -152,7 +152,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
             requestCaptureFilter = IntentFilter(RequestCaptureActivity.getResultBroadcastAction(applicationContext))
             requestCaptureReceiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context, intent: Intent) {
-                    applicationContext.unregisterReceiver(requestCaptureReceiver)
+                    LocalBroadcastManager.getInstance(applicationContext).unregisterReceiver(requestCaptureReceiver)
 
                     val resultCode = intent.getIntExtra(RequestCaptureActivity.RESULT_EXTRA_CODE, Activity.RESULT_CANCELED)
                     if (resultCode != Activity.RESULT_OK) {
@@ -172,7 +172,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
                 }
             }
 
-            applicationContext.registerReceiver(requestCaptureReceiver, requestCaptureFilter)
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(requestCaptureReceiver, requestCaptureFilter)
             val intent = Intent(applicationContext, RequestCaptureActivity::class.java)
             intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
             applicationContext.startActivity(intent)

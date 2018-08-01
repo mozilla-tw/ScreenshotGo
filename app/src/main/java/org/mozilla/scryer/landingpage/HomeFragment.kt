@@ -7,7 +7,6 @@ package org.mozilla.scryer.landingpage
 
 import android.Manifest
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.SearchManager
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
@@ -22,6 +21,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.support.annotation.RequiresApi
+import android.support.design.widget.BottomSheetDialog
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
@@ -43,6 +43,7 @@ import org.mozilla.scryer.permission.PermissionViewModel
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.setting.SettingsActivity
+import org.mozilla.scryer.ui.BottomDialogFactory
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 
@@ -67,7 +68,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     private lateinit var permissionFlow: PermissionFlow
     private var storagePermissionView: View? = null
 
-    private var permissionDialog: AlertDialog? = null
+    private var permissionDialog: BottomSheetDialog? = null
 
     private val viewModel: ScreenshotViewModel by lazy {
         ScreenshotViewModel.get(this)
@@ -147,54 +148,53 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun showOverlayPermissionView(action: Runnable, negativeAction: Runnable) {
+        val context = context?: return
         dismissPermissionDialog()
 
-        val dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
-                .setTitle("Instant way to Screenshot")
-                .setPositiveButton("GRANT") { _, _ ->
-                    action.run()
-                }
-                .setNegativeButton("CANCEL") { _, _ ->
-                    negativeAction.run()
-                }
-                .create()
+        val bottomDialog = BottomDialogFactory.create(context, R.layout.dialog_overlay_permission)
 
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.setOnKeyListener { _, keyCode, _ -> keyCode == KeyEvent.KEYCODE_BACK }
-        dialog.show()
+        bottomDialog.findViewById<TextView>(R.id.title)?.setText(R.string.overlay_permission_prompt_title)
+        bottomDialog.findViewById<Button>(R.id.positive_button)?.setOnClickListener {
+            action.run()
+        }
+        bottomDialog.findViewById<Button>(R.id.negative_button)?.setOnClickListener {
+            negativeAction.run()
+        }
 
-        permissionDialog = dialog
+        bottomDialog.show()
+
+        permissionDialog = bottomDialog
     }
 
     override fun showCapturePermissionView(action: Runnable, negativeAction: Runnable) {
+        val context = context?: return
         dismissPermissionDialog()
 
-        val dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
-                .setTitle("Try the Screenshot Button")
-                .setNegativeButton("LATER") { _, _ ->
-                    negativeAction.run()
-                }
-                .create()
+        // TODO: Rename layout file if it is going to be shared
+        val bottomDialog = BottomDialogFactory.create(context, R.layout.dialog_overlay_permission)
 
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.setOnKeyListener { _, keyCode, _ -> keyCode == KeyEvent.KEYCODE_BACK }
+        bottomDialog.findViewById<TextView>(R.id.title)?.setText(R.string.capture_permission_prompt_title)
+        bottomDialog.findViewById<Button>(R.id.positive_button)?.visibility = View.GONE
+        bottomDialog.findViewById<Button>(R.id.negative_button)?.setOnClickListener {
+            negativeAction.run()
+            bottomDialog.dismiss()
+        }
 
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
-                dialog.dismiss()
-            }
-        }
-        context?.let {
-            LocalBroadcastManager.getInstance(it).registerReceiver(receiver,
-                    IntentFilter(ScryerService.EVENT_TAKE_SCREENSHOT))
-            dialog.setOnDismissListener { _ ->
-                LocalBroadcastManager.getInstance(it).unregisterReceiver(receiver)
+                bottomDialog.dismiss()
             }
         }
 
-        dialog.show()
-        permissionDialog = dialog
+        LocalBroadcastManager.getInstance(context).registerReceiver(receiver,
+                IntentFilter(ScryerService.EVENT_TAKE_SCREENSHOT))
+        bottomDialog.setOnDismissListener { _ ->
+            LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver)
+        }
+
+        bottomDialog.show()
+        permissionDialog = bottomDialog
     }
 
     override fun onStorageGranted() {

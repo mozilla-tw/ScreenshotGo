@@ -4,4 +4,10 @@
     <!-- Sorting panel -->
     <string name="sorting_panel_title">Add to collection</string>
     <string name="ac_new_collection">New collection</string>
+
+    <!-- Overlay permission prompt -->
+    <string name="overlay_permission_prompt_title">Instant way to Screenshot</string>
+
+    <!-- Capture permission prompt -->
+    <string name="capture_permission_prompt_title">Try the Screenshot Button</string>
 </resources>

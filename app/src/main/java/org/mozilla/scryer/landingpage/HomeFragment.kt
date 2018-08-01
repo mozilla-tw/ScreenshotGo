@@ -5,6 +5,7 @@
 
 package org.mozilla.scryer.landingpage
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.SearchManager
@@ -16,9 +17,12 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.support.annotation.RequiresApi
+import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.GridLayoutManager
@@ -33,6 +37,7 @@ import androidx.navigation.Navigation
 import org.mozilla.scryer.*
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.extension.dpToPx
+import org.mozilla.scryer.overlay.OverlayPermission
 import org.mozilla.scryer.permission.PermissionFlow
 import org.mozilla.scryer.permission.PermissionViewModel
 import org.mozilla.scryer.persistence.CollectionModel
@@ -42,6 +47,7 @@ import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 
 class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
+
     companion object {
         private const val LOG_TAG = "HomeFragment"
 
@@ -89,8 +95,9 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
         initActionBar()
-        permissionFlow = PermissionFlow(activity!!, this)
+        initPermissionFlow()
     }
 
     override fun onResume() {
@@ -208,6 +215,29 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         }
     }
 
+    override fun requestStoragePermission() {
+        activity?.let {
+            ActivityCompat.requestPermissions(it, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION)
+        }
+    }
+
+    override fun requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return
+        }
+        activity?.let {
+            val intent = OverlayPermission.createPermissionIntent(it)
+            it.startActivityForResult(intent, MainActivity.REQUEST_CODE_OVERLAY_PERMISSION)
+        }
+    }
+
+    override fun launchSystemSettingPage() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+        intent.data = Uri.fromParts("package", activity?.packageName, null)
+        activity?.startActivity(intent)
+    }
+
     private fun dismissPermissionDialog() = permissionDialog?.takeIf { it.isShowing }?.dismiss()
 
     private fun initActionBar() {
@@ -230,6 +260,11 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 //            ScreenshotViewModel.get(this).addScreenshot(models)
 //        }
 //    }
+
+    private fun initPermissionFlow() {
+        permissionFlow = PermissionFlow(PermissionFlow.createDefaultPermissionProvider(activity),
+                PermissionFlow.createDefaultPageStateProvider(activity), this)
+    }
 
     private fun createOptionsMenuSearchView(activity: Activity, menu: Menu) {
         val searchItem = menu.findItem(R.id.action_search)

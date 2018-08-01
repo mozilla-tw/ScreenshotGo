@@ -161,13 +161,15 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
                     }
 
                     screenCapturePermissionIntent = intent.getParcelableExtra(RequestCaptureActivity.RESULT_EXTRA_DATA)
-                    screenCaptureManager = ScreenCaptureManager(applicationContext, screenCapturePermissionIntent!!, this@ScryerService)
+                    screenCapturePermissionIntent?.let {
+                        screenCaptureManager = ScreenCaptureManager(applicationContext, it, this@ScryerService)
 
-                    if (intent.getBooleanExtra(RequestCaptureActivity.RESULT_EXTRA_PROMPT_SHOWN, true)) {
-                        // Delay capture until after the permission dialog is gone.
-                        handler.postDelayed({ screenCaptureManager?.captureScreen() }, 500)
-                    } else {
-                        screenCaptureManager?.captureScreen()
+                        if (intent.getBooleanExtra(RequestCaptureActivity.RESULT_EXTRA_PROMPT_SHOWN, true)) {
+                            // Delay capture until after the permission dialog is gone.
+                            handler.postDelayed({ screenCaptureManager?.captureScreen() }, 500)
+                        } else {
+                            screenCaptureManager?.captureScreen()
+                        }
                     }
                 }
             }

@@ -6,6 +6,7 @@
 package org.mozilla.scryer.sortingpanel
 
 import android.graphics.Color
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -57,7 +58,7 @@ class SortingPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             else -> {
                 (holder as ItemHolder).title?.text = collections?.get(position - 1)?.name
                 val color = collections?.get(position - 1)?.color ?: Color.WHITE
-                holder.itemView.background.setTint(color)
+                DrawableCompat.setTint(holder.itemView.background, color)
             }
         }
     }
@@ -71,7 +72,7 @@ class SortingPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 callback?.onNewCollectionClick()
             }
         }
-        holder.itemView.background.mutate()
+        holder.itemView.background = DrawableCompat.wrap(holder.itemView.background)
         return holder
     }
 
@@ -86,7 +87,7 @@ class SortingPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 }
             }
         }
-        holder.itemView.background.mutate()
+        holder.itemView.background = DrawableCompat.wrap(holder.itemView.background)
         return holder
     }
 

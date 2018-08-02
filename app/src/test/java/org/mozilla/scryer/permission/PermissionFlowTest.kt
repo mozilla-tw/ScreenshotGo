@@ -1,10 +1,12 @@
 package org.mozilla.scryer.permission
 
 import org.junit.After
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.*
-import org.mockito.ArgumentMatchers.*
+import org.mockito.ArgumentMatchers.anyString
 import org.mozilla.scryer.MainActivity
 import kotlin.reflect.KClass
 
@@ -22,10 +24,13 @@ class PermissionFlowTest {
     @Captor
     private lateinit var runnableCaptor: ArgumentCaptor<Runnable>
 
+    private lateinit var flow: PermissionFlow
+    private var pageStateData = mutableListOf(false, false, false)
 
     @Before
     fun setUp() {
         permissions = mutableListOf(false, false, false)
+        pageStateData = mutableListOf(false, false, false)
         shouldShowStorageRational = false
         permissionState = object : PermissionFlow.PermissionStateProvider {
 
@@ -43,120 +48,183 @@ class PermissionFlowTest {
         }
 
         pageState = object : PermissionFlow.PageStateProvider {
-            private val results = mutableListOf(false, false, false)
 
             override fun isWelcomePageShown(): Boolean {
-                return results[0]
+                return pageStateData[0]
             }
 
             override fun isOverlayPageShown(): Boolean {
-                return results[1]
+                return pageStateData[1]
             }
 
             override fun isCapturePageShown(): Boolean {
-                return results[2]
+                return pageStateData[2]
             }
 
             override fun setWelcomePageShown() {
-                results[0] = true
+                pageStateData[0] = true
             }
 
             override fun setOverlayPageShown() {
-                results[1] = true
+                pageStateData[1] = true
             }
 
             override fun setCapturePageShown() {
-                results[2] = true
+                pageStateData[2] = true
             }
         }
 
         MockitoAnnotations.initMocks(this)
+        flow = PermissionFlow(permissionState, pageState, viewDelegate)
     }
 
     @After
     fun tearDown() {
     }
 
-    @Test
-    fun firstLaunch_showWelcomePage_clickToRequestStorage() {
-        val flow = PermissionFlow(permissionState, pageState, viewDelegate)
-        flow.start()
+    /**
+     * Test ViewDelegate
+     */
 
-        // Test: Show welcome page
+    @Test
+    fun firstLaunch_clickToRequestStorage() {
+        // Prepare
+        flow.start()
         verifyMethod().showWelcomePage(capture(runnableCaptor))
+        runnableCaptor.value.run()
 
         // Test: Click to request storage permission
-        runnableCaptor.value.run()
         verifyMethod().requestStoragePermission()
     }
 
     @Test
-    fun noOverlay_grantStorage_showOverlayPage() {
-        val flow = PermissionFlow(permissionState, pageState, viewDelegate)
-        grantStorage(flow)
-        verifyMethod().onStorageGranted()
-        verifyMethod().showOverlayPermissionView(any(), any())
-    }
-
-    @Test
-    fun hasOverlay_grantStorage_showCapturePage() {
-        permissions[1] = true
-        val flow = PermissionFlow(permissionState, pageState, viewDelegate)
-        grantStorage(flow)
-        verifyMethod().onStorageGranted()
-        verifyMethod().showCapturePermissionView(any(), any())
-    }
-
-    @Test
-    fun denyStorage_showStoragePage_clickToRequestAgain() {
-        val flow = PermissionFlow(permissionState, pageState, viewDelegate)
-
+    fun denyStorage_clickToRequestAgain() {
         // Setup: Deny permission
         denyStorage(flow, false)
-
-        // Test: Show storage page
         verifyMethod().showStoragePermissionView(anyString(), capture(runnableCaptor))
+        runnableCaptor.value.run()
 
         // Test: Click action button to request again
-        runnableCaptor.value.run()
         verifyMethod().requestStoragePermission()
     }
 
     @Test
-    fun denyStorageForever_showStoragePage_clickToLaunchSetting() {
-        val flow = PermissionFlow(permissionState, pageState, viewDelegate)
-
+    fun denyStorageForever_clickToLaunchSetting() {
         // Setup: Deny permission
         denyStorage(flow, true)
-
-        // Test: Show storage page
         verifyMethod().showStoragePermissionView(anyString(), capture(runnableCaptor))
+        runnableCaptor.value.run()
 
         // Test: Click action button to launch setting
-        runnableCaptor.value.run()
         verifyMethod().launchSystemSettingPage()
     }
 
     @Test
-    fun overlayPage_clickToRequestOverlay() {
-        val flow = PermissionFlow(permissionState, pageState, viewDelegate)
-        grantStorage(flow)
+    fun overlayState_showOverlayPage() {
+        // Prepare
+        flow.initialState = PermissionFlow.OverlayState(flow)
+        flow.start()
 
+        // Test
+        verifyMethod().showOverlayPermissionView(any(), any())
+    }
+
+    @Test
+    fun overlayState_showOverlayPage_yesToRequestOverlayPermission() {
+        // Prepare
+        flow.initialState = PermissionFlow.OverlayState(flow)
+        flow.start()
         verifyMethod().showOverlayPermissionView(capture(runnableCaptor), any())
-
         runnableCaptor.value.run()
+
+        // Test
         verifyMethod().requestOverlayPermission()
     }
 
     @Test
-    fun overlayPage_denyOverlay_clickToRequestOverlay() {
-        val flow = PermissionFlow(permissionState, pageState, viewDelegate)
-        grantStorage(flow)
-
-        verifyMethod().showOverlayPermissionView(capture(runnableCaptor), any())
-
+    fun overlayState_showOverlayPage_noToFinish() {
+        // Prepare
+        flow.initialState = PermissionFlow.OverlayState(flow)
+        flow.start()
+        verifyMethod().showOverlayPermissionView(any(), capture(runnableCaptor))
         runnableCaptor.value.run()
-        verifyMethod().requestOverlayPermission()
+
+        // Test
+        verifyMethod().onOverlayDenied()
+        verifyMethod().onPermissionFlowFinish()
+    }
+
+    @Test
+    fun captureState_showCapturePage() {
+        // Prepare
+        flow.initialState = PermissionFlow.CaptureState(flow)
+        flow.start()
+        verifyMethod().showCapturePermissionView(any(), capture(runnableCaptor))
+        runnableCaptor.value.run()
+
+        // Test
+        verifyMethod().onPermissionFlowFinish()
+    }
+
+    @Test
+    fun firstLaunch_onPermissionResult_setWelcomePageShown() {
+        pageStateData[0] = false
+        flow.onPermissionResult(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION, booleanArrayOf(true))
+        flow.start()
+        assertTrue(pageState.isWelcomePageShown())
+
+        pageStateData[0] = false
+        flow.onPermissionResult(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION, booleanArrayOf(false))
+        flow.start()
+        assertTrue(pageState.isWelcomePageShown())
+
+        pageStateData[0] = false
+        flow.onPermissionResult(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION, booleanArrayOf())
+        flow.start()
+        assertFalse(pageState.isWelcomePageShown())
+    }
+
+    /**
+     * Test flow state transfer
+     */
+
+    @Test
+    fun storageNotGranted_transferToStorageState() {
+        flow.start()
+        assertTrue(flow.state is PermissionFlow.StorageState.FirstTimeRequest)
+
+        flow.onPermissionResult(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION, booleanArrayOf(false))
+        flow.start()
+        assertTrue(flow.state is PermissionFlow.StorageState.NonFirstTimeRequest)
+    }
+
+    @Test
+    fun storageGranted_overlayNotGranted_transferToOverlayState() {
+        permissions[0] = true
+
+        // Test: First time
+        flow.start()
+        // In case user manually grant storage permission before launching the app
+        assertTrue(pageState.isWelcomePageShown())
+        assertTrue(flow.state is PermissionFlow.OverlayState.FirstTimeRequest)
+
+        // Test: Second time, directly finish the flow
+        flow.start()
+        assertTrue(flow.state is PermissionFlow.FinishState)
+    }
+
+    @Test
+    fun storageGranted_overlayGrantedInDefault_transferToCaptureState() {
+        permissions[0] = true
+        permissions[1] = true
+
+        // Test: First time
+        flow.start()
+        assertTrue(flow.state is PermissionFlow.CaptureState.FirstTimeRequest)
+
+        // Test: Second time, directly finish the flow
+        flow.start()
+        assertTrue(flow.state is PermissionFlow.FinishState)
     }
 
     private fun verifyMethod(): PermissionFlow.ViewDelegate {

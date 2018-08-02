@@ -89,10 +89,9 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
                 stopSelf()
                 sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
             }
-            else -> {
-                initFloatingButton()
-            }
         }
+
+        initFloatingButton()
 
         return START_STICKY
     }

@@ -75,95 +75,24 @@ class PermissionFlow(private var permissionState: PermissionStateProvider,
         }
     }
 
+    var initialState: State = StorageState(this)
+    var state: State = initialState
+
     fun start() {
-        startStorageFlow()
+        state = initialState.execute()
     }
 
     @Suppress("UNUSED_PARAMETER")
     fun onPermissionResult(requestCode: Int, results: BooleanArray) {
+        if (results.isEmpty()) {
+            return
+        }
+
         when (requestCode) {
             MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION -> {
                 pageState.setWelcomePageShown()
             }
         }
-    }
-
-    private fun startStorageFlow() {
-        if (permissionState.isStorageGranted()) {
-            viewDelegate.onStorageGranted()
-            startOverlayFlow()
-
-        } else if (pageState.isWelcomePageShown()) {
-            requestStoragePermission()
-
-        } else {
-            showWelcomePage()
-        }
-    }
-
-    private fun startOverlayFlow() {
-        val overlayShown = pageState.isOverlayPageShown()
-        if (!overlayShown) {
-            pageState.setOverlayPageShown()
-        }
-
-        if (permissionState.isOverlayGranted()) {
-            viewDelegate.onOverlayGranted()
-
-            if (!overlayShown) {
-                startCaptureFlow()
-            } else {
-                viewDelegate.onPermissionFlowFinish()
-            }
-
-        } else if (!overlayShown) {
-            viewDelegate.showOverlayPermissionView(Runnable {
-                viewDelegate.requestOverlayPermission()
-            }, Runnable {
-                viewDelegate.onOverlayDenied()
-                viewDelegate.onPermissionFlowFinish()
-            })
-        } else {
-            viewDelegate.onOverlayDenied()
-            viewDelegate.onPermissionFlowFinish()
-        }
-    }
-
-    private fun startCaptureFlow() {
-        if (!pageState.isCapturePageShown()) {
-            viewDelegate.showCapturePermissionView(Runnable {
-                viewDelegate.onPermissionFlowFinish()
-
-            }, Runnable {
-                viewDelegate.onPermissionFlowFinish()
-            })
-            pageState.setCapturePageShown()
-        } else {
-            viewDelegate.onPermissionFlowFinish()
-        }
-    }
-
-    private fun showWelcomePage() {
-        viewDelegate.showWelcomePage(Runnable {
-            viewDelegate.requestStoragePermission()
-        })
-    }
-
-    private fun requestStoragePermission() {
-        val shouldShowRational = permissionState.shouldShowStorageRational()
-        val title = if (shouldShowRational) {
-            "oops! something wrong"
-        } else {
-            "go to setting and enable permission"
-        }
-
-        viewDelegate.showStoragePermissionView(title, Runnable {
-            if (shouldShowRational) {
-                viewDelegate.requestStoragePermission()
-            } else {
-                viewDelegate.launchSystemSettingPage()
-            }
-        })
     }
 
     interface ViewDelegate {
@@ -199,5 +128,139 @@ class PermissionFlow(private var permissionState: PermissionStateProvider,
         fun setWelcomePageShown()
         fun setOverlayPageShown()
         fun setCapturePageShown()
+    }
+
+    interface State {
+        fun execute(): State
+        fun transfer(state: State): State {
+            return state.execute()
+        }
+    }
+
+    open class StorageState(private val flow: PermissionFlow) : State {
+        override fun execute(): State {
+            return transfer(when {
+                flow.permissionState.isStorageGranted() -> Granted(flow)
+                flow.pageState.isWelcomePageShown() -> NonFirstTimeRequest(flow)
+                else -> FirstTimeRequest(flow)
+            })
+        }
+
+        class Granted(private val flow: PermissionFlow) : StorageState(flow) {
+            override fun execute(): State {
+                flow.pageState.setWelcomePageShown()
+                flow.viewDelegate.onStorageGranted()
+                return transfer(OverlayState(flow))
+            }
+        }
+
+        class FirstTimeRequest(private val flow: PermissionFlow) : StorageState(flow) {
+            override fun execute(): State {
+                flow.viewDelegate.showWelcomePage(Runnable {
+                    flow.viewDelegate.requestStoragePermission()
+                })
+                return this
+            }
+        }
+
+        class NonFirstTimeRequest(private val flow: PermissionFlow) : StorageState(flow) {
+            override fun execute(): State {
+                val shouldShowRational = flow.permissionState.shouldShowStorageRational()
+                val title = if (shouldShowRational) {
+                    "oops! something wrong"
+                } else {
+                    "go to setting and enable permission"
+                }
+
+                flow.viewDelegate.showStoragePermissionView(title, Runnable {
+                    if (shouldShowRational) {
+                        flow.viewDelegate.requestStoragePermission()
+                    } else {
+                        flow.viewDelegate.launchSystemSettingPage()
+                    }
+                })
+                return this
+            }
+        }
+    }
+
+    open class OverlayState(private val flow: PermissionFlow) : State {
+        override fun execute(): State {
+            return transfer(when {
+                flow.permissionState.isOverlayGranted() -> Granted(flow)
+                flow.pageState.isOverlayPageShown() -> NonFirstTimeRequest(flow)
+                else -> FirstTimeRequest(flow)
+            })
+        }
+
+        class Granted(private val flow: PermissionFlow) : OverlayState(flow) {
+            override fun execute(): State {
+                flow.viewDelegate.onOverlayGranted()
+
+                return if (flow.pageState.isOverlayPageShown()) {
+                    transfer(FinishState(flow))
+                } else {
+                    flow.pageState.setOverlayPageShown()
+                    transfer(CaptureState(flow))
+                }
+            }
+        }
+
+        class FirstTimeRequest(private val flow: PermissionFlow) : OverlayState(flow) {
+            override fun execute(): State {
+                flow.pageState.setOverlayPageShown()
+                flow.viewDelegate.showOverlayPermissionView(Runnable {
+                    flow.viewDelegate.requestOverlayPermission()
+                }, Runnable {
+                    flow.viewDelegate.onOverlayDenied()
+                    transfer(FinishState(flow))
+                })
+                return this
+            }
+        }
+
+        class NonFirstTimeRequest(private val flow: PermissionFlow) : OverlayState(flow) {
+            override fun execute(): State {
+                flow.viewDelegate.onOverlayDenied()
+                return transfer(FinishState(flow))
+            }
+        }
+    }
+
+    open class CaptureState(private val flow: PermissionFlow) : State {
+        override fun execute(): State {
+            return transfer(if (flow.pageState.isCapturePageShown()) {
+                NonFirstTimeRequest(flow)
+            } else {
+                FirstTimeRequest(flow)
+            })
+        }
+
+        class FirstTimeRequest(private val flow: PermissionFlow) : CaptureState(flow) {
+            override fun execute(): State {
+                flow.viewDelegate.showCapturePermissionView(Runnable {
+                    transfer(FinishState(flow))
+
+                }, Runnable {
+                    transfer(FinishState(flow))
+                })
+                flow.pageState.setCapturePageShown()
+                return this
+            }
+        }
+
+        class NonFirstTimeRequest(private val flow: PermissionFlow) : CaptureState(flow) {
+            override fun execute(): State {
+                return transfer(FinishState(flow))
+            }
+        }
+    }
+
+    class FinishState(private val flow: PermissionFlow) : State {
+        override fun execute(): State {
+            flow.state = this
+            flow.viewDelegate.onPermissionFlowFinish()
+            return this
+        }
     }
 }

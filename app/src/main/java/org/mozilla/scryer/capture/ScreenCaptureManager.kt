@@ -9,7 +9,6 @@ import android.graphics.PixelFormat
 import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
-import android.media.Image
 import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
@@ -21,7 +20,6 @@ import android.view.Display
 import android.view.WindowManager
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 
 class ScreenCaptureManager(context: Context, private val screenCapturePermissionIntent: Intent, private val screenCaptureListener: ScreenCaptureListener) {
     private val projectionManager: MediaProjectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -99,15 +97,13 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
         override fun onImageAvailable(reader: ImageReader) {
             imageReader?.setOnImageAvailableListener(null, null)
 
-            var image: Image? = null
-            var fos: FileOutputStream? = null
+            val filePath: String = screenshotPath + "/my_screenshot_" + System.currentTimeMillis() + ".jpg"
             var bitmap: Bitmap? = null
-            var filePath: String? = null
+            var croppedBitmap: Bitmap? = null
 
             try {
-                image = reader.acquireLatestImage()
-                if (image != null) {
-                    val planes = image.planes
+                reader.acquireLatestImage()?.use {
+                    val planes = it.planes
                     val buffer = planes[0].buffer
                     val pixelStride = planes[0].pixelStride
                     val rowStride = planes[0].rowStride
@@ -118,33 +114,24 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
                     bitmap?.copyPixelsFromBuffer(buffer)
 
                     // trim the screenshot to the correct size.
-                    val croppedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height);
+                    croppedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height)
 
                     // write bitmap to a file
-                    filePath = screenshotPath + "/my_screenshot_" + System.currentTimeMillis() + ".jpg"
-                    fos = FileOutputStream(filePath)
-                    croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+                    FileOutputStream(filePath).use {
+                        croppedBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                    }
                 }
 
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
-                if (fos != null) {
-                    try {
-                        fos.close()
-                    } catch (ioe: IOException) {
-                        ioe.printStackTrace()
-                    }
-
-                }
-
+                croppedBitmap?.recycle()
                 bitmap?.recycle()
-                image?.close()
 
                 stopProjection()
             }
 
-            uiHandler.post { screenCaptureListener.onScreenShotTaken(filePath ?: "") }
+            uiHandler.post { screenCaptureListener.onScreenShotTaken(filePath) }
         }
     }
 

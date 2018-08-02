@@ -24,8 +24,8 @@ import org.mozilla.scryer.capture.ScreenCaptureListener
 import org.mozilla.scryer.capture.ScreenCaptureManager
 import org.mozilla.scryer.filemonitor.FileMonitor
 import org.mozilla.scryer.filemonitor.MediaProviderDelegate
-import org.mozilla.scryer.overlay.OverlayPermission
 import org.mozilla.scryer.overlay.ScreenshotButtonController
+import org.mozilla.scryer.permission.PermissionHelper
 import org.mozilla.scryer.persistence.ScreenshotModel
 import java.util.*
 
@@ -48,9 +48,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     private var isRunning: Boolean = false
-    private val floatingButtonController: ScreenshotButtonController by lazy {
-        ScreenshotButtonController(applicationContext)
-    }
+    private var floatingButtonController: ScreenshotButtonController? = null
 
     private var screenCapturePermissionIntent: Intent? = null
     private var screenCaptureManager: ScreenCaptureManager? = null
@@ -64,29 +62,24 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
 
     private val handler = Handler(Looper.getMainLooper())
 
-    override fun onCreate() {
-        super.onCreate()
-        startForeground(getForegroundNotificationId(), getForegroundNotification())
-    }
-
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (!OverlayPermission.hasPermission(applicationContext)) {
+        if (null == intent) {
             stopSelf()
             return Service.START_NOT_STICKY
         }
 
-        if (null == intent) {
+        if (!ScryerApplication.getSettingsRepository().serviceEnabled) {
             stopSelf()
             return Service.START_NOT_STICKY
         }
 
         if (!isRunning) {
             isRunning = true
-            initFloatingButton()
+            startForeground(getForegroundNotificationId(), getForegroundNotification())
             initFileMonitors()
 
         } else when (intent.action) {
@@ -96,6 +89,9 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
                 stopSelf()
                 sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
             }
+            else -> {
+                initFloatingButton()
+            }
         }
 
         return START_STICKY
@@ -104,15 +100,22 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     override fun onDestroy() {
         if (isRunning) {
             isRunning = false
-            floatingButtonController.destroy()
+            floatingButtonController?.destroy()
             fileMonitor.stopMonitor()
         }
         super.onDestroy()
     }
 
     private fun initFloatingButton() {
-        floatingButtonController.setOnClickListener(this)
-        floatingButtonController.init()
+        if (!PermissionHelper.hasOverlayPermission(this)) {
+            return
+        }
+
+        floatingButtonController?: run {
+            floatingButtonController = ScreenshotButtonController(applicationContext)
+            floatingButtonController?.setOnClickListener(this)
+            floatingButtonController?.init()
+        }
     }
 
     private fun initFileMonitors() {
@@ -137,7 +140,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
 
     private fun postTakeScreenshot(delayed: Long) {
         handler.postDelayed({
-            floatingButtonController.hide()
+            floatingButtonController?.hide()
             takeScreenshot()
         }, delayed)
     }
@@ -182,7 +185,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     override fun onScreenShotTaken(path: String) {
-        floatingButtonController.show()
+        floatingButtonController?.show()
         if (!TextUtils.isEmpty(path)) {
             startChooseCollectionActivity(path)
         }

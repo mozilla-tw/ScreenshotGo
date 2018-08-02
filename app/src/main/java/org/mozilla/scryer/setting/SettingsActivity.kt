@@ -39,6 +39,7 @@ class SettingsActivity : AppCompatActivity() {
         })
 
         // Floating Button
+        // TODO: Switch to launch system settings if overlay permission is not yet granted
         val floatingSwitch = findViewById<SwitchCompat>(R.id.floating_enabled_switch)
         floatingSwitch.isChecked = repository.floatingEnable
         floatingSwitch.setOnCheckedChangeListener { _, isChecked ->

@@ -112,24 +112,34 @@ class PermissionFlow(private var permissionState: PermissionStateProvider,
 
             if (!overlayShown) {
                 startCaptureFlow()
+            } else {
+                viewDelegate.onPermissionFlowFinish()
             }
 
         } else if (!overlayShown) {
             viewDelegate.showOverlayPermissionView(Runnable {
                 viewDelegate.requestOverlayPermission()
             }, Runnable {
+                viewDelegate.onOverlayDenied()
+                viewDelegate.onPermissionFlowFinish()
             })
+        } else {
+            viewDelegate.onOverlayDenied()
+            viewDelegate.onPermissionFlowFinish()
         }
     }
 
     private fun startCaptureFlow() {
         if (!pageState.isCapturePageShown()) {
             viewDelegate.showCapturePermissionView(Runnable {
+                viewDelegate.onPermissionFlowFinish()
 
             }, Runnable {
-
+                viewDelegate.onPermissionFlowFinish()
             })
             pageState.setCapturePageShown()
+        } else {
+            viewDelegate.onPermissionFlowFinish()
         }
     }
 
@@ -165,6 +175,9 @@ class PermissionFlow(private var permissionState: PermissionStateProvider,
 
         fun onStorageGranted()
         fun onOverlayGranted()
+        fun onOverlayDenied()
+
+        fun onPermissionFlowFinish()
 
         fun requestStoragePermission()
         fun requestOverlayPermission()

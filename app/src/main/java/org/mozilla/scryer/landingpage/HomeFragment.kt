@@ -151,19 +151,24 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val context = context?: return
         dismissPermissionDialog()
 
-        val bottomDialog = BottomDialogFactory.create(context, R.layout.dialog_overlay_permission)
+        val dialog = BottomDialogFactory.create(context, R.layout.dialog_overlay_permission)
 
-        bottomDialog.findViewById<TextView>(R.id.title)?.setText(R.string.overlay_permission_prompt_title)
-        bottomDialog.findViewById<Button>(R.id.positive_button)?.setOnClickListener {
+        dialog.findViewById<TextView>(R.id.title)?.setText(R.string.overlay_permission_prompt_title)
+        dialog.findViewById<Button>(R.id.positive_button)?.setOnClickListener {
             action.run()
+            dialog.dismiss()
         }
-        bottomDialog.findViewById<Button>(R.id.negative_button)?.setOnClickListener {
+        dialog.findViewById<Button>(R.id.negative_button)?.setOnClickListener {
+            negativeAction.run()
+            dialog.dismiss()
+        }
+        dialog.setOnCancelListener {
             negativeAction.run()
         }
 
-        bottomDialog.show()
+        dialog.show()
 
-        permissionDialog = bottomDialog
+        permissionDialog = dialog
     }
 
     override fun showCapturePermissionView(action: Runnable, negativeAction: Runnable) {
@@ -171,30 +176,33 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         dismissPermissionDialog()
 
         // TODO: Rename layout file if it is going to be shared
-        val bottomDialog = BottomDialogFactory.create(context, R.layout.dialog_overlay_permission)
+        val dialog = BottomDialogFactory.create(context, R.layout.dialog_overlay_permission)
 
-        bottomDialog.findViewById<TextView>(R.id.title)?.setText(R.string.capture_permission_prompt_title)
-        bottomDialog.findViewById<Button>(R.id.positive_button)?.visibility = View.GONE
-        bottomDialog.findViewById<Button>(R.id.negative_button)?.setOnClickListener {
+        dialog.findViewById<TextView>(R.id.title)?.setText(R.string.capture_permission_prompt_title)
+        dialog.findViewById<Button>(R.id.positive_button)?.visibility = View.GONE
+        dialog.findViewById<Button>(R.id.negative_button)?.setOnClickListener {
             negativeAction.run()
-            bottomDialog.dismiss()
+            dialog.dismiss()
+        }
+        dialog.setOnCancelListener {
+            negativeAction.run()
         }
 
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
-                bottomDialog.dismiss()
+                dialog.dismiss()
             }
         }
 
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver,
                 IntentFilter(ScryerService.EVENT_TAKE_SCREENSHOT))
-        bottomDialog.setOnDismissListener { _ ->
+        dialog.setOnDismissListener { _ ->
             LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver)
         }
 
-        bottomDialog.show()
-        permissionDialog = bottomDialog
+        dialog.show()
+        permissionDialog = dialog
     }
 
     override fun onStorageGranted() {
@@ -209,7 +217,16 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     override fun onOverlayGranted() {
         log(LOG_TAG, "onOverlayGranted")
         dismissPermissionDialog()
+        ScryerApplication.getSettingsRepository().floatingEnable = true
+    }
 
+    override fun onOverlayDenied() {
+        log(LOG_TAG, "onOverlayDenied")
+        ScryerApplication.getSettingsRepository().floatingEnable = false
+    }
+
+    override fun onPermissionFlowFinish() {
+        log(LOG_TAG, "onPermissionFlowFinish")
         if (ScryerApplication.getSettingsRepository().serviceEnabled) {
             context?.startService(Intent(context, ScryerService::class.java))
         }

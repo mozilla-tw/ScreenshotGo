@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="app_settings">
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="@string/pref_key_enable_capture_service"
+        android:persistent="true"
+        android:summary="@string/preference_capture_service_description"
+        android:title="@string/preference_capture_service_title" />
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="@string/pref_key_enable_floating_screenshot_button"
+        android:persistent="true"
+        android:title="@string/preference_floating_screenshot_button_title" />
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="@string/pref_key_enable_add_to_collection"
+        android:persistent="true"
+        android:summary="@string/preference_add_to_collection_description"
+        android:title="@string/preference_add_to_collection_title" />
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="@string/pref_key_enable_send_usage_data"
+        android:persistent="true"
+        android:summary="@string/preference_send_usage_data_description"
+        android:title="preference_send_usage_data_title" />
+
+    <android.support.v7.preference.Preference
+        android:key="@string/pref_key_give_feedback"
+        android:persistent="false"
+        android:title="@string/preference_give_feedback_title" />
+
+    <android.support.v7.preference.Preference
+        android:key="@string/pref_key_share_with_friends"
+        android:persistent="false"
+        android:title="@string/preference_share_with_friends_title" />
+
+    <android.support.v7.preference.Preference
+        android:key="@string/pref_key_about"
+        android:persistent="false"
+        android:title="@string/preference_about_title" />
+
+</android.support.v7.preference.PreferenceScreen>

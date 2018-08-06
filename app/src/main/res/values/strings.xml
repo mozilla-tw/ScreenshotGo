@@ -10,4 +10,16 @@
 
     <!-- Capture permission prompt -->
     <string name="capture_permission_prompt_title">Try the Screenshot Button</string>
+
+    <!-- Settings -->
+    <string name="preference_capture_service_title">Capture Service</string>
+    <string name="preference_capture_service_description">Enable capture service allows you to take screenshots with better ways</string>
+    <string name="preference_floating_screenshot_button_title">Floating screenshot button</string>
+    <string name="preference_add_to_collection_title">Add to collection</string>
+    <string name="preference_add_to_collection_description">Always prompt to sort screenshot into collection after capturing a screenshot</string>
+    <string name="preference_send_usage_data_title">Send usage data</string>
+    <string name="preference_send_usage_data_description">Mozilla strives to collect only what we need to provide and improve Smart Screenshot for everyone.</string>
+    <string name="preference_give_feedback_title">Give feedback</string>
+    <string name="preference_share_with_friends_title">Share with friends</string>
+    <string name="preference_about_title">About</string>
 </resources>

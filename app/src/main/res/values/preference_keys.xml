@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="pref_key_enable_capture_service" translatable="false"><xliff:g id="preference_key">pref_key_enable_capture_service</xliff:g></string>
+    <string name="pref_key_enable_floating_screenshot_button" translatable="false"><xliff:g id="preference_key">pref_key_enable_floating_screenshot_button</xliff:g></string>
+    <string name="pref_key_enable_add_to_collection" translatable="false"><xliff:g id="preference_key">pref_key_enable_add_to_collection</xliff:g></string>
+    <string name="pref_key_enable_send_usage_data" translatable="false"><xliff:g id="preference_key">pref_key_enable_send_usage_data</xliff:g></string>
+    <string name="pref_key_give_feedback" translatable="false"><xliff:g id="preference_key">pref_key_give_feedback</xliff:g></string>
+    <string name="pref_key_share_with_friends" translatable="false"><xliff:g id="preference_key">pref_key_share_with_friends</xliff:g></string>
+    <string name="pref_key_about" translatable="false"><xliff:g id="preference_key">pref_key_about</xliff:g></string>
+</resources>

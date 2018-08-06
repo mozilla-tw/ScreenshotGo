@@ -57,7 +57,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     var screenshot: ScreenshotModel? = null
         set(value) {
             value?.let {
-                Glide.with(this).load(File(it.path)).into(imageView)
+                Glide.with(this).load(File(it.absolutePath)).into(imageView)
             }
         }
 

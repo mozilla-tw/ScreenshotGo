@@ -2,12 +2,18 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b96ef40444ac000b93be5d425811f92d",
+    "identityHash": "6510fbe78bd45819d09b97a920b1f839",
     "entities": [
       {
         "tableName": "collection",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `date` INTEGER NOT NULL, `color` INTEGER NOT NULL, `id` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `date` INTEGER NOT NULL, `color` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
           {
             "fieldPath": "name",
             "columnName": "name",
@@ -25,12 +31,6 @@
             "columnName": "color",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "TEXT",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -44,23 +44,23 @@
       },
       {
         "tableName": "screenshot",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `path` TEXT NOT NULL, `date` INTEGER NOT NULL, `collection_id` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `absolute_path` TEXT NOT NULL, `last_modified` INTEGER NOT NULL, `collection_id` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "absolutePath",
+            "columnName": "absolute_path",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "path",
-            "columnName": "path",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "date",
-            "columnName": "date",
+            "fieldPath": "lastModified",
+            "columnName": "last_modified",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -75,7 +75,7 @@
           "columnNames": [
             "id"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [
           {
@@ -87,12 +87,12 @@
             "createSql": "CREATE  INDEX `index_screenshot_collection_id` ON `${TABLE_NAME}` (`collection_id`)"
           },
           {
-            "name": "index_screenshot_path",
+            "name": "index_screenshot_absolute_path",
             "unique": true,
             "columnNames": [
-              "path"
+              "absolute_path"
             ],
-            "createSql": "CREATE UNIQUE INDEX `index_screenshot_path` ON `${TABLE_NAME}` (`path`)"
+            "createSql": "CREATE UNIQUE INDEX `index_screenshot_absolute_path` ON `${TABLE_NAME}` (`absolute_path`)"
           }
         ],
         "foreignKeys": []
@@ -100,7 +100,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"b96ef40444ac000b93be5d425811f92d\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"6510fbe78bd45819d09b97a920b1f839\")"
     ]
   }
 }

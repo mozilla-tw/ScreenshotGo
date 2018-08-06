@@ -121,7 +121,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
         fileMonitor.startMonitor(object : FileMonitor.ChangeListener {
             override fun onChangeFinish(path: String) {
                 postNotification(getScreenshotDetectedNotification())
-                val model = ScreenshotModel(UUID.randomUUID().toString(), path,
+                val model = ScreenshotModel(null, path,
                         System.currentTimeMillis(),
                         "")
                 ScryerApplication.getScreenshotRepository().addScreenshot(listOf(model))

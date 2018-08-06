@@ -22,7 +22,9 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
 
     override fun addScreenshot(screenshots: List<ScreenshotModel>) {
         executor.submit {
-            database.screenshotDao().addScreenshot(screenshots)
+            database.screenshotDao().addScreenshot(screenshots).forEachIndexed { index, id ->
+                screenshots[index].id = id
+            }
         }
     }
 
@@ -38,6 +40,10 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
 
     override fun getScreenshots(): LiveData<List<ScreenshotModel>> {
         return screenshotListData
+    }
+
+    override fun deleteScreenshot(screenshot: ScreenshotModel) {
+        database.screenshotDao().deleteScreenshot(screenshot)
     }
 
     override fun getCollections(): LiveData<List<CollectionModel>> {

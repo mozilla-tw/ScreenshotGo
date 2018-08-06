@@ -129,7 +129,7 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 position != RecyclerView.NO_POSITION
 
             }?.let { position: Int ->
-                DetailPageActivity.showDetailPage(parent.context, screenshotList[position].path, holder.image)
+                DetailPageActivity.showDetailPage(parent.context, screenshotList[position].absolutePath, holder.image)
             }
         }
         return holder
@@ -144,7 +144,7 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             title?.text = getItemFileName(position)
             image?.let {
                 Glide.with(holder.itemView.context)
-                        .load(File(screenshotList[position].path))
+                        .load(File(screenshotList[position].absolutePath))
                         .into(it)
             }
         }
@@ -161,7 +161,7 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     fun getItemFileName(position: Int): String {
         val item = screenshotList[position]
-        return item.path.substring(item.path.lastIndexOf(File.separator) + 1)
+        return item.absolutePath.substring(item.absolutePath.lastIndexOf(File.separator) + 1)
     }
 
     fun getItem(position: Int): ScreenshotModel {

@@ -78,9 +78,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
                 return null
             }
 
-            return ScreenshotModel(UUID.randomUUID().toString(), path,
-                    System.currentTimeMillis(),
-                    "")
+            return ScreenshotModel(null, path, System.currentTimeMillis(), "")
         }
     }
 

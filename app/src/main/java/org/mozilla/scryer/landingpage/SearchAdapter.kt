@@ -41,7 +41,7 @@ class SearchAdapter : ScreenshotAdapter(), Filterable {
         val imageView = (holder as? ScreenshotItemHolder)?.image
         imageView?.let {
             Glide.with(holder.itemView.context)
-                    .load(File(getItem(position).path))
+                    .load(File(getItem(position).absolutePath))
                     .into(it)
         }
     }
@@ -52,7 +52,7 @@ class SearchAdapter : ScreenshotAdapter(), Filterable {
                 val newList = mutableListOf<ScreenshotModel>()
                 constraint?.takeIf { it.isNotEmpty() }?.let {
                     for (screenshot in originalList) {
-                        val name = screenshot.path.substring(screenshot.path.lastIndexOf(File.separator) + 1)
+                        val name = screenshot.absolutePath.substring(screenshot.absolutePath.lastIndexOf(File.separator) + 1)
                         if (name.toLowerCase().contains(constraint.toString().toLowerCase())) {
                             newList.add(screenshot)
                         }

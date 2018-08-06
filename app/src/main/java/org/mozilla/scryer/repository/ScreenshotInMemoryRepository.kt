@@ -51,4 +51,9 @@ class ScreenshotInMemoryRepository : ScreenshotRepository {
     override fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>> {
         return screenshotData
     }
+
+    override fun deleteScreenshot(screenshot: ScreenshotModel) {
+        screenshotList.remove(screenshot)
+        screenshotData.value = screenshotList
+    }
 }

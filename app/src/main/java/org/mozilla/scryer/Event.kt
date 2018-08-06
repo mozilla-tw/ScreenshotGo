@@ -33,3 +33,13 @@ class Observer<T>(private val onEvent: (T) -> Unit) : Observer<T> {
         }
     }
 }
+
+abstract class NonNullObserver<T> : Observer<T> {
+    override fun onChanged(t: T?) {
+        t?.let {
+            onValueChanged(it)
+        }
+    }
+
+    abstract fun onValueChanged(newValue: T)
+}

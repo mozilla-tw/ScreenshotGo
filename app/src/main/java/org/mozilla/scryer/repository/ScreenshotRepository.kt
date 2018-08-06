@@ -38,6 +38,8 @@ interface ScreenshotRepository {
     fun updateScreenshot(screenshot: ScreenshotModel)
     fun getScreenshots(): LiveData<List<ScreenshotModel>>
     fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
+    fun deleteScreenshot(screenshot: ScreenshotModel)
+
     fun setupDefaultContent() {
         TODO("not implemented")
     }

@@ -6,11 +6,9 @@
 package org.mozilla.scryer.persistence
 
 import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
+import android.arch.persistence.room.*
+import android.arch.persistence.room.OnConflictStrategy.IGNORE
 import android.arch.persistence.room.OnConflictStrategy.REPLACE
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.Update
 
 @Dao
 interface ScreenshotDao {
@@ -23,11 +21,14 @@ interface ScreenshotDao {
     fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
 
     @Insert(onConflict = REPLACE)
-    fun addScreenshot(screenshot: List<ScreenshotModel>)
+    fun addScreenshot(screenshot: List<ScreenshotModel>): List<Long>
 
     @Update(onConflict = REPLACE)
     fun updateScreenshot(screenshot: ScreenshotModel)
 
-    @Query("SELECT screenshot.* FROM (SELECT id, max(date) AS max_date FROM screenshot GROUP BY collection_id) AS latest INNER JOIN screenshot ON latest.id = screenshot.id AND screenshot.date = latest.max_date")
+    @Delete
+    fun deleteScreenshot(screenshot: ScreenshotModel)
+
+    @Query("SELECT screenshot.* FROM (SELECT id, max(last_modified) AS max_date FROM screenshot GROUP BY collection_id) AS latest INNER JOIN screenshot ON latest.id = screenshot.id AND screenshot.last_modified = latest.max_date")
     fun getCollectionCovers(): LiveData<List<ScreenshotModel>>
 }

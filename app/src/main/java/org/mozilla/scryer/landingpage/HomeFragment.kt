@@ -37,6 +37,7 @@ import androidx.navigation.Navigation
 import org.mozilla.scryer.*
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.extension.dpToPx
+import org.mozilla.scryer.filemonitor.ScreenshotFetcher
 import org.mozilla.scryer.overlay.OverlayPermission
 import org.mozilla.scryer.permission.PermissionFlow
 import org.mozilla.scryer.permission.PermissionViewModel
@@ -209,9 +210,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         log(LOG_TAG, "onStorageGranted")
         storagePermissionView?.visibility = View.GONE
 
-        // TODO: Currently this will sync screenshots to the database every time after onResume()
-        // TODO: Find a better syncing strategy
-        //readScreenshotsFromSdcard()
+        syncScreenshotsFromExternalStorage()
     }
 
     override fun onOverlayGranted() {
@@ -326,7 +325,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         quickAccessListView.adapter = quickAccessAdapter
         quickAccessAdapter.clickListener = object : QuickAccessAdapter.ItemClickListener {
             override fun onItemClick(screenshotModel: ScreenshotModel, holder: ScreenshotItemHolder) {
-                DetailPageActivity.showDetailPage(context, screenshotModel.path, holder.image)
+                DetailPageActivity.showDetailPage(context, screenshotModel.absolutePath, holder.image)
             }
 
             override fun onMoreClick(holder: ScreenshotItemHolder) {
@@ -347,7 +346,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         viewModel.getScreenshots().observe(this, Observer { screenshots ->
             screenshots?.let { newList ->
-                val finalList = newList.sortedByDescending { it.date }
+                val finalList = newList.sortedByDescending { it.lastModified }
                         .subList(0, Math.min(newList.size, QUICK_ACCESS_ITEM_COUNT + 1))
                 updateQuickAccessListView(finalList)
             }
@@ -395,6 +394,37 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     private fun updateCollectionListView(collections: List<CollectionModel>) {
         mainAdapter.collectionList = collections
         mainAdapter.notifyDataSetChanged()
+    }
+
+    private fun syncScreenshotsFromExternalStorage() {
+        viewModel.getScreenshots().observe(this, object : NonNullObserver<List<ScreenshotModel>>() {
+            override fun onValueChanged(newValue: List<ScreenshotModel>) {
+                viewModel.getScreenshots().removeObserver(this)
+                context?.let {
+                    ScreenshotFetcher().fetchScreenshots(it) { externalList ->
+                        mergeExternalToDatabase(externalList, newValue)
+                    }
+                }
+            }
+        })
+    }
+
+    private fun mergeExternalToDatabase(externalList: List<ScreenshotModel>,
+                                        dbList: List<ScreenshotModel>): List<ScreenshotModel> {
+        val map = HashMap<String, ScreenshotModel>()
+        for (model in dbList) {
+            map[model.absolutePath] = model
+        }
+
+        val results = mutableListOf<ScreenshotModel>()
+
+        for (model in externalList) {
+            model.collectionId = map[model.absolutePath]?.collectionId ?: CollectionModel.CATEGORY_NONE
+            results.add(model)
+        }
+
+        viewModel.addScreenshot(results)
+        return results
     }
 
     private fun log(tag: String, msg: String) {

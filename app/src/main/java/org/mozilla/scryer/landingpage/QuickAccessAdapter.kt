@@ -76,12 +76,12 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
     }
 
     private fun bindItemHolder(holder: ScreenshotItemHolder, position: Int) {
-        val path = list[position].path
+        val path = list[position].absolutePath
         val fileName = path.substring(path.lastIndexOf(File.separator) + 1)
         holder.title?.text = fileName
         holder.image?.let {
             Glide.with(holder.itemView.context)
-                    .load(File(list[position].path)).into(it)
+                    .load(File(list[position].absolutePath)).into(it)
         }
     }
 

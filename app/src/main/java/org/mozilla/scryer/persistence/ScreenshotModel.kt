@@ -12,9 +12,9 @@ import android.arch.persistence.room.*
 //                entity = CollectionModel::class,
 //                parentColumns = ["id"],
 //                childColumns = ["collection_id"]))],
-        indices = [Index("collection_id"), Index("path", unique = true)])
+        indices = [Index("collection_id"), Index("absolute_path", unique = true)])
 data class ScreenshotModel(
-        @PrimaryKey(autoGenerate = false) var id: String,
-        @ColumnInfo(name = "path") var path: String,
-        @ColumnInfo(name = "date") var date: Long,
+        @PrimaryKey(autoGenerate = true) var id: Long?,
+        @ColumnInfo(name = "absolute_path") var absolutePath: String,
+        @ColumnInfo(name = "last_modified") var lastModified: Long,
         @ColumnInfo(name = "collection_id") var collectionId: String)

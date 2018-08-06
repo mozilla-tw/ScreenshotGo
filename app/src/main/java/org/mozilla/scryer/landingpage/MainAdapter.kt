@@ -127,7 +127,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         holder.title?.text = model.name
 
         coverList[model.id]?.let {
-            Glide.with(holder.itemView).load(File(it.path)).into(holder.image!!)
+            Glide.with(holder.itemView).load(File(it.absolutePath)).into(holder.image!!)
         } ?: run {
             holder.image?.setImageBitmap(null)
         }

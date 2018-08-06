@@ -23,6 +23,10 @@ data class CollectionModel constructor(
             : this(UUID.randomUUID().toString(), name, date, color)
 
     companion object {
-        const val CATEGORY_NONE = ""
+        /** Screenshots that has not yet been reviewed by the users */
+        const val UNCATEGORIZED = "uncategorized"
+
+        /** Screenshots that had been reviewed by the users without categorizing it */
+        const val CATEGORY_NONE = "category_none"
     }
 }

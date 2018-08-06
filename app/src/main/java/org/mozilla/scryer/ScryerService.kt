@@ -26,8 +26,8 @@ import org.mozilla.scryer.filemonitor.FileMonitor
 import org.mozilla.scryer.filemonitor.MediaProviderDelegate
 import org.mozilla.scryer.overlay.ScreenshotButtonController
 import org.mozilla.scryer.permission.PermissionHelper
+import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
-import java.util.*
 
 
 class ScryerService : Service(), ScreenshotButtonController.ClickListener, ScreenCaptureListener {
@@ -123,7 +123,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
                 postNotification(getScreenshotDetectedNotification())
                 val model = ScreenshotModel(null, path,
                         System.currentTimeMillis(),
-                        "")
+                        CollectionModel.UNCATEGORIZED)
                 ScryerApplication.getScreenshotRepository().addScreenshot(listOf(model))
             }
         })

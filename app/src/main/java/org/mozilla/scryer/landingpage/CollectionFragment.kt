@@ -5,6 +5,8 @@
 
 package org.mozilla.scryer.landingpage
 
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.Observer
 import android.content.Context
 import android.os.Bundle
@@ -24,6 +26,7 @@ import org.mozilla.scryer.R
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.getSupportActionBar
+import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.setSupportActionBar
 import org.mozilla.scryer.ui.GridItemDecoration
@@ -99,15 +102,58 @@ class CollectionFragment : Fragment() {
                 8f.dpToPx(context.resources.displayMetrics)))
 
         val viewModel = ScreenshotViewModel.get(this)
-        val liveData = collectionId?.let { viewModel.getScreenshots(it) } ?: viewModel.getScreenshots()
+        val liveData = collectionId?.let {
+            getLiveDataForCollection(it, viewModel)
+
+        } ?: viewModel.getScreenshots()
 
         liveData.observe(this, Observer { screenshots ->
-            screenshots?.let {
+            screenshots?.sortedByDescending { it.lastModified }?.let {
                 screenshotAdapter.setScreenshotList(it)
                 screenshotAdapter.notifyDataSetChanged()
                 getSupportActionBar(activity).subtitle = "${it.size} shots"
             }
         })
+    }
+
+    private fun getLiveDataForCollection(collectionId: String, viewModel: ScreenshotViewModel): LiveData<List<ScreenshotModel>> {
+        return if (collectionId == CollectionModel.CATEGORY_NONE) {
+            getLiveDataForUnsortedCollection(viewModel)
+
+        } else {
+            viewModel.getScreenshots(collectionId)
+        }
+    }
+
+    private fun getLiveDataForUnsortedCollection(viewModel: ScreenshotViewModel): LiveData<List<ScreenshotModel>> {
+        val mediator = MediatorLiveData<List<ScreenshotModel>>()
+
+        val categoryNone = mutableListOf<ScreenshotModel>()
+        val uncategorized = mutableListOf<ScreenshotModel>()
+        val combined = mutableListOf<ScreenshotModel>()
+
+        val combine = {
+            combined.clear()
+            combined.addAll(categoryNone)
+            combined.addAll(uncategorized)
+            combined
+        }
+
+        mediator.addSource(viewModel.getScreenshots(CollectionModel.CATEGORY_NONE)) {
+            it?.let {
+                categoryNone.clear()
+                categoryNone.addAll(it)
+                mediator.value = combine()
+            }
+        }
+        mediator.addSource(viewModel.getScreenshots(CollectionModel.UNCATEGORIZED)) {
+            it?.let {
+                uncategorized.clear()
+                uncategorized.addAll(it)
+                mediator.value = combine()
+            }
+        }
+        return mediator
     }
 }
 

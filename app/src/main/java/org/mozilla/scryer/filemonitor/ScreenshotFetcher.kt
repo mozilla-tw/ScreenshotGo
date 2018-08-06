@@ -51,7 +51,7 @@ class ScreenshotFetcher {
         val results = mutableListOf<ScreenshotModel>()
 
         for (file in files) {
-            val model = ScreenshotModel(null, file.absolutePath, file.lastModified(), CollectionModel.CATEGORY_NONE)
+            val model = ScreenshotModel(null, file.absolutePath, file.lastModified(), CollectionModel.UNCATEGORIZED)
             results.add(model)
         }
         return results

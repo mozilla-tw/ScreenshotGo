@@ -76,6 +76,12 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+        when (holder) {
+            is CollectionHolder -> holder.image?.setImageBitmap(null)
+        }
+    }
+
     private fun createCollectionHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_collection, parent, false)
         val itemHolder = CollectionHolder(view)
@@ -126,18 +132,35 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         val model = collectionList[position - FIXED_ITEM_COUNT]
         holder.title?.text = model.name
 
-        coverList[model.id]?.let {
-            Glide.with(holder.itemView).load(File(it.absolutePath)).into(holder.image!!)
-        } ?: run {
+        val path = if (model.id == CollectionModel.CATEGORY_NONE) {
+            getCoverPathForUnsortedCollection()
+        } else {
+            coverList[model.id]?.absolutePath
+        }
+
+        if (!path.isNullOrEmpty() && File(path).exists()) {
+            Glide.with(holder.itemView).load(File(path)).into(holder.image!!)
+        } else {
             holder.image?.setImageBitmap(null)
         }
     }
 
-    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
-        when (holder) {
-            is CollectionHolder -> holder.image?.setImageBitmap(null)
+    /**
+     * Use the latest screenshot from [CollectionModel.UNCATEGORIZED] and [CollectionModel.CATEGORY_NONE]
+     * as the cover image
+     */
+    private fun getCoverPathForUnsortedCollection(): String {
+        val dummy = ScreenshotModel(null, "", 0, "")
+        val categoryNone = coverList[CollectionModel.CATEGORY_NONE]?: dummy
+        val uncategorized = coverList[CollectionModel.UNCATEGORIZED]?: dummy
+
+        return when {
+            categoryNone.lastModified > uncategorized.lastModified -> categoryNone.absolutePath
+            categoryNone.lastModified < uncategorized.lastModified -> uncategorized.absolutePath
+            else -> ""
         }
     }
+
 
     class SimpleHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 

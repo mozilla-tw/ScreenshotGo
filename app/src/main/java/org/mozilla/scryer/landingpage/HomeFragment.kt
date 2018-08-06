@@ -419,7 +419,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val results = mutableListOf<ScreenshotModel>()
 
         for (model in externalList) {
-            model.collectionId = map[model.absolutePath]?.collectionId ?: CollectionModel.CATEGORY_NONE
+            model.collectionId = map[model.absolutePath]?.collectionId ?: CollectionModel.UNCATEGORIZED
             results.add(model)
         }
 

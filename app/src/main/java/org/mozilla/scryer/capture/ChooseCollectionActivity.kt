@@ -78,7 +78,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
                 return null
             }
 
-            return ScreenshotModel(null, path, System.currentTimeMillis(), "")
+            return ScreenshotModel(null, path, System.currentTimeMillis(), CollectionModel.CATEGORY_NONE)
         }
     }
 

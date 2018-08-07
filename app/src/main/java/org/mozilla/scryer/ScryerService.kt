@@ -43,7 +43,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
         private const val DELAY_CAPTURE_NOTIFICATION = 1000L
         private const val DELAY_CAPTURE_FAB = 0L
 
-        // Broadcast sent from ScryerServivce
+        // Broadcast sent from ScryerService
         const val EVENT_TAKE_SCREENSHOT = "org.mozilla.scryer.take_screenshot"
     }
 

@@ -29,7 +29,7 @@
             android:launchMode="singleTask"
             android:noHistory="true"
             android:taskAffinity="org.mozilla.choose_collection"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:theme="@style/SortingPanelTheme"
             android:windowSoftInputMode="adjustNothing" />
         <activity android:name=".detailpage.DetailPageActivity"></activity>
 

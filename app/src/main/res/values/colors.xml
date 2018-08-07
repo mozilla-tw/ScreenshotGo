@@ -18,4 +18,5 @@
 
     <!-- Sorting Panel -->
     <color name="sorting_panel_background">#3f3a4f</color>
+    <color name="sorting_panel_create_button_border">#dddddd</color>
 </resources>

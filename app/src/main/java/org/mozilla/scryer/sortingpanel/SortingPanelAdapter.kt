@@ -6,6 +6,7 @@
 package org.mozilla.scryer.sortingpanel
 
 import android.graphics.Color
+import android.support.v4.content.ContextCompat
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -65,8 +66,13 @@ class SortingPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private fun createNewCollectionHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.view_sorting_panel_item, parent, false)
+        view.findViewById<View>(R.id.plus_icon).visibility = View.VISIBLE
+        view.background = parent.context.getDrawable(R.drawable.sorting_panel_create_bkg)
+
         val holder = NewItemHolder(view)
         holder.title = view.findViewById(R.id.title)
+        holder.title?.setTextColor(ContextCompat.getColor(parent.context, R.color.grey90))
+
         holder.itemView.setOnClickListener { _ ->
             ensurePosition(holder) {
                 callback?.onNewCollectionClick()
@@ -78,8 +84,13 @@ class SortingPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private fun createCollectionHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.view_sorting_panel_item, parent, false)
+        view.findViewById<View>(R.id.plus_icon).visibility = View.GONE
+        view.background = parent.context.getDrawable(R.drawable.sorting_panel_bkg)
+
         val holder = ItemHolder(view)
         holder.title = view.findViewById(R.id.title)
+        holder.title?.setTextColor(ContextCompat.getColor(parent.context, R.color.white))
+
         holder.itemView.setOnClickListener { _ ->
             ensurePosition(holder) { position ->
                 collections?.let {

@@ -33,8 +33,6 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     companion object {
         private const val COLUMN_PORTRAIT = 2
         private const val COLUMN_LANDSCAPE = 3
-
-        private const val GRID_CELL_SPACE_DP = 19f
     }
 
     private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.panel_recycler_view) }
@@ -108,8 +106,8 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
                 GridLayoutManager.VERTICAL,
                 false)
 
-        this.recyclerView.addItemDecoration(SortingPanelDecoration(columnCount,
-                GRID_CELL_SPACE_DP.dpToPx(this.resources.displayMetrics)))
+        val space = resources.getDimensionPixelSize(R.dimen.sorting_panel_item_spacing)
+        this.recyclerView.addItemDecoration(SortingPanelDecoration(columnCount, 0, 0, 0, space, space))
         this.recyclerView.adapter = this.adapter
     }
 
@@ -136,11 +134,15 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
         behavior.peekHeight = resources.getDimensionPixelSize(
                 R.dimen.sorting_panel_title_height)
 
-        val panelTitle = this.panelView.findViewById<View>(R.id.panel_title)
-        panelTitle.setOnClickListener {
+        val expandButton = this.panelView.findViewById<View>(R.id.panel_expend_button)
+        expandButton.setOnClickListener {
             if (behavior.state != BottomSheetBehavior.STATE_EXPANDED) {
                 behavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
+        }
+
+        val actionButton = this.panelView.findViewById<View>(R.id.panel_title_action_button)
+        actionButton.setOnClickListener {
         }
 
         val rootView = findViewById<View>(R.id.root_view)
@@ -189,6 +191,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
                                  private val vSpace: Int,
                                  private val hSpace: Int) : RecyclerView.ItemDecoration() {
 
+        @Suppress("unused")
         constructor(columnCount: Int, space: Int) : this(columnCount, space, space, space, space, space)
 
         override fun getItemOffsets(outRect: Rect, view: View,

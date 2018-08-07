@@ -6,7 +6,8 @@
 
     <!-- Sorting panel -->
     <string name="sorting_panel_title">Add to collection</string>
-    <string name="ac_new_collection">New collection</string>
+    <string name="ac_new_collection">Create new</string>
+    <string name="ac_next">Next</string>
 
     <!-- Overlay permission prompt -->
     <string name="overlay_permission_prompt_title">Instant way to Screenshot</string>

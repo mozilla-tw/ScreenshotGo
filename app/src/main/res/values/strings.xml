@@ -26,4 +26,6 @@
     <string name="preference_give_feedback_title">Give feedback</string>
     <string name="preference_share_with_friends_title">Share with friends</string>
     <string name="preference_about_title">About</string>
+
+    <string name="share_app_promotion_text">TBD...</string>
 </resources>

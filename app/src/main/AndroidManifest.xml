@@ -25,7 +25,7 @@
         <service android:name=".ScryerService" />
 
         <activity
-            android:name=".capture.ChooseCollectionActivity"
+            android:name=".capture.SortingPanelActivity"
             android:launchMode="singleTask"
             android:noHistory="true"
             android:taskAffinity="org.mozilla.choose_collection"

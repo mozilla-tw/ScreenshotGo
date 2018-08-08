@@ -18,7 +18,7 @@ import android.os.Looper
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.text.TextUtils
-import org.mozilla.scryer.capture.ChooseCollectionActivity
+import org.mozilla.scryer.capture.SortingPanelActivity
 import org.mozilla.scryer.capture.RequestCaptureActivity
 import org.mozilla.scryer.capture.ScreenCaptureListener
 import org.mozilla.scryer.capture.ScreenCaptureManager
@@ -191,8 +191,8 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     private fun startChooseCollectionActivity(path: String) {
-        val intent = Intent(this, ChooseCollectionActivity::class.java)
-        intent.putExtra(ChooseCollectionActivity.EXTRA_PATH, path)
+        val intent = Intent(this, SortingPanelActivity::class.java)
+        intent.putExtra(SortingPanelActivity.EXTRA_PATH, path)
         intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
     }

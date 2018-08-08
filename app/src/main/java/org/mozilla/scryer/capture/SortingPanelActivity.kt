@@ -25,7 +25,7 @@ import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.util.*
 
-class ChooseCollectionActivity : AppCompatActivity() {
+class SortingPanelActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_PATH = "path"
     }
@@ -40,7 +40,7 @@ class ChooseCollectionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_choose_collection)
+        setContentView(R.layout.activity_sorting_panel)
 
         getValidModel(intent)?.let {
             onNewModelAvailable(it)

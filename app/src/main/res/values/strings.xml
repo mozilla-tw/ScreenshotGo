@@ -27,5 +27,9 @@
     <string name="preference_share_with_friends_title">Share with friends</string>
     <string name="preference_about_title">About</string>
 
+    <string name="feedback_dialog_text_title">We love feedback!</string>
+    <string name="feedback_dialog_text_content">Tell us how you feel!</string>
+    <string name="feedback_dialog_action_rate">Rate &amp; Review</string>
+    <string name="feedback_dialog_action_feedback">Send feedback</string>
     <string name="share_app_promotion_text">TBD...</string>
 </resources>

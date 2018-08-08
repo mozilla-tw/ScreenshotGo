@@ -85,7 +85,7 @@ class SortingPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private fun createCollectionHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.view_sorting_panel_item, parent, false)
         view.findViewById<View>(R.id.plus_icon).visibility = View.GONE
-        view.background = parent.context.getDrawable(R.drawable.sorting_panel_bkg)
+        view.background = parent.context.getDrawable(R.drawable.rect_2dp)
 
         val holder = ItemHolder(view)
         holder.title = view.findViewById(R.id.title)

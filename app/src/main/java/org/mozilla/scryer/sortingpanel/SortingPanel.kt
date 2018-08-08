@@ -24,7 +24,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
-import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import java.io.File
@@ -39,6 +38,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     private val panelView: View by lazy { findViewById<View>(R.id.panel_container) }
     private val overlay: View by lazy { findViewById<View>(R.id.background_overlay) }
     private val imageView: ImageView by lazy { findViewById<ImageView>(R.id.image_view) }
+    private val hintBar: View by lazy { findViewById<View>(R.id.panel_hint_bar) }
 
     private val adapter = SortingPanelAdapter()
 
@@ -122,6 +122,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
         if (state is SavedState) {
             super.onRestoreInstanceState(state.superState)
             overlay.alpha = state.overlayAlpha
+            hintBar.alpha = 1 - state.overlayAlpha
         } else {
             super.onRestoreInstanceState(state)
         }
@@ -133,6 +134,8 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
         behavior.peekHeight = resources.getDimensionPixelSize(
                 R.dimen.sorting_panel_title_height)
+
+        hintBar.alpha = 0f
 
         val expandButton = this.panelView.findViewById<View>(R.id.panel_expend_button)
         expandButton.setOnClickListener {
@@ -153,6 +156,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
         behavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 this@SortingPanel.overlay.alpha = slideOffset
+                this@SortingPanel.hintBar.alpha = 1 - slideOffset
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {}

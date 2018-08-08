@@ -3,5 +3,5 @@
     android:color="@android:color/white">
     <item
         android:id="@android:id/mask"
-        android:drawable="@drawable/sorting_panel_bkg" />
+        android:drawable="@drawable/rect_2dp" />
 </ripple>

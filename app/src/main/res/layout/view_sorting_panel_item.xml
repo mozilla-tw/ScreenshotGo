@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/sorting_panel_item_height"
-    android:background="@drawable/sorting_panel_bkg"
+    android:background="@drawable/rect_2dp"
     android:elevation="1dp"
     tools:backgroundTint="@color/primaryTeal"
     tools:layout_width="148dp">

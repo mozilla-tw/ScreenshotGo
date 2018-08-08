@@ -20,6 +20,7 @@ import org.mozilla.scryer.R
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.sortingpanel.SortingPanel
+import org.mozilla.scryer.ui.ScryerToast
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.util.*
@@ -89,7 +90,8 @@ class ChooseCollectionActivity : AppCompatActivity() {
     }
 
     private fun onItemClicked(collection: CollectionModel) {
-        Toast.makeText(this, "save to ${collection.name}", Toast.LENGTH_SHORT).show()
+        ScryerToast.makeText(this, "Added to \"${collection.name}\"", Toast.LENGTH_SHORT).show()
+
         screenshotModel.collectionId = collection.id
         screenshotViewModel.updateScreenshot(screenshotModel)
         finishAndRemoveTask()

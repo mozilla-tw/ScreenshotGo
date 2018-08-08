@@ -20,4 +20,5 @@
     <color name="sorting_panel_background">#3f3a4f</color>
     <color name="sorting_panel_create_button_border">#dddddd</color>
     <color name="sorting_panel_fake_layer">#d5e4d6</color>
+    <color name="sorting_panel_hint_bar">#d7d7d7</color>
 </resources>

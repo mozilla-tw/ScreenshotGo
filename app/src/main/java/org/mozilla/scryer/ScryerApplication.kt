@@ -7,6 +7,7 @@ package org.mozilla.scryer
 
 import android.app.Application
 import org.mozilla.scryer.repository.ScreenshotRepository
+import org.mozilla.scryer.setting.PreferenceSettingsRepository
 import org.mozilla.scryer.setting.SettingsRepository
 
 class ScryerApplication : Application() {
@@ -37,6 +38,6 @@ class ScryerApplication : Application() {
         screenshotRepository = ScreenshotRepository.createRepository(this) {
             screenshotRepository.setupDefaultContent()
         }
-        settingsRepository = SettingsRepository.createRepository(this)
+        settingsRepository = PreferenceSettingsRepository.getInstance(this)
     }
 }

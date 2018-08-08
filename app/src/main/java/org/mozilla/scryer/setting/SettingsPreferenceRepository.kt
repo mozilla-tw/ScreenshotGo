@@ -15,6 +15,14 @@ class PreferenceSettingsRepository(context: Context) : SettingsRepository {
     companion object {
         private const val KEY_SERVICE_ENABLED = "settings_service_enabled"
         private const val KEY_FLOATING_ENABLED = "settings_floating_enabled"
+
+        @Volatile
+        private var instance: SettingsRepository? = null
+
+        fun getInstance(context: Context): SettingsRepository =
+                instance ?: synchronized(this) {
+                    instance ?: PreferenceSettingsRepository(context)
+                }
     }
 
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)

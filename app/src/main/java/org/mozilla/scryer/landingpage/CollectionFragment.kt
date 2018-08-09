@@ -5,24 +5,20 @@
 
 package org.mozilla.scryer.landingpage
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MediatorLiveData
-import android.arch.lifecycle.Observer
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.ActionBar
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
+import org.mozilla.scryer.Observer
 import org.mozilla.scryer.R
+import org.mozilla.scryer.capture.SortingPanelActivity
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.getSupportActionBar
@@ -53,14 +49,12 @@ class CollectionFragment : Fragment() {
         arguments?.getString(ARG_COLLECTION_NAME)
     }
 
+    private var sortMenuItem: MenuItem? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.fragment_collection, container, false)
         screenshotListView = layout.findViewById(R.id.screenshot_list)
         return layout
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        initScreenshotList(view.context)
     }
 
     override fun getView(): View {
@@ -71,15 +65,35 @@ class CollectionFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         setHasOptionsMenu(true)
         setupActionBar()
+        initScreenshotList(view.context)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             android.R.id.home -> Navigation.findNavController(view).navigateUp()
+            R.id.action_sort -> {
+                collectionId?.takeIf {
+                    screenshotAdapter.getScreenshotList().isNotEmpty()
+                }?.let {
+                    startSortingActivity(it)
+                }
+            }
             else -> return super.onOptionsItemSelected(item)
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun startSortingActivity(collectionId: String) {
+        context?.let {
+            startActivity(SortingPanelActivity.sortCollection(it, collectionId))
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_collection, menu)
+        sortMenuItem = menu.findItem(R.id.action_sort)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun setupActionBar() {
@@ -103,57 +117,24 @@ class CollectionFragment : Fragment() {
 
         val viewModel = ScreenshotViewModel.get(this)
         val liveData = collectionId?.let {
-            getLiveDataForCollection(it, viewModel)
+            val idList = if (it == CollectionModel.CATEGORY_NONE) {
+                listOf(CollectionModel.UNCATEGORIZED, CollectionModel.CATEGORY_NONE)
+            } else {
+                listOf(it)
+            }
+            viewModel.getScreenshots(idList)
 
         } ?: viewModel.getScreenshots()
 
         liveData.observe(this, Observer { screenshots ->
-            screenshots?.sortedByDescending { it.lastModified }?.let {
-                screenshotAdapter.setScreenshotList(it)
+            sortMenuItem?.isVisible = screenshots.isNotEmpty()
+
+            screenshots.sortedByDescending { it.lastModified }.let { sorted ->
+                screenshotAdapter.setScreenshotList(sorted)
                 screenshotAdapter.notifyDataSetChanged()
-                getSupportActionBar(activity).subtitle = "${it.size} shots"
+                getSupportActionBar(activity).subtitle = "${sorted.size} shots"
             }
         })
-    }
-
-    private fun getLiveDataForCollection(collectionId: String, viewModel: ScreenshotViewModel): LiveData<List<ScreenshotModel>> {
-        return if (collectionId == CollectionModel.CATEGORY_NONE) {
-            getLiveDataForUnsortedCollection(viewModel)
-
-        } else {
-            viewModel.getScreenshots(collectionId)
-        }
-    }
-
-    private fun getLiveDataForUnsortedCollection(viewModel: ScreenshotViewModel): LiveData<List<ScreenshotModel>> {
-        val mediator = MediatorLiveData<List<ScreenshotModel>>()
-
-        val categoryNone = mutableListOf<ScreenshotModel>()
-        val uncategorized = mutableListOf<ScreenshotModel>()
-        val combined = mutableListOf<ScreenshotModel>()
-
-        val combine = {
-            combined.clear()
-            combined.addAll(categoryNone)
-            combined.addAll(uncategorized)
-            combined
-        }
-
-        mediator.addSource(viewModel.getScreenshots(CollectionModel.CATEGORY_NONE)) {
-            it?.let {
-                categoryNone.clear()
-                categoryNone.addAll(it)
-                mediator.value = combine()
-            }
-        }
-        mediator.addSource(viewModel.getScreenshots(CollectionModel.UNCATEGORIZED)) {
-            it?.let {
-                uncategorized.clear()
-                uncategorized.addAll(it)
-                mediator.value = combine()
-            }
-        }
-        return mediator
     }
 }
 
@@ -187,7 +168,7 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as? ScreenshotItemHolder)?.apply {
-            title?.text = getItemFileName(position)
+            title?.text = screenshotList[position].collectionId
             image?.let {
                 Glide.with(holder.itemView.context)
                         .load(File(screenshotList[position].absolutePath))
@@ -216,6 +197,10 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     open fun setScreenshotList(list: List<ScreenshotModel>) {
         screenshotList = list
+    }
+
+    fun getScreenshotList(): List<ScreenshotModel> {
+        return screenshotList
     }
 }
 

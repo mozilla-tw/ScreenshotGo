@@ -22,6 +22,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.TextView
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
 import org.mozilla.scryer.persistence.CollectionModel
@@ -39,6 +40,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     private val overlay: View by lazy { findViewById<View>(R.id.background_overlay) }
     private val imageView: ImageView by lazy { findViewById<ImageView>(R.id.image_view) }
     private val hintBar: View by lazy { findViewById<View>(R.id.panel_hint_bar) }
+    private val progressView: TextView by lazy { findViewById<TextView>(R.id.panel_title_progress_text) }
 
     private val adapter = SortingPanelAdapter()
 
@@ -57,6 +59,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
             value?.let {
                 // TODO: Loading view
                 Glide.with(this).load(File(it.absolutePath)).into(imageView)
+                field = value
             }
         }
 
@@ -147,6 +150,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
 
         val actionButton = this.panelView.findViewById<View>(R.id.panel_title_action_button)
         actionButton.setOnClickListener {
+            adapter.callback?.onNextClick()
         }
 
         val rootView = findViewById<View>(R.id.root_view)
@@ -162,6 +166,10 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {}
         })
+    }
+
+    fun setProgress(current: Int, total: Int) {
+        progressView.text = resources.getString(R.string.sorting_panel_progress, current, total)
     }
 
     internal class SavedState : BaseSavedState {
@@ -220,5 +228,6 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     interface Callback {
         fun onClick(collection: CollectionModel)
         fun onNewCollectionClick()
+        fun onNextClick()
     }
 }

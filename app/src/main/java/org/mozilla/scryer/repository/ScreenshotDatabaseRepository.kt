@@ -9,6 +9,8 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotDatabase
 import org.mozilla.scryer.persistence.ScreenshotModel
@@ -20,11 +22,11 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
     private var collectionListData = database.collectionDao().getCollections()
     private val screenshotListData = database.screenshotDao().getScreenshots()
 
+    private val handler = Handler(Looper.getMainLooper())
+
     override fun addScreenshot(screenshots: List<ScreenshotModel>) {
         executor.submit {
-            database.screenshotDao().addScreenshot(screenshots).forEachIndexed { index, id ->
-                screenshots[index].id = id
-            }
+            database.screenshotDao().addScreenshot(screenshots)
         }
     }
 
@@ -34,8 +36,12 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
         }
     }
 
-    override fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>> {
-        return database.screenshotDao().getScreenshots(collectionId)
+    override fun getScreenshot(screenshotId: String): ScreenshotModel? {
+        return database.screenshotDao().getScreenshot(screenshotId)
+    }
+
+    override fun getScreenshots(collectionIds: List<String>): LiveData<List<ScreenshotModel>> {
+        return database.screenshotDao().getScreenshots(collectionIds)
     }
 
     override fun getScreenshots(): LiveData<List<ScreenshotModel>> {
@@ -73,5 +79,23 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
         addCollection(shopping)
         addCollection(music)
         addCollection(secret)
+    }
+
+    override fun getScreenshotList(callback: (List<ScreenshotModel>) -> Unit) {
+        executor.execute {
+            val list = database.screenshotDao().getScreenshotList()
+            handler.post {
+                callback(list)
+            }
+        }
+    }
+
+    override fun getScreenshotList(collectionIds: List<String>, callback: (List<ScreenshotModel>) -> Unit) {
+        executor.execute {
+            val list = database.screenshotDao().getScreenshotList(collectionIds)
+            handler.post {
+                callback(list)
+            }
+        }
     }
 }

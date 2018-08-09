@@ -150,7 +150,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
      * as the cover image
      */
     private fun getCoverPathForUnsortedCollection(): String {
-        val dummy = ScreenshotModel(null, "", 0, "")
+        val dummy = ScreenshotModel("", 0, "")
         val categoryNone = coverList[CollectionModel.CATEGORY_NONE]?: dummy
         val uncategorized = coverList[CollectionModel.UNCATEGORIZED]?: dummy
 

@@ -5,6 +5,7 @@
 
 package org.mozilla.scryer.capture
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -28,6 +29,26 @@ import java.util.*
 class SortingPanelActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_PATH = "path"
+        const val EXTRA_SCREENSHOT_ID = "screenshot_id"
+        const val EXTRA_COLLECTION_ID = "collection_id"
+
+        fun sortCollection(context: Context, collectionId: String): Intent {
+            val intent = Intent(context, SortingPanelActivity::class.java)
+            intent.putExtra(SortingPanelActivity.EXTRA_COLLECTION_ID, collectionId)
+            return intent
+        }
+
+        fun sortNewScreenshot(context: Context, path: String): Intent {
+            val intent = Intent(context, SortingPanelActivity::class.java)
+            intent.putExtra(SortingPanelActivity.EXTRA_PATH, path)
+            return intent
+        }
+
+        fun sortOldScreenshot(context: Context, screenshotId: String): Intent {
+            val intent = Intent(context, SortingPanelActivity::class.java)
+            intent.putExtra(SortingPanelActivity.EXTRA_SCREENSHOT_ID, screenshotId)
+            return intent
+        }
     }
 
     private val sortingPanel: SortingPanel by lazy { findViewById<SortingPanel>(R.id.sorting_panel) }
@@ -36,65 +57,133 @@ class SortingPanelActivity : AppCompatActivity() {
         ScreenshotViewModel.get(this)
     }
 
-    private lateinit var screenshotModel: ScreenshotModel
+    private val unsortedScreenshots = LinkedList<ScreenshotModel>()
+    private val sortedScreenshots = LinkedList<ScreenshotModel>()
+    private var currentScreenshot: ScreenshotModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sorting_panel)
 
-        getValidModel(intent)?.let {
-            onNewModelAvailable(it)
-        } ?: finish()
+        loadScreenshots(intent, this::onLoadScreenshotsSuccess)
+        initSortingPanel()
+    }
 
+    override fun onStart() {
+        super.onStart()
+        this.lifecycle.addObserver(this.sortingPanel)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        this.lifecycle.removeObserver(this.sortingPanel)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        loadScreenshots(intent, this::onLoadScreenshotsSuccess)
+    }
+
+    private fun initSortingPanel() {
         sortingPanel.collectionSource = screenshotViewModel.getCollections()
         sortingPanel.callback = object : SortingPanel.Callback {
             override fun onClick(collection: CollectionModel) {
-                onItemClicked(collection)
+                onCollectionClicked(collection)
             }
 
             override fun onNewCollectionClick() {
                 onNewCollectionClicked()
             }
+
+            override fun onNextClick() {
+                onNextClicked()
+            }
         }
-        lifecycle.addObserver(sortingPanel)
     }
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        getValidModel(intent)?.let {
-            onNewModelAvailable(it)
-        } ?: finish()
+    private fun onNewModelAvailable() {
+        if (unsortedScreenshots.isEmpty()) {
+            finishAndRemoveTask()
+            return
+        }
+
+        currentScreenshot = this.unsortedScreenshots.removeFirst()?.apply {
+            sortedScreenshots.addLast(this)
+            onScreenshotViewed(this)
+
+            sortingPanel.screenshot = this
+            sortingPanel.setProgress(sortedScreenshots.size, sortedScreenshots.size + unsortedScreenshots.size)
+        }
     }
 
-    private fun onNewModelAvailable(model: ScreenshotModel) {
-        screenshotModel = model
-        sortingPanel.screenshot = screenshotModel
-        screenshotViewModel.addScreenshot(listOf(screenshotModel))
+    private fun onScreenshotViewed(screenshot: ScreenshotModel) {
+        if (screenshot.collectionId == CollectionModel.UNCATEGORIZED) {
+            screenshot.collectionId = CollectionModel.CATEGORY_NONE
+            screenshotViewModel.updateScreenshot(screenshot)
+        }
     }
 
-    private fun getValidModel(intent: Intent?): ScreenshotModel? {
-        return intent?.let {
-            val path = getFilePath(it)
-            if (path.isEmpty()) {
-                return null
+    private fun loadScreenshots(intent: Intent?, onFinished: (List<ScreenshotModel>) -> Unit) {
+        intent?: run {
+            onLoadScreenshotsFailed()
+            return
+        }
+
+        val viewModel = this.screenshotViewModel
+
+        when {
+            intent.hasExtra(EXTRA_PATH) -> {
+                createNewScreenshot(intent)?.apply {
+                    val result = listOf(this)
+                    viewModel.addScreenshot(result)
+                    onFinished.invoke(result)
+                }?: onLoadScreenshotsFailed()
             }
 
-            return ScreenshotModel(null, path, System.currentTimeMillis(), CollectionModel.CATEGORY_NONE)
+            intent.hasExtra(EXTRA_SCREENSHOT_ID) -> {
+                val id = intent.getStringExtra(EXTRA_SCREENSHOT_ID)
+                viewModel.getScreenshot(id)?.apply {
+                    onFinished.invoke(listOf(this))
+                }?: onLoadScreenshotsFailed()
+            }
+
+            intent.hasExtra(EXTRA_COLLECTION_ID) -> {
+                val id = intent.getStringExtra(EXTRA_COLLECTION_ID)
+                val idList = if (id == CollectionModel.CATEGORY_NONE) {
+                    listOf(CollectionModel.UNCATEGORIZED, CollectionModel.CATEGORY_NONE)
+                } else {
+                    listOf(id)
+                }
+                viewModel.getScreenshotList(idList) {
+                    onFinished.invoke(it)
+                }
+            }
+
+            else -> onLoadScreenshotsFailed()
         }
     }
 
-    private fun getFilePath(intent: Intent): String {
-        val path = intent.getStringExtra(EXTRA_PATH)
-        val file = File(path)
-        return if (file.exists()) file.absolutePath else ""
+    private fun onLoadScreenshotsSuccess(screenshots: List<ScreenshotModel>) {
+        this.sortedScreenshots.clear()
+
+        this.unsortedScreenshots.clear()
+        this.unsortedScreenshots.addAll(screenshots.sortedByDescending { it.lastModified })
+
+        onNewModelAvailable()
     }
 
-    private fun onItemClicked(collection: CollectionModel) {
+    private fun onLoadScreenshotsFailed() {
+        finishAndRemoveTask()
+    }
+
+    private fun onCollectionClicked(collection: CollectionModel) {
         ScryerToast.makeText(this, "Added to \"${collection.name}\"", Toast.LENGTH_SHORT).show()
 
-        screenshotModel.collectionId = collection.id
-        screenshotViewModel.updateScreenshot(screenshotModel)
-        finishAndRemoveTask()
+        currentScreenshot?.let {
+            it.collectionId = collection.id
+            screenshotViewModel.addScreenshot(listOf(it))
+        }
+        onNewModelAvailable()
     }
 
     private fun onNewCollectionClicked() {
@@ -123,5 +212,23 @@ class SortingPanelActivity : AppCompatActivity() {
         dialog.show()
         editText.requestFocus()
         dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+    }
+
+    private fun onNextClicked() {
+        onNewModelAvailable()
+    }
+
+    private fun createNewScreenshot(intent: Intent): ScreenshotModel? {
+        val path = getFilePath(intent)
+        if (path.isNotEmpty()) {
+            return ScreenshotModel(path, System.currentTimeMillis(), CollectionModel.CATEGORY_NONE)
+        }
+        return null
+    }
+
+    private fun getFilePath(intent: Intent): String {
+        val path = intent.getStringExtra(EXTRA_PATH)
+        val file = File(path)
+        return if (file.exists()) file.absolutePath else ""
     }
 }

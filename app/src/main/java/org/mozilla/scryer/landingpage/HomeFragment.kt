@@ -47,6 +47,7 @@ import org.mozilla.scryer.setting.SettingsActivity
 import org.mozilla.scryer.ui.BottomDialogFactory
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
+import java.util.*
 
 class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
@@ -397,16 +398,13 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     private fun syncScreenshotsFromExternalStorage() {
-        viewModel.getScreenshots().observe(this, object : NonNullObserver<List<ScreenshotModel>>() {
-            override fun onValueChanged(newValue: List<ScreenshotModel>) {
-                viewModel.getScreenshots().removeObserver(this)
-                context?.let {
-                    ScreenshotFetcher().fetchScreenshots(it) { externalList ->
-                        mergeExternalToDatabase(externalList, newValue)
-                    }
+        viewModel.getScreenshotList { list ->
+            context?.let {
+                ScreenshotFetcher().fetchScreenshots(it) { externalList ->
+                    mergeExternalToDatabase(externalList, list)
                 }
             }
-        })
+        }
     }
 
     private fun mergeExternalToDatabase(externalList: List<ScreenshotModel>,
@@ -417,10 +415,15 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         }
 
         val results = mutableListOf<ScreenshotModel>()
-
-        for (model in externalList) {
-            model.collectionId = map[model.absolutePath]?.collectionId ?: CollectionModel.UNCATEGORIZED
-            results.add(model)
+        for (externalModel in externalList) {
+            map[externalModel.absolutePath]?.let { dbModel ->
+                externalModel.id = dbModel.id
+                externalModel.collectionId = dbModel.collectionId
+            } ?: run {
+                externalModel.id = UUID.randomUUID().toString()
+                externalModel.collectionId = CollectionModel.UNCATEGORIZED
+            }
+            results.add(externalModel)
         }
 
         viewModel.addScreenshot(results)

@@ -121,7 +121,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
         fileMonitor.startMonitor(object : FileMonitor.ChangeListener {
             override fun onChangeFinish(path: String) {
                 postNotification(getScreenshotDetectedNotification())
-                val model = ScreenshotModel(null, path,
+                val model = ScreenshotModel(path,
                         System.currentTimeMillis(),
                         CollectionModel.UNCATEGORIZED)
                 ScryerApplication.getScreenshotRepository().addScreenshot(listOf(model))
@@ -186,13 +186,12 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     override fun onScreenShotTaken(path: String) {
         floatingButtonController?.show()
         if (!TextUtils.isEmpty(path)) {
-            startChooseCollectionActivity(path)
+            startSortingPanelActivity(path)
         }
     }
 
-    private fun startChooseCollectionActivity(path: String) {
-        val intent = Intent(this, SortingPanelActivity::class.java)
-        intent.putExtra(SortingPanelActivity.EXTRA_PATH, path)
+    private fun startSortingPanelActivity(path: String) {
+        val intent = SortingPanelActivity.sortNewScreenshot(this, path)
         intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
     }

@@ -8,6 +8,7 @@
     <string name="sorting_panel_title">Add to collection</string>
     <string name="ac_new_collection">Create new</string>
     <string name="ac_next">Next</string>
+    <string name="sorting_panel_progress">%1$d / %2$d</string>
 
     <!-- Overlay permission prompt -->
     <string name="overlay_permission_prompt_title">Instant way to Screenshot</string>

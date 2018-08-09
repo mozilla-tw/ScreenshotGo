@@ -36,8 +36,11 @@ interface ScreenshotRepository {
 
     fun addScreenshot(screenshots: List<ScreenshotModel>)
     fun updateScreenshot(screenshot: ScreenshotModel)
+    fun getScreenshot(screenshotId: String): ScreenshotModel?
     fun getScreenshots(): LiveData<List<ScreenshotModel>>
-    fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>>
+    fun getScreenshotList(callback: (List<ScreenshotModel>) -> Unit)
+    fun getScreenshots(collectionIds: List<String>): LiveData<List<ScreenshotModel>>
+    fun getScreenshotList(collectionIds: List<String>, callback: (List<ScreenshotModel>) -> Unit)
     fun deleteScreenshot(screenshot: ScreenshotModel)
 
     fun setupDefaultContent() {

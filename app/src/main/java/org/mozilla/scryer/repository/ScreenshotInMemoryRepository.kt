@@ -44,16 +44,28 @@ class ScreenshotInMemoryRepository : ScreenshotRepository {
         screenshotData.value = screenshotList
     }
 
+    override fun getScreenshot(screenshotId: String): ScreenshotModel? {
+        return screenshotList.find { it.id == screenshotId }
+    }
+
     override fun getScreenshots(): LiveData<List<ScreenshotModel>> {
         return screenshotData
     }
 
-    override fun getScreenshots(collectionId: String): LiveData<List<ScreenshotModel>> {
+    override fun getScreenshots(collectionIds: List<String>): LiveData<List<ScreenshotModel>> {
         return screenshotData
     }
 
     override fun deleteScreenshot(screenshot: ScreenshotModel) {
         screenshotList.remove(screenshot)
         screenshotData.value = screenshotList
+    }
+
+    override fun getScreenshotList(callback: (List<ScreenshotModel>) -> Unit) {
+        callback(screenshotList)
+    }
+
+    override fun getScreenshotList(collectionIds: List<String>, callback: (List<ScreenshotModel>) -> Unit) {
+        callback(screenshotList)
     }
 }

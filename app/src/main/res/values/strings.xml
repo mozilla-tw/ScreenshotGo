@@ -4,12 +4,19 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_search">Search</string>
 
+    <string name="ac_next">Next</string>
+    <string name="ac_cancel">Cancel</string>
+    <string name="ac_done">Done</string>
+
     <!-- Sorting panel -->
     <string name="sorting_panel_title">Add to collection</string>
     <string name="ac_new_collection">Create new</string>
-    <string name="ac_next">Next</string>
-    <string name="ac_cancel">Cancel</string>
     <string name="sorting_panel_progress">%1$d / %2$d</string>
+
+    <!-- Collection name dialog -->
+    <string name="collection_dialog_title_new_collection">Name collection</string>
+    <string name="collection_dialog_title_rename_collection">Rename collection</string>
+    <string name="collection_dialog_input_hint">Give me a name</string>
 
     <!-- Overlay permission prompt -->
     <string name="overlay_permission_prompt_title">Instant way to Screenshot</string>

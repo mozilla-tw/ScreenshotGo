@@ -31,5 +31,6 @@
         <item name="android:textColor">@color/primary_text_button</item>
         <item name="android:paddingStart">8dp</item>
         <item name="android:paddingEnd">8dp</item>
+        <item name="android:gravity">center</item>
     </style>
 </resources>

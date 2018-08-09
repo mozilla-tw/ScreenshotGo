@@ -8,8 +8,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="@dimen/collection_dialog_padding"
-    android:background="@drawable/rect_4dp">
+    android:paddingStart="@dimen/collection_dialog_padding"
+    android:paddingTop="@dimen/collection_dialog_padding"
+    android:paddingEnd="@dimen/collection_dialog_padding">
 
     <TextView
         android:id="@+id/title"
@@ -22,8 +23,8 @@
         tools:text="Title"
         style="@style/Body1" />
 
-    <EditText
-        android:id="@+id/edit_text"
+    <View
+        android:id="@+id/edit_text_bkg"
         android:layout_width="0dp"
         android:layout_height="@dimen/collection_dialog_edittext_height"
         android:layout_marginTop="8dp"
@@ -32,12 +33,35 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="24dp"
+        android:background="@color/grey20" />
+
+    <View
+        android:id="@+id/edit_text_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintRight_toRightOf="@id/edit_text_bkg"
+        app:layout_constraintTop_toTopOf="@id/edit_text"
+        app:layout_constraintBottom_toBottomOf="@id/edit_text" />
+
+    <EditText
+        android:id="@+id/edit_text"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/collection_dialog_edittext_height"
+        android:paddingStart="@dimen/collection_dialog_edittext_padding_start"
+        android:paddingEnd="@dimen/collection_dialog_edittext_padding_end"
         android:textCursorDrawable="@drawable/collection_name_dialog_cursor"
         android:textColorHint="@android:color/darker_gray"
         android:textColor="@color/grey90"
-        android:background="@color/grey20"
+        app:layout_constraintLeft_toLeftOf="@id/edit_text_bkg"
+        app:layout_constraintTop_toTopOf="@id/edit_text_bkg"
+        app:layout_constraintRight_toLeftOf="@id/edit_text_icon"
+        app:layout_constraintBottom_toBottomOf="@id/edit_text_bkg"
+        android:layout_marginEnd="12dp"
+        android:background="@android:color/transparent"
         android:inputType="text"
-        android:maxLength="@integer/collection_name_dialog_max_input_length"
         style="@style/Subtitle1"
         android:hint="@string/collection_dialog_input_hint" />
 
@@ -47,4 +71,15 @@
         android:layout_height="2dp"
         app:layout_constraintBottom_toBottomOf="@id/edit_text"
         android:background="@color/primaryTeal" />
+
+    <TextView
+        android:id="@+id/error_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/collection_dialog_edittext_padding_start"
+        android:paddingEnd="@dimen/collection_dialog_edittext_padding_end"
+        app:layout_constraintTop_toBottomOf="@id/edit_text"
+        android:textColor="@color/errorRed"
+        style="@style/Caption"
+        tools:text="Max is 20 characters" />
 </android.support.constraint.ConstraintLayout>

@@ -10,6 +10,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
@@ -19,6 +20,7 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import org.mozilla.scryer.Observer
 import org.mozilla.scryer.R
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
@@ -63,6 +65,8 @@ class SortingPanelActivity : AppCompatActivity() {
     private val sortedScreenshots = LinkedList<ScreenshotModel>()
     private var currentScreenshot: ScreenshotModel? = null
 
+    private val collections = mutableListOf<CollectionModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sorting_panel)
@@ -87,7 +91,13 @@ class SortingPanelActivity : AppCompatActivity() {
     }
 
     private fun initSortingPanel() {
-        sortingPanel.collectionSource = screenshotViewModel.getCollections()
+        val collectionData = screenshotViewModel.getCollections()
+        collectionData.observe(this, Observer {
+            collections.clear()
+            collections.addAll(it)
+        })
+
+        sortingPanel.collectionSource = collectionData
         sortingPanel.callback = object : SortingPanel.Callback {
             override fun onClick(collection: CollectionModel) {
                 onCollectionClicked(collection)
@@ -199,6 +209,9 @@ class SortingPanelActivity : AppCompatActivity() {
     private fun onNewCollectionClicked() {
         val dialogView = View.inflate(this, R.layout.dialog_collection_name, null)
         val editText = dialogView.findViewById<EditText>(R.id.edit_text)
+        val errorText = dialogView.findViewById<TextView>(R.id.error_text)
+        val errorIconView = dialogView.findViewById<View>(R.id.edit_text_icon)
+        val inputBar = dialogView.findViewById<View>(R.id.edit_text_bar)
 
         val random = Random()
         val dialog = AlertDialog.Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert)
@@ -211,17 +224,43 @@ class SortingPanelActivity : AppCompatActivity() {
                 .setView(dialogView)
                 .create()
 
+        val errorDrawable = DrawableCompat.wrap(ContextCompat.getDrawable(this, android.R.drawable.stat_notify_error)!!)
+        DrawableCompat.setTint(errorDrawable, ContextCompat.getColor(this, R.color.errorRed))
+        val okDrawable = DrawableCompat.wrap(ContextCompat.getDrawable(this, android.R.drawable.btn_star)!!)
+
+        val validator = InputValidator(this, object : InputValidator.Delegate {
+            override fun forbidContinue(forbid: Boolean) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !forbid
+            }
+
+            override fun onErrorStatusUpdate(errorMsg: String) {
+                errorIconView.background = if (errorMsg.isEmpty()) { okDrawable } else { errorDrawable }
+                errorText.text = errorMsg
+
+                inputBar.setBackgroundColor(if (errorMsg.isEmpty()) {
+                    ContextCompat.getColor(this@SortingPanelActivity, R.color.primaryTeal)
+                } else {
+                    ContextCompat.getColor(this@SortingPanelActivity, R.color.errorRed)
+                })
+            }
+
+            override fun isCollectionExist(name: String): Boolean {
+                return collections.any { it.name == name }
+            }
+        })
+
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = false
             val colors = ContextCompat.getColorStateList(this, R.color.primary_text_button)
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(colors)
             dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(colors)
         }
+
         editText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = !s.isNullOrEmpty()
+                validator.validate(s.toString())
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -253,5 +292,38 @@ class SortingPanelActivity : AppCompatActivity() {
         val path = intent.getStringExtra(EXTRA_PATH)
         val file = File(path)
         return if (file.exists()) file.absolutePath else ""
+    }
+
+    class InputValidator(context: Context, private val delegate: Delegate) {
+        private val lengthLimit = context.resources.getInteger(R.integer.collection_name_dialog_max_input_length)
+
+        fun validate(input: String) {
+            when {
+                input.isEmpty() -> {
+                    delegate.forbidContinue(true)
+                }
+
+                input.length > lengthLimit -> {
+                    delegate.forbidContinue(true)
+                    delegate.onErrorStatusUpdate("At most 20 characters")
+                }
+
+                delegate.isCollectionExist(input) -> {
+                    delegate.forbidContinue(true)
+                    delegate.onErrorStatusUpdate("Existed")
+                }
+
+                else -> {
+                    delegate.forbidContinue(false)
+                    delegate.onErrorStatusUpdate("")
+                }
+            }
+        }
+
+        interface Delegate {
+            fun forbidContinue(forbid: Boolean)
+            fun onErrorStatusUpdate(errorMsg: String)
+            fun isCollectionExist(name: String): Boolean
+        }
     }
 }

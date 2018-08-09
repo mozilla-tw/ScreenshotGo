@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.view.ViewCompat
@@ -17,10 +18,16 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import org.mozilla.scryer.R
+import java.io.File
 
 class DetailPageActivity : AppCompatActivity() {
 
@@ -47,9 +54,21 @@ class DetailPageActivity : AppCompatActivity() {
         val path = intent.getStringExtra("path")
         val bitmap = BitmapFactory.decodeFile(path)
         bitmap?.let {
-            imageView.setImageBitmap(it)
             runTextRecognition(it)
         }
+
+        supportPostponeEnterTransition()
+        Glide.with(this).load(File(path).absolutePath).listener(object : RequestListener<Drawable> {
+            override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                supportStartPostponedEnterTransition()
+                return false
+            }
+
+            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                supportStartPostponedEnterTransition()
+                return false
+            }
+        }).into(imageView)
     }
 
     private fun runTextRecognition(selectedImage: Bitmap) {

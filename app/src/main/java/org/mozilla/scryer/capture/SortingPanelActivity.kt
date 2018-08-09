@@ -169,6 +169,14 @@ class SortingPanelActivity : AppCompatActivity() {
         this.unsortedScreenshots.clear()
         this.unsortedScreenshots.addAll(screenshots.sortedByDescending { it.lastModified })
 
+        if (screenshots.size == 1) {
+            sortingPanel.setActionText(getString(R.string.ac_cancel))
+            sortingPanel.setProgressVisibility(View.INVISIBLE)
+        } else {
+            sortingPanel.setActionText(getString(R.string.ac_next))
+            sortingPanel.setProgressVisibility(View.VISIBLE)
+        }
+
         onNewModelAvailable()
     }
 

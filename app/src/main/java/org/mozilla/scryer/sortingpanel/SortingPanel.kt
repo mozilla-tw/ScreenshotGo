@@ -41,6 +41,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     private val imageView: ImageView by lazy { findViewById<ImageView>(R.id.image_view) }
     private val hintBar: View by lazy { findViewById<View>(R.id.panel_hint_bar) }
     private val progressView: TextView by lazy { findViewById<TextView>(R.id.panel_title_progress_text) }
+    private val actionButton: TextView by lazy { findViewById<TextView>(R.id.panel_title_action_button) }
 
     private val adapter = SortingPanelAdapter()
 
@@ -148,7 +149,6 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
             }
         }
 
-        val actionButton = this.panelView.findViewById<View>(R.id.panel_title_action_button)
         actionButton.setOnClickListener {
             adapter.callback?.onNextClick()
         }
@@ -168,8 +168,20 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
         })
     }
 
+    fun setActionText(text: String) {
+        actionButton.text = text
+    }
+
     fun setProgress(current: Int, total: Int) {
+        if (progressView.visibility != View.VISIBLE) {
+            return
+        }
+        progressView.visibility = if (total == 1) { View.INVISIBLE } else { View.VISIBLE }
         progressView.text = resources.getString(R.string.sorting_panel_progress, current, total)
+    }
+
+    fun setProgressVisibility(visibility: Int) {
+        progressView.visibility = visibility
     }
 
     internal class SavedState : BaseSavedState {

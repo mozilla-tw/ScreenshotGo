@@ -21,4 +21,25 @@
     <color name="sorting_panel_create_button_border">#dddddd</color>
     <color name="sorting_panel_fake_layer">#d5e4d6</color>
     <color name="sorting_panel_hint_bar">#d7d7d7</color>
+
+    <array name="collection_colors">
+        <item>#235dff</item>
+        <item>#10c1b6</item>
+        <item>#ffa6a8</item>
+        <item>#f8c300</item>
+        <item>#8400dc</item>
+        <item>#ffb300</item>
+        <item>#008ca0</item>
+        <item>#003689</item>
+        <item>#c5c600</item>
+        <item>#57ccd6</item>
+        <item>#ffa378</item>
+        <item>#ff7678</item>
+        <item>#729f95</item>
+        <item>#007e26</item>
+        <item>#ff5741</item>
+        <item>#e3af00</item>
+        <item>#ff5800</item>
+        <item>#00544c</item>
+    </array>
 </resources>

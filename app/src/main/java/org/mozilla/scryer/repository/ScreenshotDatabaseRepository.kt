@@ -8,6 +8,7 @@ package org.mozilla.scryer.repository
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Transformations
+import android.content.Context
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
@@ -56,6 +57,10 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
         return collectionListData
     }
 
+    override fun getCollectionList(): List<CollectionModel> {
+        return database.collectionDao().getCollectionList()
+    }
+
     override fun addCollection(collection: CollectionModel) {
         executor.submit {
             database.collectionDao().addCollection(collection)
@@ -70,11 +75,11 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
         }
     }
 
-    override fun setupDefaultContent() {
+    override fun setupDefaultContent(context: Context) {
         val none = CollectionModel(CollectionModel.CATEGORY_NONE, "Unsorted", 0, 0)
-        val shopping = CollectionModel("Shopping", System.currentTimeMillis(), Color.parseColor("#f28dd2"))
-        val music = CollectionModel("Music", System.currentTimeMillis(), Color.parseColor("#fdd757"))
-        val secret = CollectionModel("Secret", System.currentTimeMillis(), Color.parseColor("#8ce2d0"))
+        val shopping = CollectionModel("Shopping", System.currentTimeMillis(), Color.parseColor("#235dff"))
+        val music = CollectionModel("Music", System.currentTimeMillis(), Color.parseColor("#10c1b6"))
+        val secret = CollectionModel("Secret", System.currentTimeMillis(), Color.parseColor("#ffa6a8"))
         addCollection(none)
         addCollection(shopping)
         addCollection(music)

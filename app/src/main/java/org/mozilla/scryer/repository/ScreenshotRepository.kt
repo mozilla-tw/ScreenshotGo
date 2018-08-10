@@ -31,6 +31,7 @@ interface ScreenshotRepository {
 
     fun addCollection(collection: CollectionModel)
     fun getCollections(): LiveData<List<CollectionModel>>
+    fun getCollectionList(): List<CollectionModel>
     /** collection_id to model */
     fun getCollectionCovers(): LiveData<Map<String, ScreenshotModel>>
 
@@ -43,7 +44,7 @@ interface ScreenshotRepository {
     fun getScreenshotList(collectionIds: List<String>, callback: (List<ScreenshotModel>) -> Unit)
     fun deleteScreenshot(screenshot: ScreenshotModel)
 
-    fun setupDefaultContent() {
+    fun setupDefaultContent(context: Context) {
         TODO("not implemented")
     }
 }

@@ -36,7 +36,7 @@ class ScryerApplication : Application() {
         super.onCreate()
         ApplicationHolder.instance = this
         screenshotRepository = ScreenshotRepository.createRepository(this) {
-            screenshotRepository.setupDefaultContent()
+            screenshotRepository.setupDefaultContent(this)
         }
         settingsRepository = PreferenceSettingsRepository.getInstance(this)
     }

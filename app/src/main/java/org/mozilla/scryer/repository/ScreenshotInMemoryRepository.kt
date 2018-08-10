@@ -31,6 +31,10 @@ class ScreenshotInMemoryRepository : ScreenshotRepository {
         return collectionData
     }
 
+    override fun getCollectionList(): List<CollectionModel> {
+        return collectionList
+    }
+
     override fun getCollectionCovers(): LiveData<Map<String, ScreenshotModel>> {
         return MutableLiveData<Map<String, ScreenshotModel>>()
     }

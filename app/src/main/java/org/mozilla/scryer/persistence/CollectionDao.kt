@@ -17,6 +17,9 @@ interface CollectionDao {
     @Query("SELECT * FROM collection")
     fun getCollections(): LiveData<List<CollectionModel>>
 
+    @Query("SELECT * FROM collection")
+    fun getCollectionList(): List<CollectionModel>
+
     @Insert(onConflict = REPLACE)
     fun addCollection(collection: CollectionModel)
 }

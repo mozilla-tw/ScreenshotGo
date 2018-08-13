@@ -217,7 +217,6 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     override fun onOverlayGranted() {
         log(LOG_TAG, "onOverlayGranted")
         dismissPermissionDialog()
-        ScryerApplication.getSettingsRepository().floatingEnable = true
     }
 
     override fun onOverlayDenied() {

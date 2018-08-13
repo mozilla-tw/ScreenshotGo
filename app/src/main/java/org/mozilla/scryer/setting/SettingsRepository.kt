@@ -9,12 +9,6 @@ import android.arch.lifecycle.LiveData
 import android.content.Context
 
 interface SettingsRepository {
-    companion object {
-        fun createRepository(context: Context): SettingsRepository {
-            return PreferenceSettingsRepository(context)
-        }
-    }
-
     var serviceEnabled: Boolean
     val serviceEnabledObserver: LiveData<Boolean>
 

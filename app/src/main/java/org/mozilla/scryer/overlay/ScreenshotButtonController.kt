@@ -62,6 +62,9 @@ class ScreenshotButtonController(private val context: Context) {
         }
 
         ScryerApplication.getSettingsRepository().floatingEnableObservable.observeForever(settingObserver)
+        if (!ScryerApplication.getSettingsRepository().floatingEnable) {
+            hide()
+        }
     }
 
     fun setOnClickListener(listener: ClickListener) {

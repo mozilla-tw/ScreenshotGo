@@ -3,6 +3,7 @@
 
     <string name="menu_settings">Settings</string>
     <string name="menu_search">Search</string>
+    <string name="menu_sort">Sort</string>
 
     <string name="ac_next">Next</string>
     <string name="ac_cancel">Cancel</string>

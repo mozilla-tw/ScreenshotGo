@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.support.v7.app.ActionBar
 import android.support.v7.app.AlertDialog
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
@@ -16,6 +17,7 @@ import org.mozilla.scryer.Observer
 import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.ScryerService
+import org.mozilla.scryer.getSupportActionBar
 
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
 
@@ -23,6 +25,23 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     private val enableFloatingScreenshotButton: SwitchPreferenceCompat by lazy { findPreference(getString(R.string.pref_key_enable_floating_screenshot_button)) as SwitchPreferenceCompat }
     private val giveFeedbackPreference: Preference by lazy { findPreference(getString(R.string.pref_key_give_feedback)) }
     private val shareWithFriendsPreference: Preference by lazy { findPreference(getString(R.string.pref_key_share_with_friends)) }
+    private val aboutPreference: Preference by lazy { findPreference(getString(R.string.pref_key_about)) }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        setupActionBar()
+    }
+
+    private fun setupActionBar() {
+        getSupportActionBar(activity).apply {
+            setDisplayHomeAsUpEnabled(true)
+            updateActionBarTitle(this)
+        }
+    }
+
+    private fun updateActionBarTitle(actionBar: ActionBar) {
+        actionBar.title = getString(R.string.menu_settings)
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings, rootKey)
@@ -39,6 +58,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
         giveFeedbackPreference.onPreferenceClickListener = this
         shareWithFriendsPreference.onPreferenceClickListener = this
+        aboutPreference.onPreferenceClickListener = this
     }
 
     override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
@@ -69,6 +89,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         when (preference) {
             giveFeedbackPreference -> context?.let { showFeedbackDialog(it); return true }
             shareWithFriendsPreference -> context?.let { showShareAppDialog(it); return true }
+            aboutPreference -> context?.let { showAboutPage(it); return true }
         }
 
         return false
@@ -102,6 +123,14 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         context.startActivity(Intent.createChooser(sendIntent, null))
     }
 
+    private fun showAboutPage(context: Context) {
+        activity?.supportFragmentManager
+                ?.beginTransaction()
+                ?.replace(R.id.container, AboutFragment())
+                ?.addToBackStack(AboutFragment.TAG)
+                ?.commitAllowingStateLoss()
+    }
+
     private fun goToPlayStore(context: Context) {
         val appPackageName = context.packageName
         try {
@@ -114,6 +143,5 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         }
-
     }
 }

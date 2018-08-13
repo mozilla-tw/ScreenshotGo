@@ -17,7 +17,6 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
 
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
-        toolbar.title = getString(R.string.menu_settings)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         toolbar.setNavigationOnClickListener { finish() }

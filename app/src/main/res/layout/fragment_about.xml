@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="25dp"
+            android:src="@null" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/about_text_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="30dp"
+        android:gravity="center"
+        android:text="Smart Screenshot"
+        android:textColor="@color/grey90"
+        android:textSize="20sp" />
+
+    <TextView
+        android:id="@+id/about_text_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginRight="30dp"
+        android:gravity="center"
+        android:textColor="@color/grey60"
+        android:textSize="16sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="25dp"
+        android:background="@color/disableGrey" />
+
+    <Button
+        android:id="@+id/about_btn_support"
+        style="@android:style/Widget.DeviceDefault.Button.Borderless"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="Support"
+        android:textColor="@color/primaryTeal"
+        android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/disableGrey" />
+
+    <Button
+        android:id="@+id/about_btn_your_rights_licenses"
+        style="@android:style/Widget.DeviceDefault.Button.Borderless"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="Your Rights/ Licenses"
+        android:textColor="@color/primaryTeal"
+        android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/disableGrey" />
+
+    <Button
+        android:id="@+id/about_btn_privacy_notice"
+        style="@android:style/Widget.DeviceDefault.Button.Borderless"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="Privacy Notice"
+        android:textColor="@color/primaryTeal"
+        android:textSize="14sp" />
+</LinearLayout>

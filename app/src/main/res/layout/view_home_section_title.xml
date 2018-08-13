@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:paddingStart="@dimen/home_padding_horizontal"
+    android:paddingEnd="@dimen/home_padding_horizontal"
+    android:textColor="@color/grey90"
+    style="@style/H3" />

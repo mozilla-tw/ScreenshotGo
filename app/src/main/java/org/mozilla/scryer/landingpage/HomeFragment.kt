@@ -333,14 +333,19 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             }
         }
 
-        val space = 8f.dpToPx(context.resources.displayMetrics)
+        val spaceEnd = resources.getDimensionPixelSize(R.dimen.home_padding_horizontal)
+        val space = resources.getDimensionPixelSize(R.dimen.home_quick_access_item_space)
         quickAccessListView.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 val position = parent.getChildAdapterPosition(view)
                 if (position == 0) {
-                    outRect.left = space
+                    outRect.left = spaceEnd
                 }
-                outRect.right = space
+                if (position == quickAccessAdapter.itemCount - 1) {
+                    outRect.right = spaceEnd
+                } else {
+                    outRect.right = space
+                }
             }
         })
 
@@ -361,7 +366,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         mainAdapter.quickAccessListView = quickAccessListView
         mainListView.adapter = mainAdapter
 
-        val space = 8f.dpToPx(context.resources.displayMetrics)
+        val space = resources.getDimensionPixelSize(R.dimen.home_padding_horizontal)
         mainListView.addItemDecoration(MainAdapter.ItemDecoration(COLLECTION_COLUMN_COUNT, space))
 
         viewModel.getCollections().observe(this, Observer { collections ->

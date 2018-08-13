@@ -6,7 +6,6 @@
 package org.mozilla.scryer.landingpage
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
 import android.support.v7.widget.GridLayoutManager
@@ -19,10 +18,9 @@ import android.widget.TextView
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
-import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
-import org.mozilla.scryer.extension.dpToPx
+import org.mozilla.scryer.ui.GridItemDecoration
 import java.io.File
 
 class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -106,13 +104,10 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private fun createSectionNameHolder(parent: ViewGroup): SectionNameHolder {
-        val textView = TextView(parent.context)
-        val padding = 10f.dpToPx(parent.context.resources.displayMetrics)
-        textView.setPadding(padding, padding, padding, padding)
-        textView.setTextColor(Color.BLACK)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.view_home_section_title, parent, false)
 
-        val holder = SectionNameHolder(textView)
-        holder.title = textView
+        val holder = SectionNameHolder(view)
+        holder.title = view.findViewById(R.id.root_view)
         return holder
     }
 

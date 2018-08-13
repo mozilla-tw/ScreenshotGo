@@ -6,6 +6,7 @@
 package org.mozilla.scryer.landingpage
 
 import android.Manifest
+import android.app.ActionBar
 import android.app.Activity
 import android.app.SearchManager
 import android.arch.lifecycle.Observer
@@ -33,6 +34,7 @@ import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.navigation.Navigation
 import org.mozilla.scryer.*
 import org.mozilla.scryer.detailpage.DetailPageActivity
@@ -101,6 +103,8 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         initActionBar()
         initPermissionFlow()
+
+        view!!.findViewById<View>(R.id.root_view).requestFocus()
     }
 
     override fun onResume() {
@@ -259,23 +263,11 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     private fun initActionBar() {
         setHasOptionsMenu(true)
         setSupportActionBar(activity, view!!.findViewById(R.id.toolbar))
-        getSupportActionBar(activity).setDisplayHomeAsUpEnabled(false)
+        getSupportActionBar(activity).displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
+        getSupportActionBar(activity).setCustomView(R.layout.view_home_toolbar)
+//        getSupportActionBar(activity).setDisplayHomeAsUpEnabled(false)
+//        getSupportActionBar(activity).setDisplayShowTitleEnabled(false)
     }
-
-//    private fun readScreenshotsFromSdcard() {
-//        // TODO: How to determine the path?
-//        val monitorDir = "${Environment.getExternalStorageDirectory()}" +
-//                File.separator + "Pictures" +
-//                File.separator + "Screenshots"
-//
-//        val dir = File(monitorDir)
-//        if (dir.exists()) {
-//            val models = dir.listFiles().map {
-//                ScreenshotModel(UUID.randomUUID().toString(), it.absolutePath, it.lastModified(), "")
-//            }
-//            ScreenshotViewModel.get(this).addScreenshot(models)
-//        }
-//    }
 
     private fun initPermissionFlow() {
         permissionFlow = PermissionFlow(PermissionFlow.createDefaultPermissionProvider(activity),
@@ -283,37 +275,45 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     private fun createOptionsMenuSearchView(activity: Activity, menu: Menu) {
-        val searchItem = menu.findItem(R.id.action_search)
+        //val searchItem = menu.findItem(R.id.action_search)
 
-        val searchView = searchItem.actionView as SearchView
-        searchView.setIconifiedByDefault(true)
+        //val searchView = searchItem.actionView as SearchView
+        val searchView = view!!.findViewById<SearchView>(R.id.search_view)//searchItem.actionView as SearchView
+        searchView.setIconifiedByDefault(false)
+        searchView.maxWidth = resources.displayMetrics.widthPixels
         searchView.findViewById<View>(R.id.search_plate)?.setBackgroundColor(Color.TRANSPARENT)
+        searchView.isFocusableInTouchMode = false
+        searchView.isClickable = false
 
         val searchManager = activity.getSystemService(Context.SEARCH_SERVICE) as SearchManager
         searchView.setSearchableInfo(searchManager.getSearchableInfo(activity.componentName))
 
+        searchView.setOnSearchClickListener {
+            Toast.makeText(context, "WIP!", Toast.LENGTH_SHORT).show()
+        }
+
         searchView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
             override fun onViewDetachedFromWindow(v: View?) {
-                searchListView.visibility = View.INVISIBLE
-                mainListView.visibility = View.VISIBLE
+//                searchListView.visibility = View.INVISIBLE
+//                mainListView.visibility = View.VISIBLE
                 viewModel.getScreenshots().removeObserver(searchObserver)
             }
 
             override fun onViewAttachedToWindow(v: View?) {
-                searchListView.visibility = View.VISIBLE
-                mainListView.visibility = View.INVISIBLE
+//                searchListView.visibility = View.VISIBLE
+//                mainListView.visibility = View.INVISIBLE
                 viewModel.getScreenshots().observe(this@HomeFragment, searchObserver)
             }
         })
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                searchListAdapter.filter.filter(query)
+                //searchListAdapter.filter.filter(query)
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                searchListAdapter.filter.filter(newText)
+                //searchListAdapter.filter.filter(newText)
                 return false
             }
         })

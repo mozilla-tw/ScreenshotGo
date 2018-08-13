@@ -24,6 +24,10 @@
 
     <!-- Home -->
     <dimen name="home_padding_horizontal">16dp</dimen>
-    <dimen name="home_quick_access_item_space">8dp</dimen>
+    <dimen name="quick_access_item_space">8dp</dimen>
+    <dimen name="quick_access_item_corner">3dp</dimen>
+    <dimen name="quick_access_item_width">88dp</dimen>
+    <dimen name="quick_access_item_height">156dp</dimen>
+    <dimen name="quick_access_item_more_width">100dp</dimen>
 
 </resources>

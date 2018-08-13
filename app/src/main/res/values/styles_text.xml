@@ -67,4 +67,15 @@
         <item name="android:letterSpacing">0.042</item>
     </style>
 
+    <style name="QuickAccessMoreText">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">10sp</item>
+        <!-- tracking = 1.5 -->
+        <item name="android:letterSpacing">0.15</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+    </style>
+
 </resources>

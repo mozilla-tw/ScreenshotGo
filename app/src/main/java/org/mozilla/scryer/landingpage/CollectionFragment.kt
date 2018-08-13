@@ -142,7 +142,7 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var screenshotList: List<ScreenshotModel> = emptyList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_quick_access, parent, false)
         view.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
 
         view.layoutParams.height = (parent.measuredWidth / 2f).toInt()

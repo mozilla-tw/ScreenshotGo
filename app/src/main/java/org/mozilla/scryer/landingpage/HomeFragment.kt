@@ -328,13 +328,13 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 DetailPageActivity.showDetailPage(context, screenshotModel.absolutePath, holder.image)
             }
 
-            override fun onMoreClick(holder: ScreenshotItemHolder) {
+            override fun onMoreClick(holder: RecyclerView.ViewHolder) {
                 Navigation.findNavController(holder.itemView).navigate(R.id.action_navigate_to_collection, Bundle())
             }
         }
 
         val spaceEnd = resources.getDimensionPixelSize(R.dimen.home_padding_horizontal)
-        val space = resources.getDimensionPixelSize(R.dimen.home_quick_access_item_space)
+        val space = resources.getDimensionPixelSize(R.dimen.quick_access_item_space)
         quickAccessListView.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
                 val position = parent.getChildAdapterPosition(view)
@@ -348,6 +348,8 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 }
             }
         })
+
+        quickAccessListView.setPadding(0, 0, 0, spaceEnd)
 
         viewModel.getScreenshots().observe(this, Observer { screenshots ->
             screenshots?.let { newList ->

@@ -9,4 +9,6 @@
     android:paddingStart="@dimen/home_padding_horizontal"
     android:paddingEnd="@dimen/home_padding_horizontal"
     android:textColor="@color/grey90"
-    style="@style/H3" />
+    style="@style/H3"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:text="Title" />

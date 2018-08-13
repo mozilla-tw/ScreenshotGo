@@ -11,11 +11,14 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import org.mozilla.scryer.R
 import org.mozilla.scryer.persistence.ScreenshotModel
 import java.io.File
 
-class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
+class QuickAccessAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         const val TYPE_ITEM = 0
         const val TYPE_MORE = 1
@@ -26,30 +29,12 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
 
     private val maxItemsToDisplay = HomeFragment.QUICK_ACCESS_ITEM_COUNT
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ScreenshotItemHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
-        val metrics = Resources.getSystem().displayMetrics
-        val ratio = metrics.widthPixels / metrics.heightPixels.toFloat()
-        val width = view.layoutParams.height * ratio
-        view.layoutParams.width = width.toInt()
-        view.layoutParams = view.layoutParams
-
-        val holder = ScreenshotItemHolder(view)
-        holder.title = view.findViewById(R.id.title)
-        holder.image = view.findViewById(R.id.image_view)
-        holder.itemView.setOnClickListener { _ ->
-            holder.adapterPosition.takeIf { position ->
-                position != RecyclerView.NO_POSITION
-
-            }?.let { position: Int ->
-                if (isPositionForMoreButton(position)) {
-                    clickListener?.onMoreClick(holder)
-                } else {
-                    clickListener?.onItemClick(list[position], holder)
-                }
-            }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            TYPE_MORE -> createMoreHolder(parent)
+            TYPE_ITEM -> createItemHolder(parent)
+            else -> throw IllegalArgumentException("unrecognized view type")
         }
-        return holder
     }
 
     override fun getItemCount(): Int {
@@ -67,7 +52,7 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
         return TYPE_ITEM
     }
 
-    override fun onBindViewHolder(holder: ScreenshotItemHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val viewType = getItemViewType(position)
         when (viewType) {
             TYPE_ITEM -> bindItemHolder(holder, position)
@@ -75,25 +60,60 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
         }
     }
 
-    private fun bindItemHolder(holder: ScreenshotItemHolder, position: Int) {
+    private fun createItemHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_quick_access, parent, false)
+        val metrics = Resources.getSystem().displayMetrics
+        val ratio = metrics.widthPixels / metrics.heightPixels.toFloat()
+        val width = view.layoutParams.height * ratio
+        view.layoutParams.width = width.toInt()
+        view.layoutParams = view.layoutParams
+
+        val holder = ScreenshotItemHolder(view)
+        holder.image = view.findViewById(R.id.image_view)
+        holder.itemView.setOnClickListener { _ ->
+            holder.adapterPosition.takeIf { position ->
+                position != RecyclerView.NO_POSITION
+
+            }?.let { position: Int ->
+                clickListener?.onItemClick(list[position], holder)
+            }
+        }
+        return holder
+    }
+
+    private fun createMoreHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_quick_access_more, parent, false)
+        val holder = object : RecyclerView.ViewHolder(view) {
+        }
+        view.setOnClickListener {
+            clickListener?.onMoreClick(holder)
+        }
+        return holder
+    }
+
+    private fun bindItemHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val path = list[position].absolutePath
         val fileName = path.substring(path.lastIndexOf(File.separator) + 1)
-        holder.title?.text = fileName
-        holder.image?.let {
-            Glide.with(holder.itemView.context)
-                    .load(File(list[position].absolutePath)).into(it)
+        (holder as? ScreenshotItemHolder)?.apply {
+            holder.title?.text = fileName
+            holder.image?.let {
+                val options = RequestOptions()
+                val corner = holder.itemView.resources.getDimensionPixelSize(R.dimen.quick_access_item_corner)
+                options.transforms(CenterCrop(), RoundedCorners(corner))
+                Glide.with(holder.itemView.context)
+                        .load(File(list[position].absolutePath)).apply(options).into(it)
+            }
         }
     }
 
     @SuppressLint("SetTextI18n")
-    private fun bindMoreHolder(holder: ScreenshotItemHolder) {
-        holder.title?.text = "view more"
-        holder.image?.setImageResource(android.R.drawable.ic_dialog_info)
+    private fun bindMoreHolder(holder: RecyclerView.ViewHolder) {
+
     }
 
-    override fun onViewRecycled(holder: ScreenshotItemHolder) {
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         super.onViewRecycled(holder)
-        holder.image?.let {
+        (holder as? ScreenshotItemHolder)?.image?.let {
             Glide.with(holder.itemView.context).clear(it)
         }
     }
@@ -104,6 +124,6 @@ class QuickAccessAdapter: RecyclerView.Adapter<ScreenshotItemHolder>() {
 
     interface ItemClickListener {
         fun onItemClick(screenshotModel: ScreenshotModel, holder: ScreenshotItemHolder)
-        fun onMoreClick(holder: ScreenshotItemHolder)
+        fun onMoreClick(holder: RecyclerView.ViewHolder)
     }
 }

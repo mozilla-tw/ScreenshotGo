@@ -349,8 +349,6 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             }
         })
 
-        quickAccessListView.setPadding(0, 0, 0, spaceEnd)
-
         viewModel.getScreenshots().observe(this, Observer { screenshots ->
             screenshots?.let { newList ->
                 val finalList = newList.sortedByDescending { it.lastModified }

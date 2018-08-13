@@ -3,10 +3,24 @@
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
 
-<ImageView
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/image_view"
-    android:layout_width="@dimen/quick_access_item_width"
-    android:layout_height="@dimen/quick_access_item_height"
-    android:scaleType="centerCrop"
-    android:transitionName="shared_in" />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="172dp">
+    <!-- 172dp = @dimen/quick_access_item_height + 16(bottom margin), so we have
+    space to draw bottom shadow -->
+
+    <android.support.v7.widget.CardView
+        android:layout_width="@dimen/quick_access_item_width"
+        android:layout_height="@dimen/quick_access_item_height"
+        app:cardElevation="2dp"
+        app:cardCornerRadius="@dimen/home_item_corner_radius">
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:transitionName="shared_in" />
+    </android.support.v7.widget.CardView>
+</FrameLayout>

@@ -8,6 +8,7 @@ package org.mozilla.scryer.landingpage
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -85,6 +86,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         val itemHolder = CollectionHolder(view)
         itemHolder.title = view.findViewById(R.id.title)
         itemHolder.image = view.findViewById(R.id.image)
+        itemHolder.overlay = view.findViewById(R.id.overlay)
 
         view.setOnClickListener {_ ->
             itemHolder.adapterPosition.takeIf { position ->
@@ -127,10 +129,13 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         val model = collectionList[position - FIXED_ITEM_COUNT]
         holder.title?.text = model.name
 
-        val path = if (model.id == CollectionModel.CATEGORY_NONE) {
-            getCoverPathForUnsortedCollection()
+        val path: String?
+        if (model.id == CollectionModel.CATEGORY_NONE) {
+            path = getCoverPathForUnsortedCollection()
+            holder.overlay?.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.unsorted_collection_item_bkg)
         } else {
-            coverList[model.id]?.absolutePath
+            path = coverList[model.id]?.absolutePath
+            holder.overlay?.background = ContextCompat.getDrawable(holder.itemView.context, R.drawable.sorted_collection_item_bkg)
         }
 
         if (!path.isNullOrEmpty() && File(path).exists()) {
@@ -166,6 +171,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     class CollectionHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         var image: ImageView? = null
         var title: TextView? = null
+        var overlay: View? = null
     }
 
     class SpanSizeLookup(private val columnCount: Int) : GridLayoutManager.SpanSizeLookup() {

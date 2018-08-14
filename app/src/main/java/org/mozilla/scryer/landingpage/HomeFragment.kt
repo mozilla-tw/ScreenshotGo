@@ -25,6 +25,7 @@ import android.support.annotation.RequiresApi
 import android.support.design.widget.BottomSheetDialog
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
@@ -332,6 +333,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 Navigation.findNavController(holder.itemView).navigate(R.id.action_navigate_to_collection, Bundle())
             }
         }
+        quickAccessListView.setBackgroundColor(ContextCompat.getColor(context, R.color.grey10))
 
         val spaceEnd = resources.getDimensionPixelSize(R.dimen.home_padding_horizontal)
         val space = resources.getDimensionPixelSize(R.dimen.quick_access_item_space)

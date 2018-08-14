@@ -22,6 +22,10 @@
     <color name="sorting_panel_fake_layer">#d5e4d6</color>
     <color name="sorting_panel_hint_bar">#d7d7d7</color>
 
+    <!-- Home -->
+    <color name="home_background">@color/white</color>
+    <color name="quick_access_background">@color/grey10</color>
+
     <array name="collection_colors">
         <item>#235dff</item>
         <item>#10c1b6</item>

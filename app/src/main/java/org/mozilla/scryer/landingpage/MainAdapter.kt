@@ -6,6 +6,7 @@
 package org.mozilla.scryer.landingpage
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -120,8 +121,17 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     @SuppressLint("SetTextI18n")
     private fun bindSectionNameHolder(holder: SectionNameHolder, position: Int) {
         when (position) {
-            POS_QUICK_ACCESS_TITLE -> holder.title?.text = "Quick Access"
-            POS_COLLECTION_LIST_TITLE -> holder.title?.text = "Collections"
+            POS_QUICK_ACCESS_TITLE -> {
+                holder.title?.text = "Quick Access"
+                holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context,
+                        R.color.quick_access_background))
+            }
+
+            POS_COLLECTION_LIST_TITLE -> {
+                holder.title?.text = "Collections"
+                holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context,
+                        R.color.home_background))
+            }
         }
     }
 

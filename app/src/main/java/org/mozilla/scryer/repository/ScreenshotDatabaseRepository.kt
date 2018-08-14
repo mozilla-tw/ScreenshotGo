@@ -76,7 +76,7 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
     }
 
     override fun setupDefaultContent(context: Context) {
-        val none = CollectionModel(CollectionModel.CATEGORY_NONE, "Unsorted", 0, 0)
+        val none = CollectionModel(CollectionModel.CATEGORY_NONE, "Unsorted collection", 0, 0)
         val shopping = CollectionModel("Shopping", System.currentTimeMillis(), Color.parseColor("#235dff"))
         val music = CollectionModel("Music", System.currentTimeMillis(), Color.parseColor("#10c1b6"))
         val secret = CollectionModel("Secret", System.currentTimeMillis(), Color.parseColor("#ffa6a8"))

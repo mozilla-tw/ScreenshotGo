@@ -6,7 +6,6 @@
 package org.mozilla.scryer.landingpage
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -38,7 +37,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         const val FIXED_ITEM_COUNT = 3
     }
 
-    lateinit var quickAccessListView: RecyclerView
+    lateinit var quickAccessContainer: View
 
     var collectionList: List<CollectionModel> = emptyList()
     var coverList: Map<String, ScreenshotModel> = HashMap()
@@ -115,7 +114,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private fun createQuickAccessHolder(): RecyclerView.ViewHolder {
-        return SimpleHolder(quickAccessListView)
+        return SimpleHolder(quickAccessContainer)
     }
 
     @SuppressLint("SetTextI18n")
@@ -195,8 +194,8 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    class ItemDecoration(columnCount: Int, space: Int)
-        : GridItemDecoration(columnCount, space, 0, space, space, space) {
+    class ItemDecoration(columnCount: Int, space: Int, top: Int)
+        : GridItemDecoration(columnCount, space, top, space, space, space) {
         override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
             val position = parent.getChildAdapterPosition(view) - FIXED_ITEM_COUNT
             if (position < 0) {

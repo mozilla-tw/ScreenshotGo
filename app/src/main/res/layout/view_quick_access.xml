@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey10">
+
+    <!--
+        The list view has a top padding and a bottom padding, ideally they should be
+        specified here, however, to make room for items to draw their shadow, we instead
+        let items to declare the padding, and here we only specified the desired size ratio of
+        quick access list.
+
+        On visual spec, the screen width is 360dp, and item height is 156dp, top padding is 12dp,
+        bottom padding is 16dp. Final height: 156 + 12 + 16 = 184, thus the size ratio here is 360:184
+     -->
+    <!-- TODO: Will it be better to simply use different dimen for each resolution? -->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="360:184" />
+
+</android.support.constraint.ConstraintLayout>

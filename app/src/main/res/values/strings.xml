@@ -43,4 +43,7 @@
     <string name="feedback_dialog_action_feedback">Send feedback</string>
     <string name="share_app_promotion_text">TBD...</string>
     <string name="about_version">Version %1$s</string>
+
+    <!-- Home -->
+    <string name="quick_access_item_more_title">View more</string>
 </resources>

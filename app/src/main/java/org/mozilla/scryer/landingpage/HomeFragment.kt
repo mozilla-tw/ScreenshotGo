@@ -25,7 +25,6 @@ import android.support.annotation.RequiresApi
 import android.support.design.widget.BottomSheetDialog
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
@@ -61,7 +60,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         const val QUICK_ACCESS_ITEM_COUNT = 5
     }
 
-    private lateinit var quickAccessListView: RecyclerView
+    private lateinit var quickAccessContainer: ViewGroup
     private val quickAccessAdapter: QuickAccessAdapter = QuickAccessAdapter()
 
     private lateinit var mainListView: RecyclerView
@@ -88,7 +87,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.fragment_main, container, false)
         mainListView = layout.findViewById(R.id.main_list)
-        quickAccessListView = RecyclerView(inflater.context)
+        quickAccessContainer = View.inflate(inflater.context, R.layout.view_quick_access, null) as ViewGroup
         searchListView = layout.findViewById(R.id.search_list)
         return layout
     }
@@ -122,7 +121,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 true
             }
 
-            createOptionsMenuSearchView(it, menu)
+            createOptionsMenuSearchView(it)
         }
     }
 
@@ -275,7 +274,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 PermissionFlow.createDefaultPageStateProvider(activity), this)
     }
 
-    private fun createOptionsMenuSearchView(activity: Activity, menu: Menu) {
+    private fun createOptionsMenuSearchView(activity: Activity) {
         //val searchItem = menu.findItem(R.id.action_search)
 
         //val searchView = searchItem.actionView as SearchView
@@ -321,9 +320,6 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     private fun initQuickAccessList(context: Context) {
-        val manager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-        quickAccessListView.layoutManager = manager
-        quickAccessListView.adapter = quickAccessAdapter
         quickAccessAdapter.clickListener = object : QuickAccessAdapter.ItemClickListener {
             override fun onItemClick(screenshotModel: ScreenshotModel, holder: ScreenshotItemHolder) {
                 DetailPageActivity.showDetailPage(context, screenshotModel.absolutePath, holder.image)
@@ -333,23 +329,27 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 Navigation.findNavController(holder.itemView).navigate(R.id.action_navigate_to_collection, Bundle())
             }
         }
-        quickAccessListView.setBackgroundColor(ContextCompat.getColor(context, R.color.grey10))
 
-        val spaceEnd = resources.getDimensionPixelSize(R.dimen.home_padding_horizontal)
-        val space = resources.getDimensionPixelSize(R.dimen.quick_access_item_space)
-        quickAccessListView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-                val position = parent.getChildAdapterPosition(view)
-                if (position == 0) {
-                    outRect.left = spaceEnd
+        with (quickAccessContainer.findViewById<RecyclerView>(R.id.list_view)) {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = quickAccessAdapter
+
+            val spaceOuter = resources.getDimensionPixelSize(R.dimen.home_horizontal_padding)
+            val spaceInner = resources.getDimensionPixelSize(R.dimen.quick_access_item_space)
+            addItemDecoration(object : RecyclerView.ItemDecoration() {
+                override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                    val position = parent.getChildAdapterPosition(view)
+                    if (position == 0) {
+                        outRect.left = spaceOuter
+                    }
+                    if (position == quickAccessAdapter.itemCount - 1) {
+                        outRect.right = spaceOuter
+                    } else {
+                        outRect.right = spaceInner
+                    }
                 }
-                if (position == quickAccessAdapter.itemCount - 1) {
-                    outRect.right = spaceEnd
-                } else {
-                    outRect.right = space
-                }
-            }
-        })
+            })
+        }
 
         viewModel.getScreenshots().observe(this, Observer { screenshots ->
             screenshots?.let { newList ->
@@ -365,11 +365,12 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         manager.spanSizeLookup = MainAdapter.SpanSizeLookup(COLLECTION_COLUMN_COUNT)
         mainListView.layoutManager = manager
 
-        mainAdapter.quickAccessListView = quickAccessListView
+        mainAdapter.quickAccessContainer = quickAccessContainer
         mainListView.adapter = mainAdapter
 
-        val space = resources.getDimensionPixelSize(R.dimen.home_padding_horizontal)
-        mainListView.addItemDecoration(MainAdapter.ItemDecoration(COLLECTION_COLUMN_COUNT, space))
+        val spaceOuter = resources.getDimensionPixelSize(R.dimen.home_horizontal_padding)
+        val spaceTop = resources.getDimensionPixelSize(R.dimen.collection_padding_top)
+        mainListView.addItemDecoration(MainAdapter.ItemDecoration(COLLECTION_COLUMN_COUNT, spaceOuter, spaceTop))
 
         viewModel.getCollections().observe(this, Observer { collections ->
             collections?.let { newData ->

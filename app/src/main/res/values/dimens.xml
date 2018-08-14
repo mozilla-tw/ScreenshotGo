@@ -23,16 +23,17 @@
     <dimen name="collection_dialog_edittext_padding_end">8dp</dimen>
 
     <!-- Home -->
-    <dimen name="home_padding_horizontal">16dp</dimen>
+    <dimen name="home_horizontal_padding">16dp</dimen>
     <dimen name="home_item_corner_radius">3dp</dimen>
+    <dimen name="section_title_vertical_padding">12dp</dimen>
 
     <!-- Home: quick access -->
+    <dimen name="quick_access_padding_top">@dimen/section_title_vertical_padding</dimen>
+    <dimen name="quick_access_padding_bottom">16dp</dimen>
     <dimen name="quick_access_item_space">8dp</dimen>
-    <dimen name="quick_access_item_width">88dp</dimen>
-    <dimen name="quick_access_item_height">156dp</dimen>
-    <dimen name="quick_access_item_more_width">100dp</dimen>
+    <dimen name="quick_access_item_more_icon_size">54dp</dimen>
 
     <!-- Home: collections -->
-    <dimen name="collection_item_height">110dp</dimen>
+    <dimen name="collection_padding_top">@dimen/section_title_vertical_padding</dimen>
 
 </resources>

@@ -36,6 +36,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     }
 
     private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.panel_recycler_view) }
+    private val coordinatorLayout: View by lazy { findViewById<View>(R.id.coordinator_layout) }
     private val panelView: View by lazy { findViewById<View>(R.id.panel_container) }
     private val overlay: View by lazy { findViewById<View>(R.id.background_overlay) }
     private val imageView: ImageView by lazy { findViewById<ImageView>(R.id.image_view) }
@@ -69,6 +70,15 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     var callback: Callback? = null
         set(value) {
             this.adapter.callback = value
+        }
+
+    var showAddToCollection: Boolean = true
+        set(value) {
+            if (value) {
+                coordinatorLayout.visibility = View.VISIBLE
+            } else {
+                coordinatorLayout.visibility = View.GONE
+            }
         }
 
     constructor(context: Context): super(context) {

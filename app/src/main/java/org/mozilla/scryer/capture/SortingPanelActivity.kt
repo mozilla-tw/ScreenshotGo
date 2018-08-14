@@ -8,6 +8,7 @@ package org.mozilla.scryer.capture
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -28,6 +29,7 @@ class SortingPanelActivity : AppCompatActivity() {
         const val EXTRA_PATH = "path"
         const val EXTRA_SCREENSHOT_ID = "screenshot_id"
         const val EXTRA_COLLECTION_ID = "collection_id"
+        const val EXTRA_SHOW_ADD_TO_COLLECTION = "collection_id"
 
         fun sortCollection(context: Context, collectionId: String): Intent {
             val intent = Intent(context, SortingPanelActivity::class.java)
@@ -35,9 +37,10 @@ class SortingPanelActivity : AppCompatActivity() {
             return intent
         }
 
-        fun sortNewScreenshot(context: Context, path: String): Intent {
+        fun sortNewScreenshot(context: Context, path: String, showAddToCollection: Boolean): Intent {
             val intent = Intent(context, SortingPanelActivity::class.java)
             intent.putExtra(SortingPanelActivity.EXTRA_PATH, path)
+            intent.putExtra(SortingPanelActivity.EXTRA_SHOW_ADD_TO_COLLECTION, showAddToCollection)
             return intent
         }
 
@@ -104,6 +107,7 @@ class SortingPanelActivity : AppCompatActivity() {
         })
 
         sortingPanel.collectionSource = collectionData
+        sortingPanel.showAddToCollection = intent.getBooleanExtra(EXTRA_SHOW_ADD_TO_COLLECTION, true)
         sortingPanel.callback = object : SortingPanel.Callback {
             override fun onClick(collection: CollectionModel) {
                 onCollectionClicked(collection)
@@ -193,6 +197,11 @@ class SortingPanelActivity : AppCompatActivity() {
         } else {
             sortingPanel.setActionText(getString(R.string.ac_next))
             sortingPanel.setProgressVisibility(View.VISIBLE)
+        }
+
+        if (intent.hasExtra(EXTRA_SHOW_ADD_TO_COLLECTION)
+                && !intent.getBooleanExtra(EXTRA_SHOW_ADD_TO_COLLECTION, true)) {
+            Handler().postDelayed({ finishAndRemoveTask() }, 1000)
         }
 
         onNewModelAvailable()

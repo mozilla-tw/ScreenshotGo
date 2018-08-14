@@ -15,6 +15,7 @@ class PreferenceSettingsRepository(context: Context) : SettingsRepository {
     companion object {
         private const val KEY_SERVICE_ENABLED = "settings_service_enabled"
         private const val KEY_FLOATING_ENABLED = "settings_floating_enabled"
+        private const val KEY_ADD_TO_COLLECTION_ENABLED = "settings_add_to_collection_enabled"
 
         @Volatile
         private var instance: SettingsRepository? = null
@@ -29,6 +30,7 @@ class PreferenceSettingsRepository(context: Context) : SettingsRepository {
 
     private val serviceLiveData = MutableLiveData<Boolean>()
     private val floatingLiveData = MutableLiveData<Boolean>()
+    private val addToCollectionLiveData = MutableLiveData<Boolean>()
 
     override var serviceEnabled: Boolean = prefs.getBoolean(KEY_SERVICE_ENABLED, true)
         get() = prefs.getBoolean(KEY_SERVICE_ENABLED, true)
@@ -51,6 +53,18 @@ class PreferenceSettingsRepository(context: Context) : SettingsRepository {
 
     override val floatingEnableObservable: LiveData<Boolean>
         get() = floatingLiveData
+
+
+    override var addToCollectionEnable: Boolean = prefs.getBoolean(KEY_ADD_TO_COLLECTION_ENABLED, true)
+        get() = prefs.getBoolean(KEY_ADD_TO_COLLECTION_ENABLED, true)
+        set(value) {
+            prefs.edit().putBoolean(KEY_ADD_TO_COLLECTION_ENABLED, value).apply()
+            notifyChange(addToCollectionLiveData, field, value)
+            field = value
+        }
+    override val addToCollectionEnableObservable: LiveData<Boolean>
+        get() = addToCollectionLiveData
+
 
     private fun <T> notifyChange(data: MutableLiveData<T>, old: T, new: T) {
         if (old != new) {

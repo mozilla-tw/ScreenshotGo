@@ -191,7 +191,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     private fun startSortingPanelActivity(path: String) {
-        val intent = SortingPanelActivity.sortNewScreenshot(this, path)
+        val intent = SortingPanelActivity.sortNewScreenshot(this, path, ScryerApplication.getSettingsRepository().addToCollectionEnable)
         intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
     }

@@ -14,4 +14,7 @@ interface SettingsRepository {
 
     var floatingEnable: Boolean
     val floatingEnableObservable: LiveData<Boolean>
+
+    var addToCollectionEnable: Boolean
+    val addToCollectionEnableObservable: LiveData<Boolean>
 }

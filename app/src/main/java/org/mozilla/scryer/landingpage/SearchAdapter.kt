@@ -5,6 +5,7 @@
 
 package org.mozilla.scryer.landingpage
 
+import android.content.Context
 import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.text.SpannableString
@@ -16,7 +17,7 @@ import com.bumptech.glide.Glide
 import org.mozilla.scryer.persistence.ScreenshotModel
 import java.io.File
 
-class SearchAdapter : ScreenshotAdapter(), Filterable {
+class SearchAdapter(context: Context?) : ScreenshotAdapter(context), Filterable {
     private lateinit var originalList: List<ScreenshotModel>
     private var searchTarget: String = ""
 

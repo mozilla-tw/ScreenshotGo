@@ -61,13 +61,17 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     private lateinit var quickAccessContainer: ViewGroup
-    private val quickAccessAdapter: QuickAccessAdapter = QuickAccessAdapter()
+    private val quickAccessAdapter: QuickAccessAdapter by lazy {
+        QuickAccessAdapter(context)
+    }
 
     private lateinit var mainListView: RecyclerView
     private val mainAdapter: MainAdapter = MainAdapter()
 
     private lateinit var searchListView: RecyclerView
-    private val searchListAdapter: SearchAdapter = SearchAdapter()
+    private val searchListAdapter: SearchAdapter by lazy {
+        SearchAdapter(context)
+    }
 
     private lateinit var permissionFlow: PermissionFlow
     private var storagePermissionView: View? = null

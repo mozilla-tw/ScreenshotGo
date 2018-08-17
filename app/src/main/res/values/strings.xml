@@ -25,6 +25,20 @@
     <!-- Capture permission prompt -->
     <string name="capture_permission_prompt_title">Try the Screenshot Button</string>
 
+    <!-- Context menu -->
+    <string name="menu_title_action">Actions</string>
+    <string name="menu_action_share">Share</string>
+    <string name="menu_action_delete">Delete</string>
+    <string name="menu_shot_action_move">Move to&#8230;</string>
+    <string name="menu_shot_action_info">Screenshot info</string>
+
+    <!-- Dialogue -->
+    <string name="dialogue_action_delete">Delete</string>
+    <string name="dialogue_action_cancel">Cancel</string>
+    <string name="dialogue_action_ok">OK</string>
+    <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
+    <string name="dialogue_deleteshot_content_delete">Are you sure to delete this screenshot from Gallery?</string>
+
     <!-- Settings -->
     <string name="preference_capture_service_title">Capture Service</string>
     <string name="preference_capture_service_description">Enable capture service allows you to take screenshots with better ways</string>

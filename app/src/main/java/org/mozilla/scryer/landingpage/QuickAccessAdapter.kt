@@ -5,15 +5,17 @@
 
 package org.mozilla.scryer.landingpage
 
+import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
 import org.mozilla.scryer.persistence.ScreenshotModel
 import java.io.File
 
-class QuickAccessAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class QuickAccessAdapter(val context: Context?) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), OnContextMenuActionListener {
     companion object {
         const val TYPE_ITEM = 0
         const val TYPE_MORE = 1
@@ -54,10 +56,26 @@ class QuickAccessAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
+    override fun onContextMenuAction(item: MenuItem?, itemPosition: Int) {
+        val screenshotModel: ScreenshotModel?
+        if (itemPosition >= 0 && itemPosition < list.size) {
+            screenshotModel = list[itemPosition]
+        } else {
+            return
+        }
+
+        when (item?.itemId) {
+            CONTEXT_MENU_ID_MOVE_TO -> TODO("not implemented")
+            CONTEXT_MENU_ID_INFO -> TODO("not implemented")
+            CONTEXT_MENU_ID_SHARE -> TODO("not implemented")
+            CONTEXT_MENU_ID_DELETE -> context?.let { showDeleteScreenshotDialog(it, screenshotModel) }
+        }
+    }
+
     private fun createItemHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_quick_access, parent, false)
 
-        val holder = ScreenshotItemHolder(view)
+        val holder = ScreenshotItemHolder(view, this)
         holder.image = view.findViewById(R.id.image_view)
         holder.itemView.setOnClickListener { _ ->
             holder.adapterPosition.takeIf { position ->

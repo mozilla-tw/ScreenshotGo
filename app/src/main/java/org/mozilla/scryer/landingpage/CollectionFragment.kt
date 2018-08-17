@@ -122,23 +122,8 @@ class CollectionFragment : Fragment() {
         screenshotListView.adapter = screenshotAdapter
 
         val itemSpace = context.resources.getDimensionPixelSize(R.dimen.collection_item_space)
-        val horizontalPadding = context.resources.getDimensionPixelSize(R.dimen.collection_horizontal_padding)
 
-        val listViewPadding = horizontalPadding - itemSpace
-        screenshotListView.setPadding(listViewPadding, 0, listViewPadding, 0)
-
-        screenshotListView.addItemDecoration(object : RecyclerView.ItemDecoration() {
-            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-                val position = parent.getChildViewHolder(view).adapterPosition
-                if (position < 0) {
-                    return
-                }
-
-                outRect.left = itemSpace / 2
-                outRect.right = itemSpace / 2
-                outRect.bottom = itemSpace
-            }
-        })
+        screenshotListView.addItemDecoration(InnerItemDecoration(SPAN_COUNT, itemSpace))
 
         val viewModel = ScreenshotViewModel.get(this)
         val liveData = collectionId?.let {
@@ -228,4 +213,33 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 class ScreenshotItemHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
     var title: TextView? = null
     var image: ImageView? = null
+}
+
+class InnerItemDecoration(private val span: Int, private val innerSpace: Int) : RecyclerView.ItemDecoration() {
+    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+        val position = parent.getChildViewHolder(view).adapterPosition
+        if (position < 0) {
+            return
+        }
+
+        val spaceUnit = innerSpace / 3
+
+        when {
+            position % span == 0 -> {
+                outRect.left = 0
+                outRect.right = spaceUnit * 2
+            }
+
+            position % span == 2 -> {
+                outRect.left = spaceUnit * 2
+                outRect.right = 0
+            }
+
+            else -> {
+                outRect.left = spaceUnit
+                outRect.right = spaceUnit
+            }
+        }
+        outRect.bottom = innerSpace
+    }
 }

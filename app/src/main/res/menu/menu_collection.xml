@@ -7,4 +7,9 @@
         android:icon="@android:drawable/ic_menu_sort_by_size"
         android:orderInCategory="100"
         app:showAsAction="always" />
+
+    <item android:id="@+id/action_search"
+        android:title="@string/menu_search"
+        android:icon="@android:drawable/ic_menu_search"
+        app:showAsAction="ifRoom" />
 </menu>

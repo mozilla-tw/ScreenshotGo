@@ -34,6 +34,11 @@
     <dimen name="quick_access_item_more_icon_size">54dp</dimen>
 
     <!-- Home: collections -->
-    <dimen name="collection_padding_top">@dimen/section_title_vertical_padding</dimen>
+    <dimen name="home_collection_padding_top">@dimen/section_title_vertical_padding</dimen>
+
+    <!-- Collection -->
+    <dimen name="collection_vertical_padding">8dp</dimen>
+    <dimen name="collection_horizontal_padding">16dp</dimen>
+    <dimen name="collection_item_space">8dp</dimen>
 
 </resources>

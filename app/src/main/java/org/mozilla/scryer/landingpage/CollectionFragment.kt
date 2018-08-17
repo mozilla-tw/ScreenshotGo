@@ -6,6 +6,7 @@
 package org.mozilla.scryer.landingpage
 
 import android.content.Context
+import android.graphics.Rect
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.ActionBar
@@ -14,18 +15,18 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.Observer
 import org.mozilla.scryer.R
 import org.mozilla.scryer.capture.SortingPanelActivity
 import org.mozilla.scryer.detailpage.DetailPageActivity
-import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.getSupportActionBar
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.setSupportActionBar
-import org.mozilla.scryer.ui.GridItemDecoration
+import org.mozilla.scryer.ui.ScryerToast
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 
@@ -38,6 +39,7 @@ class CollectionFragment : Fragment() {
     }
 
     private lateinit var screenshotListView: RecyclerView
+    private lateinit var subtitleView: TextView
 
     private val screenshotAdapter = ScreenshotAdapter()
 
@@ -54,6 +56,7 @@ class CollectionFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.fragment_collection, container, false)
         screenshotListView = layout.findViewById(R.id.screenshot_list)
+        subtitleView = layout.findViewById(R.id.subtitle)
         return layout
     }
 
@@ -76,6 +79,11 @@ class CollectionFragment : Fragment() {
                     screenshotAdapter.getScreenshotList().isNotEmpty()
                 }?.let {
                     startSortingActivity(it)
+                }
+            }
+            R.id.action_search -> {
+                context?.let {
+                    ScryerToast.makeText(it, "Not implement", Toast.LENGTH_SHORT).show()
                 }
             }
             else -> return super.onOptionsItemSelected(item)
@@ -112,8 +120,25 @@ class CollectionFragment : Fragment() {
         val manager = GridLayoutManager(context, SPAN_COUNT, GridLayoutManager.VERTICAL, false)
         screenshotListView.layoutManager = manager
         screenshotListView.adapter = screenshotAdapter
-        screenshotListView.addItemDecoration(GridItemDecoration(SPAN_COUNT,
-                8f.dpToPx(context.resources.displayMetrics)))
+
+        val itemSpace = context.resources.getDimensionPixelSize(R.dimen.collection_item_space)
+        val horizontalPadding = context.resources.getDimensionPixelSize(R.dimen.collection_horizontal_padding)
+
+        val listViewPadding = horizontalPadding - itemSpace
+        screenshotListView.setPadding(listViewPadding, 0, listViewPadding, 0)
+
+        screenshotListView.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+                val position = parent.getChildViewHolder(view).adapterPosition
+                if (position < 0) {
+                    return
+                }
+
+                outRect.left = itemSpace / 2
+                outRect.right = itemSpace / 2
+                outRect.bottom = itemSpace
+            }
+        })
 
         val viewModel = ScreenshotViewModel.get(this)
         val liveData = collectionId?.let {
@@ -132,7 +157,7 @@ class CollectionFragment : Fragment() {
             screenshots.sortedByDescending { it.lastModified }.let { sorted ->
                 screenshotAdapter.setScreenshotList(sorted)
                 screenshotAdapter.notifyDataSetChanged()
-                getSupportActionBar(activity).subtitle = "${sorted.size} shots"
+                subtitleView.text = getString(R.string.collection_page_subtitle, sorted.size)
             }
         })
     }
@@ -142,11 +167,7 @@ open class ScreenshotAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var screenshotList: List<ScreenshotModel> = emptyList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_quick_access, parent, false)
-        view.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-
-        view.layoutParams.height = (parent.measuredWidth / 2f).toInt()
-        view.setPadding(0, 0, 0, 0)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
 
         val holder = ScreenshotItemHolder(view)
         holder.title = view.findViewById(R.id.title)

@@ -46,4 +46,7 @@
 
     <!-- Home -->
     <string name="quick_access_item_more_title">View more</string>
+
+    <!-- Collection -->
+    <string name="collection_page_subtitle">%1$d shots</string>
 </resources>

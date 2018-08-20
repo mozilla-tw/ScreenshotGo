@@ -5,11 +5,16 @@
 
 package org.mozilla.scryer.landingpage
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Rect
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.FileProvider
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.GridLayoutManager
@@ -204,7 +209,7 @@ open class ScreenshotAdapter(val context: Context?) : RecyclerView.Adapter<Recyc
         when (item?.itemId) {
             CONTEXT_MENU_ID_MOVE_TO -> TODO("not implemented")
             CONTEXT_MENU_ID_INFO -> TODO("not implemented")
-            CONTEXT_MENU_ID_SHARE -> TODO("not implemented")
+            CONTEXT_MENU_ID_SHARE -> context?.let { showShareScreenshotDialog(it, screenshotModel) }
             CONTEXT_MENU_ID_DELETE -> context?.let { showDeleteScreenshotDialog(it, screenshotModel) }
         }
     }
@@ -298,4 +303,25 @@ fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotMode
                 }
             }
             .show()
+}
+
+fun showShareScreenshotDialog(context: Context, screenshotModel: ScreenshotModel) {
+    ThreadUtils.postToBackgroundThread {
+        val authorities = BuildConfig.APPLICATION_ID + ".provider.fileprovider"
+        val file = File(screenshotModel.absolutePath)
+        val fileUri: Uri?
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            fileUri = FileProvider.getUriForFile(context, authorities, file)
+        } else {
+            fileUri = Uri.fromFile(file)
+        }
+        val share = Intent(Intent.ACTION_SEND)
+        share.putExtra(Intent.EXTRA_STREAM, fileUri)
+        share.type = "image/*"
+        share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        try {
+            context.startActivity(Intent.createChooser(share, null))
+        } catch (e: ActivityNotFoundException) {
+        }
+    }
 }

@@ -67,7 +67,7 @@ class QuickAccessAdapter(val context: Context?) : RecyclerView.Adapter<RecyclerV
         when (item?.itemId) {
             CONTEXT_MENU_ID_MOVE_TO -> TODO("not implemented")
             CONTEXT_MENU_ID_INFO -> TODO("not implemented")
-            CONTEXT_MENU_ID_SHARE -> TODO("not implemented")
+            CONTEXT_MENU_ID_SHARE -> context?.let { showShareScreenshotDialog(it, screenshotModel) }
             CONTEXT_MENU_ID_DELETE -> context?.let { showDeleteScreenshotDialog(it, screenshotModel) }
         }
     }

@@ -37,8 +37,13 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
         }
     }
 
-    override fun getScreenshot(screenshotId: String): ScreenshotModel? {
-        return database.screenshotDao().getScreenshot(screenshotId)
+    override fun getScreenshot(screenshotId: String, callback: (ScreenshotModel) -> Unit) {
+        executor.execute {
+            val screenshot = database.screenshotDao().getScreenshot(screenshotId)
+            handler.post {
+                callback(screenshot)
+            }
+        }
     }
 
     override fun getScreenshots(collectionIds: List<String>): LiveData<List<ScreenshotModel>> {

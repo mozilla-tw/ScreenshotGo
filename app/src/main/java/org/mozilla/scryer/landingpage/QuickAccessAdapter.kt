@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
+import org.mozilla.scryer.capture.SortingPanelActivity
 import org.mozilla.scryer.persistence.ScreenshotModel
 import java.io.File
 
@@ -65,7 +66,7 @@ class QuickAccessAdapter(val context: Context?) : RecyclerView.Adapter<RecyclerV
         }
 
         when (item?.itemId) {
-            CONTEXT_MENU_ID_MOVE_TO -> TODO("not implemented")
+            CONTEXT_MENU_ID_MOVE_TO -> context?.let { it.startActivity(SortingPanelActivity.sortOldScreenshot(it, screenshotModel.id)) }
             CONTEXT_MENU_ID_INFO -> context?.let { showScreenshotInfoDialog(it, screenshotModel) }
             CONTEXT_MENU_ID_SHARE -> context?.let { showShareScreenshotDialog(it, screenshotModel) }
             CONTEXT_MENU_ID_DELETE -> context?.let { showDeleteScreenshotDialog(it, screenshotModel) }

@@ -8,15 +8,12 @@ package org.mozilla.scryer.overlay
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
-import android.graphics.Color
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import android.widget.RelativeLayout
-import android.widget.TextView
 import org.mozilla.scryer.Observer
 import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
@@ -24,8 +21,10 @@ import org.mozilla.scryer.extension.dpToPx
 
 class ScreenshotButtonController(private val context: Context) {
     companion object {
-        const val BUTTON_SIZE_DP = 75f
-        const val EXIT_VIEW_HEIGHT_DP = 180f
+        const val BUTTON_SIZE_DP = 40f
+
+        const val ALPHA_ACTIVE = 1f
+        const val ALPHA_INACTIVE = 0.50f
     }
 
     private lateinit var screen: Screen
@@ -34,6 +33,8 @@ class ScreenshotButtonController(private val context: Context) {
 
     private lateinit var buttonView: FloatingView
     private lateinit var exitView: FloatingView
+    private lateinit var exitAnchor: View
+    private lateinit var exitBorder: View
 
     private var clickListener: ClickListener? = null
 
@@ -88,8 +89,13 @@ class ScreenshotButtonController(private val context: Context) {
     private fun initScreenshotButton(screen: Screen, dock: Dock): FloatingView {
         val buttonView = FloatingView.create(createButtonView(context), dock, buttonSize, buttonSize,
                 true, windowController)
+        buttonView.alpha = ALPHA_INACTIVE
 
         buttonView.dragListener = object : DragHelper.DragListener {
+            override fun onTouch() {
+                buttonView.alpha = ALPHA_ACTIVE
+            }
+
             override fun onTap() {
                 clickListener?.onScreenshotButtonClicked()
             }
@@ -100,7 +106,14 @@ class ScreenshotButtonController(private val context: Context) {
 
             override fun onDrag(x: Float, y: Float) {
                 exitView.visibility = View.VISIBLE
-                if (y >= exitView.y) {
+
+                val reactRadius: Float = buttonSize * 3f
+                val anchorX: Double = (exitAnchor.x + buttonSize / 2).toDouble()
+                val anchorY: Double = (exitAnchor.y + buttonSize / 2).toDouble()
+                val distance = Math.sqrt((anchorX - x) * (anchorX - x) + (anchorY - y) * (anchorY - y))
+                val percentage = distance / reactRadius
+
+                if (percentage < 1) {
                     if (!buttonView.stickToCurrentPosition) {
                         buttonView.stickToCurrentPosition = true
                         buttonView.animateTo(exitDock, OvershootInterpolator(), 300)
@@ -111,10 +124,18 @@ class ScreenshotButtonController(private val context: Context) {
             }
 
             override fun onRelease(x: Float, y: Float) {
-                if (y < exitView.top) {
+                buttonView.alpha = ALPHA_INACTIVE
+
+                val reactRadius: Float = buttonSize * 3f
+                val anchorX: Double = (exitAnchor.x + buttonSize / 2).toDouble()
+                val anchorY: Double = (exitAnchor.y + buttonSize / 2).toDouble()
+                val distance = Math.sqrt((anchorX - x) * (anchorX - x) + (anchorY - y) * (anchorY - y))
+                val percentage = distance / reactRadius
+
+                if (percentage >= 1) {
                     dock.updatePosition(x.toInt(), y.toInt())
                     buttonView.animateTo(dock, OvershootInterpolator(), 500)
-                } else {
+                } else if (percentage < 1) {
                     val animator = buttonView.animate().scaleX(0f).scaleY(0f)
                     animator.duration = 200
                     animator.interpolator = AccelerateInterpolator()
@@ -136,21 +157,25 @@ class ScreenshotButtonController(private val context: Context) {
     }
 
     private fun initExitView()  {
-        exitView = FloatingView.create(createExitView(context), sideDock, ViewGroup.LayoutParams.MATCH_PARENT,
-                EXIT_VIEW_HEIGHT_DP.dpToPx(metrics), false, windowController)
+        val exitViewContent = createExitView(context)
+        exitView = FloatingView.create(exitViewContent, sideDock, ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT, false, windowController)
         val trashParams = RelativeLayout.LayoutParams(ViewGroup.MarginLayoutParams.MATCH_PARENT,
-                EXIT_VIEW_HEIGHT_DP.dpToPx(metrics))
+                ViewGroup.LayoutParams.MATCH_PARENT)
         trashParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
         exitView.visibility = View.INVISIBLE
         screen.containerView.addView(exitView, trashParams)
 
+        exitAnchor = exitViewContent.findViewById<View>(R.id.exit_button_anchor_view)
+        exitBorder = exitViewContent.findViewById<View>(R.id.border)
+
         exitDock = object : Dock(screen) {
             override fun resolveX(targetSize: Int): Float {
-                return (exitView.left + exitView.right) / 2f
+                return (exitAnchor.left + exitAnchor.right) / 2f
             }
 
             override fun resolveY(targetSize: Int): Float {
-                return (exitView.top + exitView.bottom) / 2f
+                return (exitAnchor.top + exitAnchor.bottom) / 2f
             }
 
             override fun updatePosition(x: Int, y: Int) {
@@ -160,19 +185,11 @@ class ScreenshotButtonController(private val context: Context) {
     }
 
     private fun createButtonView(context: Context): View {
-        val view = View(context)
-        view.setBackgroundResource(R.drawable.circle_bg)
-        return view
+        return View.inflate(context, R.layout.view_capture_button, null)
     }
 
     private fun createExitView(context: Context): View {
-        val view = TextView(context)
-        view.text = "X"
-        view.textSize = 15f.dpToPx(metrics).toFloat()
-        view.gravity = Gravity.CENTER
-        view.setTextColor(Color.parseColor("#ff8800"))
-        view.setBackgroundColor(Color.parseColor("#88000000"))
-        return view
+        return View.inflate(context, R.layout.view_capture_button_exit, null)
     }
 
     interface ClickListener {

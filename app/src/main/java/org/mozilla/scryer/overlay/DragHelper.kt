@@ -50,6 +50,7 @@ class DragHelper(private val targetView: View,
                 getViewCenter(oldPosition)
                 currentPosition.set(oldPosition.x, oldPosition.y)
                 oldTouchPosition.set(event.rawX, event.rawY)
+                dragListener?.onTouch()
                 handler.postDelayed(longClickRunnable, DURATION_LONG_PRESS)
                 return true
             }
@@ -100,6 +101,7 @@ class DragHelper(private val targetView: View,
     }
 
     interface DragListener {
+        fun onTouch() {}
         fun onTap() {}
         fun onLongPress() {}
         fun onRelease(x: Float, y: Float) {}

@@ -37,6 +37,10 @@ class Dragger(private val context: Context,
 
         this.dragHelper = DragHelper(dragView, windowCtrl)
         this.dragHelper.dragListener = object : DragHelper.DragListener {
+            override fun onTouch() {
+                dragListener?.onTouch()
+            }
+
             override fun onTap() {
                 dragListener?.onTap()
             }

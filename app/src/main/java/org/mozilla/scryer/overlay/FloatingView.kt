@@ -88,6 +88,10 @@ class FloatingView(context: Context) : FrameLayout(context) {
 
     private fun initDragger() {
         this.dragger.dragListener = object : DragHelper.DragListener {
+            override fun onTouch() {
+                dragListener?.onTouch()
+            }
+
             override fun onTap() {
                 dragListener?.onTap()
             }

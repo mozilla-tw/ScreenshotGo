@@ -22,7 +22,7 @@
             android:id="@+id/icon_view"
             android:layout_width="@dimen/quick_access_item_more_icon_size"
             android:layout_height="@dimen/quick_access_item_more_icon_size"
-            android:background="@android:drawable/ic_menu_more"
+            android:background="@drawable/viewmore"
             android:backgroundTint="@color/white"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"

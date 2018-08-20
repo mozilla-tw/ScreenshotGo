@@ -25,7 +25,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/title"
-        android:background="@android:drawable/ic_input_add" />
+        android:background="@drawable/add"
+        android:backgroundTint="@color/secondaryGreen"/>
 
     <TextView
         android:id="@+id/title"

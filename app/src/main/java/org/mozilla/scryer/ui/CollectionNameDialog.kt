@@ -28,13 +28,11 @@ class CollectionNameDialog(private val context: Context, private val delegate: D
     private val collections = mutableListOf<CollectionModel>()
 
     val validIcon: Drawable? by lazy {
-        ContextCompat.getDrawable(context, android.R.drawable.btn_star)?.let {
-            DrawableCompat.wrap(it)
-        }
+        null
     }
 
     val invalidIcon: Drawable? by lazy {
-        ContextCompat.getDrawable(context, android.R.drawable.stat_notify_error)?.let {
+        ContextCompat.getDrawable(context, R.drawable.error)?.let {
             val wrapped = DrawableCompat.wrap(it)
             DrawableCompat.setTint(wrapped, ContextCompat.getColor(context, R.color.errorRed))
             wrapped

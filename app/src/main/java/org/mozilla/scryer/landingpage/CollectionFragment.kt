@@ -149,7 +149,8 @@ class CollectionFragment : Fragment() {
             screenshots.sortedByDescending { it.lastModified }.let { sorted ->
                 screenshotAdapter.setScreenshotList(sorted)
                 screenshotAdapter.notifyDataSetChanged()
-                subtitleView.text = getString(R.string.collection_page_subtitle, sorted.size)
+                val shotCount: Int = sorted.size
+                subtitleView.text = getString(R.string.collection_page_subtitle, shotCount)
             }
         })
     }

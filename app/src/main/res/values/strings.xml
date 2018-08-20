@@ -33,9 +33,13 @@
     <string name="menu_shot_action_info">Screenshot info</string>
 
     <!-- Dialogue -->
+    <string name="dialogue_list_name">Name</string>
+    <string name="dialogue_list_edit">Last edit</string>
     <string name="dialogue_action_delete">Delete</string>
     <string name="dialogue_action_cancel">Cancel</string>
     <string name="dialogue_action_ok">OK</string>
+    <string name="dialogue_shotinfo_title_info">Screenshot info</string>
+    <string name="dialogue_shotinfo_list_size">Size</string>
     <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
     <string name="dialogue_deleteshot_content_delete">Are you sure to delete this screenshot from Gallery?</string>
 

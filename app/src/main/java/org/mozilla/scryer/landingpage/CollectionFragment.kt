@@ -26,6 +26,7 @@ import android.widget.Toast
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.*
+import org.mozilla.scryer.Observer
 import org.mozilla.scryer.capture.SortingPanelActivity
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.persistence.CollectionModel
@@ -34,6 +35,9 @@ import org.mozilla.scryer.ui.ScryerToast
 import org.mozilla.scryer.util.ThreadUtils
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
+import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 class CollectionFragment : Fragment() {
     companion object {
@@ -209,7 +213,7 @@ open class ScreenshotAdapter(val context: Context?) : RecyclerView.Adapter<Recyc
         val screenshotModel = getItem(itemPosition)
         when (item?.itemId) {
             CONTEXT_MENU_ID_MOVE_TO -> TODO("not implemented")
-            CONTEXT_MENU_ID_INFO -> TODO("not implemented")
+            CONTEXT_MENU_ID_INFO -> context?.let { showScreenshotInfoDialog(it, screenshotModel) }
             CONTEXT_MENU_ID_SHARE -> context?.let { showShareScreenshotDialog(it, screenshotModel) }
             CONTEXT_MENU_ID_DELETE -> context?.let { showDeleteScreenshotDialog(it, screenshotModel) }
         }
@@ -287,6 +291,56 @@ class InnerItemDecoration(private val span: Int, private val innerSpace: Int) : 
 
 interface OnContextMenuActionListener {
     fun onContextMenuAction(item: MenuItem?, itemPosition: Int)
+}
+
+fun showScreenshotInfoDialog(context: Context, screenshotModel: ScreenshotModel) {
+    val message = StringBuilder()
+    message.apply {
+        append(context.getString(R.string.dialogue_list_name)).append("\n")
+        append(getFileNameText(screenshotModel.absolutePath)).append("\n").append("\n")
+        append(context.getString(R.string.dialogue_shotinfo_list_size)).append("\n")
+        append(getFileSizeText(File(screenshotModel.absolutePath).length())).append("\n").append("\n")
+        append(context.getString(R.string.dialogue_list_edit)).append("\n")
+        append(getFileDateText(File(screenshotModel.absolutePath).lastModified()))
+    }
+
+    AlertDialog.Builder(context)
+            .setTitle(context.getString(R.string.dialogue_shotinfo_title_info))
+            .setMessage(message)
+            .setNegativeButton(context.getString(R.string.dialogue_action_ok)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
+            .show()
+}
+
+fun getFileNameText(fullPath: String): String {
+    val lastSeparatorIndex = fullPath.lastIndexOf(File.separatorChar)
+    return if (lastSeparatorIndex != -1) {
+        fullPath.substring(lastSeparatorIndex + 1)
+    } else {
+        fullPath
+    }
+}
+
+fun getFileSizeText(size: Long): String {
+    val df = DecimalFormat("0.00")
+    val sizeKb = 1024.0f
+    val sizeMo = sizeKb * sizeKb
+    val sizeGo = sizeMo * sizeKb
+    val sizeTerra = sizeGo * sizeKb
+
+    return when {
+        size < sizeMo -> df.format(size / sizeKb) + " KB"
+        size < sizeGo -> df.format(size / sizeMo) + " MB"
+        size < sizeTerra -> df.format(size / sizeGo) + " GB"
+        else -> ""
+    }
+}
+
+fun getFileDateText(timestamp: Long): String {
+    val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    val cal = Calendar.getInstance()
+    cal.timeInMillis = timestamp
+
+    return dateFormat.format(cal.time)
 }
 
 fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotModel) {

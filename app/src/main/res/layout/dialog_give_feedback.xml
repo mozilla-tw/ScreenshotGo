@@ -9,53 +9,51 @@
         android:id="@+id/dialog_give_feedback_text_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginLeft="@dimen/common_padding_24dp"
+        android:layout_marginTop="@dimen/common_padding_24dp"
+        android:layout_marginRight="@dimen/common_padding_24dp"
         android:gravity="center"
         android:text="@string/feedback_title_lovefeedback"
-        android:textColor="@color/grey90"
-        android:textSize="20sp" />
+        android:textAppearance="@style/H2"
+        android:textColor="@color/grey90" />
 
     <TextView
         android:id="@+id/dialog_give_feedback_text_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="18dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginLeft="@dimen/common_padding_24dp"
+        android:layout_marginTop="@dimen/common_padding_4dp"
+        android:layout_marginRight="@dimen/common_padding_24dp"
+        android:layout_marginBottom="@dimen/common_padding_16dp"
         android:gravity="center"
-        android:lineSpacingExtra="5dp"
         android:text="@string/feedback_detail_letusknow"
-        android:textColor="@color/grey60"
-        android:textSize="16sp" />
+        android:textAppearance="@style/Subtitle2"
+        android:textColor="@color/grey50" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageView
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="144dp"
+            android:layout_height="144dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
             android:src="@null" />
     </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="@dimen/common_padding_16dp"
         android:background="@color/disableGrey" />
 
     <Button
         android:id="@+id/dialog_give_feedback_btn_go_rate"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="48dp"
         android:text="@string/feedback_action_rate"
-        android:textColor="@color/primaryTeal"
-        android:textSize="14sp" />
+        android:textAppearance="@style/ButtonText" />
 
     <View
         android:layout_width="match_parent"
@@ -66,8 +64,7 @@
         android:id="@+id/dialog_give_feedback_btn_feedback"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="48dp"
         android:text="@string/feedback_action_feedback"
-        android:textColor="@color/primaryTeal"
-        android:textSize="14sp" />
+        android:textAppearance="@style/ButtonText" />
 </LinearLayout>

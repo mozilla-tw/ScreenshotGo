@@ -25,7 +25,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginRight="30dp"
         android:gravity="center"
-        android:text="Smart Screenshot"
+        android:text="@string/app_name"
         android:textColor="@color/grey90"
         android:textSize="20sp" />
 
@@ -50,9 +50,9 @@
         android:id="@+id/about_btn_support"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="Support"
-        android:textColor="@color/primaryTeal"
+        android:layout_height="48dp"
+        android:textAlignment="textStart"
+        android:text="@string/about_list_support"
         android:textSize="14sp" />
 
     <View
@@ -64,9 +64,9 @@
         android:id="@+id/about_btn_your_rights_licenses"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="Your Rights/ Licenses"
-        android:textColor="@color/primaryTeal"
+        android:layout_height="48dp"
+        android:textAlignment="textStart"
+        android:text="@string/about_list_right"
         android:textSize="14sp" />
 
     <View
@@ -78,8 +78,13 @@
         android:id="@+id/about_btn_privacy_notice"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="Privacy Notice"
-        android:textColor="@color/primaryTeal"
+        android:layout_height="48dp"
+        android:textAlignment="textStart"
+        android:text="@string/about_list_privacy"
         android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/disableGrey" />
 </LinearLayout>

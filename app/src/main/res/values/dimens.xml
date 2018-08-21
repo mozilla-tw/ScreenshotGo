@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="common_padding_24dp">24dp</dimen>
+    <dimen name="common_padding_16dp">16dp</dimen>
+    <dimen name="common_padding_8dp">8dp</dimen>
+    <dimen name="common_padding_4dp">4dp</dimen>
+
     <!-- Sorting panel -->
     <dimen name="sorting_panel_padding">24dp</dimen>
     <dimen name="sorting_panel_title_height">72dp</dimen>

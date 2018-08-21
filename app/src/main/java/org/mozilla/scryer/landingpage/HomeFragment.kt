@@ -161,14 +161,15 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val context = context?: return
         dismissPermissionDialog()
 
-        val dialog = BottomDialogFactory.create(context, R.layout.dialog_overlay_permission)
+        val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
 
         dialog.findViewById<TextView>(R.id.title)?.setText(R.string.overlay_permission_prompt_title)
-        dialog.findViewById<Button>(R.id.positive_button)?.setOnClickListener {
+        dialog.findViewById<View>(R.id.dont_ask_again_checkbox)?.visibility = View.GONE
+        dialog.findViewById<View>(R.id.positive_button)?.setOnClickListener {
             action.run()
             dialog.dismiss()
         }
-        dialog.findViewById<Button>(R.id.negative_button)?.setOnClickListener {
+        dialog.findViewById<View>(R.id.negative_button)?.setOnClickListener {
             negativeAction.run()
             dialog.dismiss()
         }
@@ -185,12 +186,12 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val context = context?: return
         dismissPermissionDialog()
 
-        // TODO: Rename layout file if it is going to be shared
-        val dialog = BottomDialogFactory.create(context, R.layout.dialog_overlay_permission)
+        val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
 
         dialog.findViewById<TextView>(R.id.title)?.setText(R.string.capture_permission_prompt_title)
-        dialog.findViewById<Button>(R.id.positive_button)?.visibility = View.GONE
-        dialog.findViewById<Button>(R.id.negative_button)?.setOnClickListener {
+        dialog.findViewById<View>(R.id.dont_ask_again_checkbox)?.visibility = View.GONE
+        dialog.findViewById<View>(R.id.positive_button)?.visibility = View.GONE
+        dialog.findViewById<View>(R.id.negative_button)?.setOnClickListener {
             negativeAction.run()
             dialog.dismiss()
         }

@@ -21,7 +21,7 @@ class AboutFragment : Fragment() {
         val view: View = inflater.inflate(R.layout.fragment_about, container, false)
 
         val versionText = view.findViewById<TextView>(R.id.about_text_version)
-        versionText?.text = getString(R.string.about_version, getAppVersion())
+        versionText?.text = getString(R.string.about_content_version, getAppVersion())
 
         return view
     }
@@ -49,6 +49,6 @@ class AboutFragment : Fragment() {
     }
 
     private fun updateActionBarTitle(actionBar: ActionBar) {
-        actionBar.title = getString(R.string.preference_about_title)
+        actionBar.title = getString(R.string.settings_list_about)
     }
 }

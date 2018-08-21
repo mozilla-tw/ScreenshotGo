@@ -13,7 +13,7 @@
         android:layout_marginTop="25dp"
         android:layout_marginRight="30dp"
         android:gravity="center"
-        android:text="@string/feedback_dialog_text_title"
+        android:text="@string/feedback_title_lovefeedback"
         android:textColor="@color/grey90"
         android:textSize="20sp" />
 
@@ -26,7 +26,7 @@
         android:layout_marginRight="30dp"
         android:gravity="center"
         android:lineSpacingExtra="5dp"
-        android:text="@string/feedback_dialog_text_content"
+        android:text="@string/feedback_detail_letusknow"
         android:textColor="@color/grey60"
         android:textSize="16sp" />
 
@@ -53,7 +53,7 @@
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:text="@string/feedback_dialog_action_rate"
+        android:text="@string/feedback_action_rate"
         android:textColor="@color/primaryTeal"
         android:textSize="14sp" />
 
@@ -67,7 +67,7 @@
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:text="@string/feedback_dialog_action_feedback"
+        android:text="@string/feedback_action_feedback"
         android:textColor="@color/primaryTeal"
         android:textSize="14sp" />
 </LinearLayout>

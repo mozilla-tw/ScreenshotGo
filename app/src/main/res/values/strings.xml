@@ -44,23 +44,25 @@
     <string name="dialogue_deleteshot_content_delete">Are you sure to delete this screenshot from Gallery?</string>
 
     <!-- Settings -->
-    <string name="preference_capture_service_title">Capture Service</string>
-    <string name="preference_capture_service_description">Enable capture service allows you to take screenshots with better ways</string>
-    <string name="preference_floating_screenshot_button_title">Floating screenshot button</string>
-    <string name="preference_add_to_collection_title">Add to collection</string>
-    <string name="preference_add_to_collection_description">Always prompt to sort screenshot into collection after capturing a screenshot</string>
-    <string name="preference_send_usage_data_title">Send usage data</string>
-    <string name="preference_send_usage_data_description">Mozilla strives to collect only what we need to provide and improve Smart Screenshot for everyone.</string>
-    <string name="preference_give_feedback_title">Give feedback</string>
-    <string name="preference_share_with_friends_title">Share with friends</string>
-    <string name="preference_about_title">About</string>
-
-    <string name="feedback_dialog_text_title">We love feedback!</string>
-    <string name="feedback_dialog_text_content">Tell us how you feel!</string>
-    <string name="feedback_dialog_action_rate">Rate &amp; Review</string>
-    <string name="feedback_dialog_action_feedback">Send feedback</string>
+    <string name="settings_list_capture">Enable screenshot service</string>
+    <string name="settings_detail_capture">Allows you to take a screenshot with one tap. Works with whatever is on your screen.</string>
+    <string name="settings_list_fab">Enable screenshot button</string>
+    <string name="settings_list_sorting">Prompt to save</string>
+    <string name="settings_detail_sorting">Always prompt to add screenshot to a collection</string>
+    <string name="settings_list_usagedata">Send usage data</string>
+    <string name="settings_detail_mozilla">Mozilla strives to collect only what we need to provide and improve Smart Screenshot for everyone.</string>
+    <string name="settings_list_feedback">Give feedback</string>
+    <string name="feedback_title_lovefeedback">We love feedback!</string>
+    <string name="feedback_detail_letusknow">Let us know what you think.</string>
+    <string name="feedback_action_rate">Rate on Google Play</string>
+    <string name="feedback_action_feedback">Give us feedback</string>
+    <string name="about_content_version">Version %1$s</string>
+    <string name="settings_list_share">Share with friends</string>
     <string name="share_app_promotion_text">TBD...</string>
-    <string name="about_version">Version %1$s</string>
+    <string name="settings_list_about">About</string>
+    <string name="about_list_support">Support</string>
+    <string name="about_list_right">Your Rights/ Licenses</string>
+    <string name="about_list_privacy">Privacy Notice</string>
 
     <!-- Home -->
     <string name="quick_access_item_more_title">View more</string>

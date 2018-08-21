@@ -307,7 +307,7 @@ fun showScreenshotInfoDialog(context: Context, screenshotModel: ScreenshotModel)
     AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.dialogue_shotinfo_title_info))
             .setMessage(message)
-            .setNegativeButton(context.getString(R.string.dialogue_action_ok)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
+            .setPositiveButton(context.getString(android.R.string.ok)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
             .show()
 }
 
@@ -347,7 +347,7 @@ fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotMode
     AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.dialogue_deleteshot_title_delete))
             .setMessage(context.getString(R.string.dialogue_deleteshot_content_delete))
-            .setNegativeButton(context.getString(R.string.dialogue_action_cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
+            .setNegativeButton(context.getString(android.R.string.cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
             .setPositiveButton(context.getString(R.string.dialogue_action_delete)) { dialog: DialogInterface?, _: Int ->
                 run {
                     ThreadUtils.postToBackgroundThread {

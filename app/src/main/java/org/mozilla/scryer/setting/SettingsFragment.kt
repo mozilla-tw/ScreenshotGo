@@ -129,7 +129,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         val sendIntent = Intent(Intent.ACTION_SEND)
         sendIntent.type = "text/plain"
         sendIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name))
-        sendIntent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_app_promotion_text))
+        sendIntent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_intro))
         context.startActivity(Intent.createChooser(sendIntent, null))
     }
 

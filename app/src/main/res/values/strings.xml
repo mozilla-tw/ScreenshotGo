@@ -36,8 +36,6 @@
     <string name="dialogue_list_name">Name</string>
     <string name="dialogue_list_edit">Last edit</string>
     <string name="dialogue_action_delete">Delete</string>
-    <string name="dialogue_action_cancel">Cancel</string>
-    <string name="dialogue_action_ok">OK</string>
     <string name="dialogue_shotinfo_title_info">Screenshot info</string>
     <string name="dialogue_shotinfo_list_size">Size</string>
     <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
@@ -45,12 +43,12 @@
 
     <!-- Settings -->
     <string name="settings_list_capture">Enable screenshot service</string>
-    <string name="settings_detail_capture">Allows you to take a screenshot with one tap. Works with whatever is on your screen.</string>
+    <string name="settings_detail_capture">Allows you to take a screenshot with one tap. Works with whatever is on your screen</string>
     <string name="settings_list_fab">Enable screenshot button</string>
     <string name="settings_list_sorting">Prompt to save</string>
     <string name="settings_detail_sorting">Always prompt to add screenshot to a collection</string>
     <string name="settings_list_usagedata">Send usage data</string>
-    <string name="settings_detail_mozilla">Mozilla strives to collect only what we need to provide and improve Smart Screenshot for everyone.</string>
+    <string name="settings_detail_mozilla">Mozilla strives to collect only what we need to provide and improve Smart Screenshot for everyone</string>
     <string name="settings_list_feedback">Give feedback</string>
     <string name="feedback_title_lovefeedback">We love feedback!</string>
     <string name="feedback_detail_letusknow">Let us know what you think.</string>
@@ -58,7 +56,7 @@
     <string name="feedback_action_feedback">Give us feedback</string>
     <string name="about_content_version">Version %1$s</string>
     <string name="settings_list_share">Share with friends</string>
-    <string name="share_app_promotion_text">TBD...</string>
+    <string name="share_intro">[TBD]</string>
     <string name="settings_list_about">About</string>
     <string name="about_list_support">Support</string>
     <string name="about_list_right">Your Rights/ Licenses</string>

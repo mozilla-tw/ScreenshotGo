@@ -8,6 +8,7 @@ package org.mozilla.scryer.overlay
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
+import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -22,6 +23,7 @@ import org.mozilla.scryer.extension.dpToPx
 class CaptureButtonController(private val context: Context) {
     companion object {
         const val BUTTON_SIZE_DP = 40f
+        const val EXIT_SCALE_RATIO = 76 / 52f
 
         const val ALPHA_ACTIVE = 1f
         const val ALPHA_INACTIVE = 0.50f
@@ -92,6 +94,9 @@ class CaptureButtonController(private val context: Context) {
         buttonView.alpha = ALPHA_INACTIVE
 
         buttonView.dragListener = object : DragHelper.DragListener {
+            var isCollided = false
+            val interpolater = FastOutSlowInInterpolator()
+
             override fun onTouch() {
                 buttonView.alpha = ALPHA_ACTIVE
             }
@@ -108,8 +113,22 @@ class CaptureButtonController(private val context: Context) {
                 exitViewContainer.visibility = View.VISIBLE
 
                 val isCollide = isCollideWithExitView(x, y)
-                exitCircleView.scaleX = if (isCollide) 1.5f else 1f
-                exitCircleView.scaleY = if (isCollide) 1.5f else 1f
+                if (isCollide && !isCollided) {
+                    exitCircleView.animate()
+                            .scaleX(EXIT_SCALE_RATIO)
+                            .scaleY(EXIT_SCALE_RATIO)
+                            .interpolator = interpolater
+                    isCollided = true
+                } else if (!isCollide && isCollided) {
+                    exitCircleView.animate()
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .interpolator = interpolater
+                    isCollided = false
+                }
+
+//                exitCircleView.scaleX = if (isCollide) 1.5f else 1f
+//                exitCircleView.scaleY = if (isCollide) 1.5f else 1f
 //
 //                if (isCollide(x, y)) {
 //                    if (!buttonView.stickToCurrentPosition) {

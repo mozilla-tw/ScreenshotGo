@@ -19,7 +19,7 @@ import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.extension.dpToPx
 
-class ScreenshotButtonController(private val context: Context) {
+class CaptureButtonController(private val context: Context) {
     companion object {
         const val BUTTON_SIZE_DP = 40f
 
@@ -32,9 +32,9 @@ class ScreenshotButtonController(private val context: Context) {
     private lateinit var exitDock: Dock
 
     private lateinit var buttonView: FloatingView
-    private lateinit var exitView: FloatingView
+    private lateinit var exitViewContainer: FloatingView
     private lateinit var exitAnchor: View
-    private lateinit var exitBorder: View
+    private lateinit var exitCircleView: View
 
     private var clickListener: ClickListener? = null
 
@@ -56,7 +56,7 @@ class ScreenshotButtonController(private val context: Context) {
         screen = Screen(context, windowController)
         sideDock = Dock(screen)
         initExitView()
-        buttonView = initScreenshotButton(screen, sideDock)
+        buttonView = initCaptureButtonView(screen, sideDock)
 
         screen.onBoundaryUpdateListener = Runnable {
             buttonView.moveTo(sideDock)
@@ -86,8 +86,8 @@ class ScreenshotButtonController(private val context: Context) {
         screen.detachFromWindow()
     }
 
-    private fun initScreenshotButton(screen: Screen, dock: Dock): FloatingView {
-        val buttonView = FloatingView.create(createButtonView(context), dock, buttonSize, buttonSize,
+    private fun initCaptureButtonView(screen: Screen, dock: Dock): FloatingView {
+        val buttonView = FloatingView.create(createCaptureButtonView(context), dock, buttonSize, buttonSize,
                 true, windowController)
         buttonView.alpha = ALPHA_INACTIVE
 
@@ -105,37 +105,28 @@ class ScreenshotButtonController(private val context: Context) {
             }
 
             override fun onDrag(x: Float, y: Float) {
-                exitView.visibility = View.VISIBLE
+                exitViewContainer.visibility = View.VISIBLE
 
-                val reactRadius: Float = buttonSize * 3f
-                val anchorX: Double = (exitAnchor.x + buttonSize / 2).toDouble()
-                val anchorY: Double = (exitAnchor.y + buttonSize / 2).toDouble()
-                val distance = Math.sqrt((anchorX - x) * (anchorX - x) + (anchorY - y) * (anchorY - y))
-                val percentage = distance / reactRadius
-
-                if (percentage < 1) {
-                    if (!buttonView.stickToCurrentPosition) {
-                        buttonView.stickToCurrentPosition = true
-                        buttonView.animateTo(exitDock, OvershootInterpolator(), 300)
-                    }
-                } else {
-                    buttonView.stickToCurrentPosition = false
-                }
+                val isCollide = isCollideWithExitView(x, y)
+                exitCircleView.scaleX = if (isCollide) 1.5f else 1f
+                exitCircleView.scaleY = if (isCollide) 1.5f else 1f
+//
+//                if (isCollide(x, y)) {
+//                    if (!buttonView.stickToCurrentPosition) {
+//                        buttonView.stickToCurrentPosition = true
+//                        buttonView.animateTo(exitDock, OvershootInterpolator(), 300)
+//                    }
+//                    exitBorder.scaleX = 1.5f
+//                    exitBorder.scaleY = 1.5f
+//                } else {
+//                    buttonView.stickToCurrentPosition = false
+//                }
             }
 
             override fun onRelease(x: Float, y: Float) {
                 buttonView.alpha = ALPHA_INACTIVE
 
-                val reactRadius: Float = buttonSize * 3f
-                val anchorX: Double = (exitAnchor.x + buttonSize / 2).toDouble()
-                val anchorY: Double = (exitAnchor.y + buttonSize / 2).toDouble()
-                val distance = Math.sqrt((anchorX - x) * (anchorX - x) + (anchorY - y) * (anchorY - y))
-                val percentage = distance / reactRadius
-
-                if (percentage >= 1) {
-                    dock.updatePosition(x.toInt(), y.toInt())
-                    buttonView.animateTo(dock, OvershootInterpolator(), 500)
-                } else if (percentage < 1) {
+                if (isCollideWithExitView(x, y)) {
                     val animator = buttonView.animate().scaleX(0f).scaleY(0f)
                     animator.duration = 200
                     animator.interpolator = AccelerateInterpolator()
@@ -144,8 +135,12 @@ class ScreenshotButtonController(private val context: Context) {
                             clickListener?.onScreenshotButtonLongClicked()
                         }
                     })
+
+                } else {
+                    dock.updatePosition(x.toInt(), y.toInt())
+                    buttonView.animateTo(dock, OvershootInterpolator(), 500)
                 }
-                exitView.visibility = View.INVISIBLE
+                exitViewContainer.visibility = View.INVISIBLE
             }
         }
 
@@ -156,40 +151,55 @@ class ScreenshotButtonController(private val context: Context) {
         return buttonView
     }
 
+    private fun createCaptureButtonView(context: Context): View {
+        return View.inflate(context, R.layout.view_capture_button, null)
+    }
+
     private fun initExitView()  {
         val exitViewContent = createExitView(context)
-        exitView = FloatingView.create(exitViewContent, sideDock, ViewGroup.LayoutParams.MATCH_PARENT,
+        exitViewContainer = FloatingView.create(exitViewContent, sideDock, ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT, false, windowController)
         val trashParams = RelativeLayout.LayoutParams(ViewGroup.MarginLayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT)
         trashParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
-        exitView.visibility = View.INVISIBLE
-        screen.containerView.addView(exitView, trashParams)
+        exitViewContainer.visibility = View.INVISIBLE
+        screen.containerView.addView(exitViewContainer, trashParams)
 
         exitAnchor = exitViewContent.findViewById<View>(R.id.exit_button_anchor_view)
-        exitBorder = exitViewContent.findViewById<View>(R.id.border)
+        exitCircleView = exitViewContent.findViewById<View>(R.id.border)
 
         exitDock = object : Dock(screen) {
             override fun resolveX(targetSize: Int): Float {
-                return (exitAnchor.left + exitAnchor.right) / 2f
+                return getCenterX(exitAnchor)
             }
 
             override fun resolveY(targetSize: Int): Float {
-                return (exitAnchor.top + exitAnchor.bottom) / 2f
+                return getCenterY(exitAnchor)
             }
 
             override fun updatePosition(x: Int, y: Int) {
-
             }
         }
     }
 
-    private fun createButtonView(context: Context): View {
-        return View.inflate(context, R.layout.view_capture_button, null)
-    }
-
     private fun createExitView(context: Context): View {
         return View.inflate(context, R.layout.view_capture_button_exit, null)
+    }
+
+    private fun isCollideWithExitView(dragX: Float, dragY: Float): Boolean {
+        val snapRadius = buttonSize
+        val dstX = getCenterX(exitAnchor).toDouble()
+        val dstY = getCenterY(exitAnchor).toDouble()
+        val dist = Math.hypot(dstX - dragX, dstY - dragY)
+        return dist <= snapRadius
+    }
+
+    private fun getCenterX(view: View): Float {
+        return (view.left + view.right) / 2f
+    }
+
+    private fun getCenterY(view: View): Float {
+        return (view.top + view.bottom) / 2f
     }
 
     interface ClickListener {

@@ -24,13 +24,13 @@ import org.mozilla.scryer.capture.ScreenCaptureListener
 import org.mozilla.scryer.capture.ScreenCaptureManager
 import org.mozilla.scryer.filemonitor.FileMonitor
 import org.mozilla.scryer.filemonitor.MediaProviderDelegate
-import org.mozilla.scryer.overlay.ScreenshotButtonController
+import org.mozilla.scryer.overlay.CaptureButtonController
 import org.mozilla.scryer.permission.PermissionHelper
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 
 
-class ScryerService : Service(), ScreenshotButtonController.ClickListener, ScreenCaptureListener {
+class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCaptureListener {
     companion object {
         // TODO: temp id
         private const val ID_FOREGROUND = 9487
@@ -48,7 +48,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     private var isRunning: Boolean = false
-    private var floatingButtonController: ScreenshotButtonController? = null
+    private var captureButtonController: CaptureButtonController? = null
 
     private var screenCapturePermissionIntent: Intent? = null
     private var screenCaptureManager: ScreenCaptureManager? = null
@@ -99,7 +99,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     override fun onDestroy() {
         if (isRunning) {
             isRunning = false
-            floatingButtonController?.destroy()
+            captureButtonController?.destroy()
             fileMonitor.stopMonitor()
         }
         super.onDestroy()
@@ -110,10 +110,10 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
             return
         }
 
-        floatingButtonController?: run {
-            floatingButtonController = ScreenshotButtonController(applicationContext)
-            floatingButtonController?.setOnClickListener(this)
-            floatingButtonController?.init()
+        captureButtonController?: run {
+            captureButtonController = CaptureButtonController(applicationContext)
+            captureButtonController?.setOnClickListener(this)
+            captureButtonController?.init()
         }
     }
 
@@ -139,7 +139,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
 
     private fun postTakeScreenshot(delayed: Long) {
         handler.postDelayed({
-            floatingButtonController?.hide()
+            captureButtonController?.hide()
             takeScreenshot()
         }, delayed)
     }
@@ -184,7 +184,7 @@ class ScryerService : Service(), ScreenshotButtonController.ClickListener, Scree
     }
 
     override fun onScreenShotTaken(path: String) {
-        floatingButtonController?.show()
+        captureButtonController?.show()
         if (!TextUtils.isEmpty(path)) {
             startSortingPanelActivity(path)
         }

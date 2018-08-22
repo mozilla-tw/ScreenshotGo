@@ -107,7 +107,7 @@
                 android:singleLine="true"
                 style="@style/H1"
                 android:textColor="@android:color/black"
-                android:text="@string/sorting_panel_title" />
+                android:text="@string/sorting_title_addto" />
 
             <TextView
                 android:id="@+id/panel_title_action_button"
@@ -120,7 +120,7 @@
                 android:paddingEnd="@dimen/sorting_panel_padding"
                 android:gravity="center_vertical"
                 style="@style/ButtonText"
-                android:text="@string/ac_next" />
+                android:text="@string/multisorting_action_next" />
 
             <TextView
                 android:id="@+id/panel_title_progress_text"

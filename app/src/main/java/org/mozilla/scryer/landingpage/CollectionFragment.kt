@@ -154,7 +154,7 @@ class CollectionFragment : Fragment() {
                 screenshotAdapter.setScreenshotList(sorted)
                 screenshotAdapter.notifyDataSetChanged()
                 val shotCount: Int = sorted.size
-                subtitleView.text = getString(R.string.collection_page_subtitle, shotCount)
+                subtitleView.text = getString(R.string.collection_separator_shots, shotCount)
             }
         })
     }
@@ -346,7 +346,7 @@ fun getFileDateText(timestamp: Long): String {
 fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotModel) {
     AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.dialogue_deleteshot_title_delete))
-            .setMessage(context.getString(R.string.dialogue_deleteshot_content_delete))
+            .setMessage(context.getString(R.string.dialogue_delete_content_cantundo))
             .setNegativeButton(context.getString(android.R.string.cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
             .setPositiveButton(context.getString(R.string.dialogue_action_delete)) { dialog: DialogInterface?, _: Int ->
                 run {

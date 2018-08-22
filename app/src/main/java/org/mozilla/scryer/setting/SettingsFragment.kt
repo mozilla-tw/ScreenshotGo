@@ -41,7 +41,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     }
 
     private fun updateActionBarTitle(actionBar: ActionBar) {
-        actionBar.title = getString(R.string.menu_settings)
+        actionBar.title = getString(R.string.menu_home_action_settings)
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {

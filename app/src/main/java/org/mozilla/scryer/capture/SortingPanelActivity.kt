@@ -192,10 +192,10 @@ class SortingPanelActivity : AppCompatActivity() {
         this.unsortedScreenshots.addAll(screenshots.sortedByDescending { it.lastModified })
 
         if (screenshots.size == 1) {
-            sortingPanel.setActionText(getString(R.string.ac_cancel))
+            sortingPanel.setActionText(getString(android.R.string.cancel))
             sortingPanel.setProgressVisibility(View.INVISIBLE)
         } else {
-            sortingPanel.setActionText(getString(R.string.ac_next))
+            sortingPanel.setActionText(getString(R.string.multisorting_action_next))
             sortingPanel.setProgressVisibility(View.VISIBLE)
         }
 
@@ -232,7 +232,7 @@ class SortingPanelActivity : AppCompatActivity() {
             override fun onNegativeAction(dialog: CollectionNameDialog.Interface) {}
         })
 
-        dialog.title = resources.getText(R.string.collection_dialog_title_new_collection).toString()
+        dialog.title = resources.getText(R.string.dialogue_title_collection).toString()
         dialog.show()
     }
 

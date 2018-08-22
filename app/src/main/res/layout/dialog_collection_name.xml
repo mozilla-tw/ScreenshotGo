@@ -64,7 +64,7 @@
         android:background="@android:color/transparent"
         android:inputType="text"
         style="@style/Subtitle1"
-        android:hint="@string/collection_dialog_input_hint" />
+        android:hint="@string/dialogue_collection_input_hint" />
 
     <View
         android:id="@+id/edit_text_bar"

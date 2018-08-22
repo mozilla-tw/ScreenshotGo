@@ -1,29 +1,27 @@
 <resources>
     <string name="app_name">Scryer</string>
 
-    <string name="menu_settings">Settings</string>
-    <string name="menu_search">Search</string>
-    <string name="menu_sort">Sort</string>
-
-    <string name="ac_next">Next</string>
-    <string name="ac_cancel">Cancel</string>
-    <string name="ac_done">Done</string>
+    <string name="menu_home_action_settings">Settings</string>
+    <string name="home_action_search">Search</string>
+    <string name="sheet_unsorted_action_sort">Sort</string>
+    <string name="multisorting_action_next">Next</string>
+    <string name="dialogue_action_done">Done</string>
 
     <!-- Sorting panel -->
-    <string name="sorting_panel_title">Add to collection</string>
-    <string name="ac_new_collection">Create new</string>
-    <string name="sorting_panel_progress">%1$d / %2$d</string>
+    <string name="sorting_title_addto">Add to</string>
+    <string name="action_create">Create new</string>
+    <string name="multisorting_count_number">%1$d / %2$d</string>
 
     <!-- Collection name dialog -->
-    <string name="collection_dialog_title_new_collection">Name collection</string>
-    <string name="collection_dialog_title_rename_collection">Rename collection</string>
-    <string name="collection_dialog_input_hint">Give me a name</string>
+    <string name="dialogue_title_collection">Collection name</string>
+    <string name="dialogue_rename_title_rename">Rename collection</string>
+    <string name="dialogue_collection_input_hint">Give me a name</string>
 
     <!-- Overlay permission prompt -->
-    <string name="overlay_permission_prompt_title">Instant way to Screenshot</string>
+    <string name="onboarding_fab_title_fab">Instant way to Screenshot</string>
 
     <!-- Capture permission prompt -->
-    <string name="capture_permission_prompt_title">Try the Screenshot Button</string>
+    <string name="onboarding_capture_title">Try the Screenshot Button</string>
 
     <!-- Context menu -->
     <string name="menu_title_action">Actions</string>
@@ -39,7 +37,7 @@
     <string name="dialogue_shotinfo_title_info">Screenshot info</string>
     <string name="dialogue_shotinfo_list_size">Size</string>
     <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
-    <string name="dialogue_deleteshot_content_delete">Are you sure to delete this screenshot from Gallery?</string>
+    <string name="dialogue_delete_content_cantundo">Are you sure? This action cannot be undone.</string>
 
     <!-- Settings -->
     <string name="settings_list_capture">Enable screenshot service</string>
@@ -63,8 +61,8 @@
     <string name="about_list_privacy">Privacy Notice</string>
 
     <!-- Home -->
-    <string name="quick_access_item_more_title">View more</string>
+    <string name="home_action_more">View all</string>
 
     <!-- Collection -->
-    <string name="collection_page_subtitle">%1$d shots</string>
+    <string name="collection_separator_shots">%1$d shots</string>
 </resources>

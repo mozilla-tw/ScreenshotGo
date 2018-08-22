@@ -187,7 +187,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
             return
         }
         progressView.visibility = if (total == 1) { View.INVISIBLE } else { View.VISIBLE }
-        progressView.text = resources.getString(R.string.sorting_panel_progress, current, total)
+        progressView.text = resources.getString(R.string.multisorting_count_number, current, total)
     }
 
     fun setProgressVisibility(visibility: Int) {

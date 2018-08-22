@@ -54,17 +54,17 @@ class CollectionNameDialog(private val context: Context, private val delegate: D
             }
         }
 
-        titleText.text = context.resources.getText(R.string.collection_dialog_title_new_collection)
+        titleText.text = context.resources.getText(R.string.dialogue_title_collection)
 
         dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
-                .setPositiveButton(R.string.ac_done) { _, _ ->
+                .setPositiveButton(R.string.dialogue_action_done) { _, _ ->
                     if (dialogInterface.getInputText() == initialCollectionName) {
                         delegate.onNegativeAction(dialogInterface)
                     } else {
                         delegate.onPositiveAction(dialogInterface)
                     }
                 }
-                .setNegativeButton(R.string.ac_cancel) { _, _ ->
+                .setNegativeButton(android.R.string.cancel) { _, _ ->
                     delegate.onNegativeAction(dialogInterface)
                 }
                 .setView(view)

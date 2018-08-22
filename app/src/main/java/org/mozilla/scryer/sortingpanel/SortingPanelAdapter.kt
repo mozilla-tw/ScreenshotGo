@@ -54,7 +54,7 @@ class SortingPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (position) {
             POSITION_NEW_COLLECTION -> {
-                (holder as NewItemHolder).title?.text = holder.itemView.resources.getString(R.string.ac_new_collection)
+                (holder as NewItemHolder).title?.text = holder.itemView.resources.getString(R.string.action_create)
             }
             else -> {
                 (holder as ItemHolder).title?.text = collections?.get(position - 1)?.name

@@ -80,6 +80,12 @@ class ScreenshotDatabaseRepository(private val database: ScreenshotDatabase) : S
         }
     }
 
+    override fun updateCollection(collection: CollectionModel) {
+        executor.submit {
+            database.collectionDao().updateCollection(collection)
+        }
+    }
+
     override fun setupDefaultContent(context: Context) {
         val none = CollectionModel(CollectionModel.CATEGORY_NONE, "Unsorted collection", 0, 0)
         val shopping = CollectionModel("Shopping", System.currentTimeMillis(), Color.parseColor("#235dff"))

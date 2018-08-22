@@ -34,6 +34,7 @@ interface ScreenshotRepository {
     fun getCollectionList(): List<CollectionModel>
     /** collection_id to model */
     fun getCollectionCovers(): LiveData<Map<String, ScreenshotModel>>
+    fun updateCollection(collection: CollectionModel)
 
     fun addScreenshot(screenshots: List<ScreenshotModel>)
     fun updateScreenshot(screenshot: ScreenshotModel)

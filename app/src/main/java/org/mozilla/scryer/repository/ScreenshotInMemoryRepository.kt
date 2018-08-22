@@ -72,4 +72,8 @@ class ScreenshotInMemoryRepository : ScreenshotRepository {
     override fun getScreenshotList(collectionIds: List<String>, callback: (List<ScreenshotModel>) -> Unit) {
         callback(screenshotList)
     }
+
+    override fun updateCollection(collection: CollectionModel) {
+
+    }
 }

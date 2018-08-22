@@ -31,6 +31,7 @@ import org.mozilla.scryer.capture.SortingPanelActivity
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.ui.ScryerToast
 import org.mozilla.scryer.util.ThreadUtils
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
@@ -85,6 +86,11 @@ class CollectionFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_collection, menu)
         sortMenuItem = if (collectionId == CollectionModel.CATEGORY_NONE) menu.findItem(R.id.action_sort) else null
+
+        val renameItem = menu.findItem(R.id.action_collection_rename)
+        if (collectionId == null || collectionId == CollectionModel.CATEGORY_NONE) {
+            renameItem.isVisible = false
+        }
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -101,6 +107,11 @@ class CollectionFragment : Fragment() {
             R.id.action_search -> {
                 context?.let {
                     ScryerToast.makeText(it, "Not implement", Toast.LENGTH_SHORT).show()
+                }
+            }
+            R.id.action_collection_rename -> {
+                context?.let {
+                    renameCollection(it)
                 }
             }
             else -> return super.onOptionsItemSelected(item)
@@ -157,6 +168,37 @@ class CollectionFragment : Fragment() {
                 subtitleView.text = getString(R.string.collection_separator_shots, shotCount)
             }
         })
+
+        viewModel.getCollections().observe(this, Observer { collections ->
+            collections.find { it.id == collectionId }?.let {
+                getSupportActionBar(activity).apply {
+                    setDisplayHomeAsUpEnabled(true)
+                    this.title = it.name
+                }
+            }
+        })
+    }
+
+    private fun renameCollection(context: Context) {
+        val dialog = CollectionNameDialog(context, object : CollectionNameDialog.Delegate {
+            override fun onPositiveAction(dialog: CollectionNameDialog.Interface) {
+                ThreadUtils.postToBackgroundThread {
+                    val viewModel = ScreenshotViewModel.get(this@CollectionFragment)
+                    viewModel.getCollectionList().find { it.id == collectionId }?.let {
+                        it.name = dialog.getInputText()
+                        viewModel.updateCollection(it)
+                    }
+                }
+            }
+
+            override fun onNegativeAction(dialog: CollectionNameDialog.Interface) {}
+        })
+
+        collectionName?.let {
+            dialog.initialCollectionName = it
+        }
+        dialog.title = resources.getText(R.string.dialogue_rename_title_rename).toString()
+        dialog.show()
     }
 }
 

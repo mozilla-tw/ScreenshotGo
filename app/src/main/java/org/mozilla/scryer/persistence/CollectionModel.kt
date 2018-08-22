@@ -14,7 +14,7 @@ import java.util.*
 @Entity(tableName = "collection")
 data class CollectionModel constructor(
         @PrimaryKey(autoGenerate = false) val id: String,
-        @ColumnInfo(name = "name") val name: String,
+        @ColumnInfo(name = "name") var name: String,
         @ColumnInfo(name = "date") val date: Long,
         @ColumnInfo(name = "color") val color: Int) {
 

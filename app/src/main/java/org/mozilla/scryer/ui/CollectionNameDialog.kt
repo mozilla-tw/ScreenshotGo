@@ -54,8 +54,6 @@ class CollectionNameDialog(private val context: Context, private val delegate: D
             }
         }
 
-        titleText.text = context.resources.getText(R.string.dialogue_title_collection)
-
         dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
                 .setPositiveButton(R.string.dialogue_action_done) { _, _ ->
                     if (dialogInterface.getInputText() == initialCollectionName) {
@@ -92,6 +90,7 @@ class CollectionNameDialog(private val context: Context, private val delegate: D
         })
 
         dialog.setOnShowListener {
+            titleText.text = title
             if (initialCollectionName.isNotEmpty()) {
                 editText.setText(initialCollectionName)
                 editText.setSelection(0, initialCollectionName.length)

@@ -1,19 +1,43 @@
 <resources>
     <string name="app_name">Scryer</string>
 
-    <string name="menu_home_action_settings">Settings</string>
-    <string name="home_action_search">Search</string>
-    <string name="sheet_unsorted_action_sort">Sort</string>
-    <string name="multisorting_action_next">Next</string>
-    <string name="dialogue_action_done">Done</string>
+    <!-- Shared in multiple screen -->
+    <string name="action_create">Create new</string>
+    <string name="action_delete">Delete</string>
+    <string name="info_info">Screenshot info</string>
+
+    <!-- Notification -->
+    <string name="notification_action_capture">Tap to take screenshot</string>
+    <string name="notification_action_open">Open app</string>
+    <string name="notification_action_stop">Stop</string>
+    <string name="notification_action_collect">Open app to collect screenshots</string>
 
     <!-- Sorting panel -->
     <string name="sorting_title_addto">Add to</string>
-    <string name="action_create">Create new</string>
     <string name="multisorting_count_number">%1$d / %2$d</string>
+    <string name="multisorting_action_next">Next</string>
+    <string name="sorting_title_move">Move to</string>
+    <string name="dialogue_title_collection">Collection name</string>
+    <string name="dialogue_action_add">Add</string>
+
+    <!-- Home view -->
+    <string name="home_action_search">Search</string>
+    <string name="menu_home_action_settings">Settings</string>
+    <string name="home_separator_access">Quick access</string>
+    <string name="home_action_more">View all</string>
+    <string name="home_separator_collection">Collections</string>
+    <string name="home_action_unsorted">Unsorted</string>
+
+    <!-- Collection view -->
+    <string name="collection_separator_shots">%1$d shots</string>
+
+    <!-- Detail view -->
+    <string name="detail_transition_recognizing">Recognizing&#8230;</string>
+
+    <!-- Bottom sheet -->
+    <string name="sheet_unsorted_action_sort">Sort</string>
 
     <!-- Collection name dialog -->
-    <string name="dialogue_title_collection">Collection name</string>
     <string name="dialogue_rename_title_rename">Rename collection</string>
     <string name="dialogue_collection_input_hint">Give me a name</string>
 
@@ -26,9 +50,7 @@
     <!-- Context menu -->
     <string name="menu_title_action">Actions</string>
     <string name="menu_action_share">Share</string>
-    <string name="menu_action_delete">Delete</string>
     <string name="menu_shot_action_move">Move to&#8230;</string>
-    <string name="menu_shot_action_info">Screenshot info</string>
 
     <!-- Dialogue -->
     <string name="dialogue_list_name">Name</string>
@@ -59,10 +81,4 @@
     <string name="about_list_support">Support</string>
     <string name="about_list_right">Your Rights/ Licenses</string>
     <string name="about_list_privacy">Privacy Notice</string>
-
-    <!-- Home -->
-    <string name="home_action_more">View all</string>
-
-    <!-- Collection -->
-    <string name="collection_separator_shots">%1$d shots</string>
 </resources>

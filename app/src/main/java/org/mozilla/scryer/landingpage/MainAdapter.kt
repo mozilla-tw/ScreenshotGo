@@ -117,17 +117,16 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return SimpleHolder(quickAccessContainer)
     }
 
-    @SuppressLint("SetTextI18n")
     private fun bindSectionNameHolder(holder: SectionNameHolder, position: Int) {
         when (position) {
             POS_QUICK_ACCESS_TITLE -> {
-                holder.title?.text = "Quick Access"
+                holder.title?.text = holder.title?.context?.getString(R.string.home_separator_access)
                 holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context,
                         R.color.quick_access_background))
             }
 
             POS_COLLECTION_LIST_TITLE -> {
-                holder.title?.text = "Collections"
+                holder.title?.text = holder.title?.context?.getString(R.string.home_separator_collection)
                 holder.itemView.setBackgroundColor(ContextCompat.getColor(holder.itemView.context,
                         R.color.home_background))
             }

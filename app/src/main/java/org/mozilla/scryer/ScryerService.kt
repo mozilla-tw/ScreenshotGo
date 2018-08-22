@@ -215,16 +215,16 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
         stopIntent.setClass(this, ScryerService::class.java)
         val stopPendingIntent = PendingIntent.getService(this, 0, stopIntent, 0)
         val stopAction = NotificationCompat.Action(android.R.drawable.ic_menu_close_clear_cancel,
-                "Stop",
+                getString(R.string.notification_action_stop),
                 stopPendingIntent)
 
         val style = NotificationCompat.BigTextStyle()
-        style.bigText("Tap to take screenshot")
+        style.bigText(getString(R.string.notification_action_capture))
         return NotificationCompat.Builder(this, channelId)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
-                .setContentTitle("Hello Screenshot+")
-                .setContentText("Tap to take screenshot")
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.notification_action_capture))
                 .setContentIntent(tapPendingIntent)
                 .setStyle(style)
                 .addAction(stopAction)
@@ -245,8 +245,8 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
         return NotificationCompat.Builder(this, channelId)
                 .setCategory(Notification.CATEGORY_PROMO)
                 .setSmallIcon(android.R.drawable.ic_menu_upload)
-                .setContentTitle("Smart Screenshot")
-                .setContentText("Click to collect captured screens")
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.notification_action_collect))
                 .setContentIntent(tapPendingIntent)
                 .build()
     }

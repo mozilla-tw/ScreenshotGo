@@ -55,7 +55,7 @@ class CollectionNameDialog(private val context: Context, private val delegate: D
         }
 
         dialog = AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert)
-                .setPositiveButton(R.string.dialogue_action_done) { _, _ ->
+                .setPositiveButton(R.string.dialogue_action_add) { _, _ ->
                     if (dialogInterface.getInputText() == initialCollectionName) {
                         delegate.onNegativeAction(dialogInterface)
                     } else {

@@ -82,6 +82,12 @@ class CollectionFragment : Fragment() {
         initScreenshotList(view.context)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_collection, menu)
+        sortMenuItem = if (collectionId == CollectionModel.CATEGORY_NONE) menu.findItem(R.id.action_sort) else null
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> Navigation.findNavController(view).navigateUp()
@@ -107,12 +113,6 @@ class CollectionFragment : Fragment() {
         context?.let {
             startActivity(SortingPanelActivity.sortCollection(it, collectionId))
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_collection, menu)
-        sortMenuItem = menu.findItem(R.id.action_sort)
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun setupActionBar() {

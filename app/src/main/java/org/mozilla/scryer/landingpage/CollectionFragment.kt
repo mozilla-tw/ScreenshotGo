@@ -347,7 +347,7 @@ fun showScreenshotInfoDialog(context: Context, screenshotModel: ScreenshotModel)
     }
 
     AlertDialog.Builder(context)
-            .setTitle(context.getString(R.string.dialogue_shotinfo_title_info))
+            .setTitle(context.getString(R.string.info_info))
             .setMessage(message)
             .setPositiveButton(context.getString(android.R.string.ok)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
             .show()
@@ -390,7 +390,7 @@ fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotMode
             .setTitle(context.getString(R.string.dialogue_deleteshot_title_delete))
             .setMessage(context.getString(R.string.dialogue_delete_content_cantundo))
             .setNegativeButton(context.getString(android.R.string.cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
-            .setPositiveButton(context.getString(R.string.dialogue_action_delete)) { dialog: DialogInterface?, _: Int ->
+            .setPositiveButton(context.getString(R.string.action_delete)) { dialog: DialogInterface?, _: Int ->
                 run {
                     ThreadUtils.postToBackgroundThread {
                         ScryerApplication.getScreenshotRepository().deleteScreenshot(screenshotModel)

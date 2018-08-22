@@ -133,7 +133,7 @@ class CollectionNameDialog(private val context: Context, private val delegate: D
         dialog.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
     }
 
-    class InputValidator(context: Context, private val viewDelegate: ViewDelegate) {
+    class InputValidator(private val context: Context, private val viewDelegate: ViewDelegate) {
         private val lengthLimit = context.resources.getInteger(R.integer.collection_name_dialog_max_input_length)
 
         fun validate(input: String) {
@@ -144,12 +144,12 @@ class CollectionNameDialog(private val context: Context, private val delegate: D
 
                 input.length > lengthLimit -> {
                     viewDelegate.forbidContinue(true)
-                    viewDelegate.onErrorStatusUpdate("At most 20 characters")
+                    viewDelegate.onErrorStatusUpdate(context.getString(R.string.dialogue_rename_error_maximum))
                 }
 
                 viewDelegate.isCollectionExist(input) -> {
                     viewDelegate.forbidContinue(true)
-                    viewDelegate.onErrorStatusUpdate("Existed")
+                    viewDelegate.onErrorStatusUpdate(context.getString(R.string.dialogue_rename_error_duplicate))
                 }
 
                 else -> {

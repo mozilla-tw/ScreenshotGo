@@ -18,6 +18,7 @@
     <string name="multisorting_action_next">Next</string>
     <string name="sorting_title_move">Move to</string>
     <string name="dialogue_title_collection">Collection name</string>
+    <string name="dialogue_inputfield_hint">Give me a name</string>
     <string name="dialogue_action_add">Add</string>
 
     <!-- Home view -->
@@ -34,32 +35,44 @@
     <!-- Detail view -->
     <string name="detail_transition_recognizing">Recognizing&#8230;</string>
 
+    <!-- Dialogue -->
+    <string name="dialogue_collecitioninfo_title_info">Collection info</string>
+    <string name="dialogue_list_name">Name</string>
+    <string name="dialogue_collecitioninfo_list_shot">Total screenshots</string>
+    <string name="dialogue_collecitioninfo_detail_shot">%1$d screenshots</string>
+    <string name="dialogue_collecitioninfo_list_storage">Storage used</string>
+    <string name="dialogue_shotinfo_list_size">Size</string>
+    <string name="dialogue_list_edit">Last edit</string>
+    <string name="dialogue_deletecollection_title_delete">Delete collection?</string>
+    <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
+    <string name="dialogue_delete_content_cantundo">Are you sure? This action cannot be undone.</string>
+    <string name="dialogue_deletecollection_content_shots">%1$d screenshots</string>
+    <string name="dialogue_rename_title_rename">Rename collection</string>
+    <string name="dialogue_rename_error_duplicate">There is already a collection with this name</string>
+    <string name="dialogue_rename_error_maximum">20 characters maximum</string>
+    <string name="dialogue_skipsorting_title_skip">Skip the rest?</string>
+    <string name="dialogue_skipsorting_content_moveto">Skip remaining screenshots and move to "Unsorted?"</string>
+    <string name="dialogue_skipsorting_content_count">%1$d remaining</string>
+    <string name="dialogue_skipsorting_action_skip">Skip all</string>
+
+    <!-- Menu -->
+    <string name="menu_title_action">Actions</string>
+    <string name="menu_shot_action_move">Move to&#8230;</string>
+    <string name="menu_action_rename">Rename</string>
+    <string name="menu_collection_action_info">Info</string>
+    <string name="menu_ocr_action_web">Web search</string>
+    <string name="menu_ocr_action_copy">Copy</string>
+    <string name="menu_action_selectall">Select all</string>
+    <string name="menu_action_share">Share</string>
+
     <!-- Bottom sheet -->
     <string name="sheet_unsorted_action_sort">Sort</string>
-
-    <!-- Collection name dialog -->
-    <string name="dialogue_rename_title_rename">Rename collection</string>
-    <string name="dialogue_collection_input_hint">Give me a name</string>
 
     <!-- Overlay permission prompt -->
     <string name="onboarding_fab_title_fab">Instant way to Screenshot</string>
 
     <!-- Capture permission prompt -->
     <string name="onboarding_capture_title">Try the Screenshot Button</string>
-
-    <!-- Context menu -->
-    <string name="menu_title_action">Actions</string>
-    <string name="menu_action_share">Share</string>
-    <string name="menu_shot_action_move">Move to&#8230;</string>
-
-    <!-- Dialogue -->
-    <string name="dialogue_list_name">Name</string>
-    <string name="dialogue_list_edit">Last edit</string>
-    <string name="dialogue_action_delete">Delete</string>
-    <string name="dialogue_shotinfo_title_info">Screenshot info</string>
-    <string name="dialogue_shotinfo_list_size">Size</string>
-    <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
-    <string name="dialogue_delete_content_cantundo">Are you sure? This action cannot be undone.</string>
 
     <!-- Settings -->
     <string name="settings_list_capture">Enable screenshot service</string>

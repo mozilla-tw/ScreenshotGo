@@ -4,12 +4,12 @@
 
     <item
         android:id="@+id/action_collection_rename"
-        android:title="Rename"
+        android:title="@string/dialogue_rename_title_rename"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/action_collection_info"
-        android:title="Collection info"
+        android:title="@string/dialogue_collecitioninfo_title_info"
         app:showAsAction="never"/>
 
     <item

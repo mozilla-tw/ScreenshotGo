@@ -6,17 +6,22 @@
 package org.mozilla.scryer.overlay
 
 import android.content.Context
+import android.graphics.Color
 import android.view.View
-import android.view.ViewGroup
+import org.mozilla.scryer.extension.dpToPx
 
 class Dragger(private val context: Context,
               private val targetView: View,
-              private val width: Int,
-              private val height: Int,
+              width: Int,
+              height: Int,
               private val windowCtrl: WindowController) {
 
     private lateinit var dragView: View
     private lateinit var dragHelper: DragHelper
+
+    private val minTouchAreaSize = 48f.dpToPx(context.resources.displayMetrics)
+    private val dragAreaWidth = Math.max(width, minTouchAreaSize)
+    private val dragAreaHeight = Math.max(height, minTouchAreaSize)
 
     var dragListener: DragHelper.DragListener? = null
 
@@ -26,13 +31,14 @@ class Dragger(private val context: Context,
 
     fun updatePosition() {
         dragView.parent?.let {
-            windowCtrl.moveViewTo(dragView, targetView.x.toInt(), targetView.y.toInt())
+            val offsetX = (dragAreaWidth - targetView.width) / 2
+            val offsetY = (dragAreaHeight - targetView.height) / 2
+            windowCtrl.moveViewTo(dragView, targetView.x.toInt() - offsetX, targetView.y.toInt() - offsetY)
         }
     }
 
     private fun initDragView() {
         this.dragView = View(context)
-        this.dragView.layoutParams = ViewGroup.LayoutParams(width, height)
         //this.dragView.setBackgroundColor(Color.parseColor("#88ff0000"))
 
         this.dragHelper = DragHelper(dragView, windowCtrl)
@@ -62,8 +68,10 @@ class Dragger(private val context: Context,
     }
 
     fun attachToWindow() {
-        windowCtrl.addView(width, height, true, dragView)
-        windowCtrl.moveViewTo(dragView, targetView.x.toInt(), targetView.y.toInt())
+        windowCtrl.addView(dragAreaWidth, dragAreaWidth, true, dragView)
+        val radiusX = dragAreaWidth / 2
+        val radiusY = dragAreaHeight / 2
+        windowCtrl.moveViewTo(dragView, targetView.x.toInt() - radiusX, targetView.y.toInt() - radiusY)
     }
 
     fun detachFromWindow() {

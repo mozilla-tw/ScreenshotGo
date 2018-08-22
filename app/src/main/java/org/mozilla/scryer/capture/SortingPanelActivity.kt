@@ -63,7 +63,11 @@ class SortingPanelActivity : AppCompatActivity() {
 
     private val collections = mutableListOf<CollectionModel>()
 
-    private val colletionColors = mutableListOf<Int>()
+    private val collectionColors = mutableListOf<Int>()
+
+    private val toast: ScryerToast by lazy {
+        ScryerToast(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,7 +98,7 @@ class SortingPanelActivity : AppCompatActivity() {
         val length = typedArray.length()
         for (i in 0 until length) {
             val color = typedArray.getColor(i, ContextCompat.getColor(this, R.color.primaryTeal))
-            colletionColors.add(color)
+            collectionColors.add(color)
         }
         typedArray.recycle()
     }
@@ -212,7 +216,7 @@ class SortingPanelActivity : AppCompatActivity() {
     }
 
     private fun onCollectionClicked(collection: CollectionModel) {
-        ScryerToast.makeText(this, "Added to \"${collection.name}\"", Toast.LENGTH_SHORT).show()
+        toast.show("Added to \"${collection.name}\"", Toast.LENGTH_SHORT)
 
         currentScreenshot?.let {
             it.collectionId = collection.id
@@ -238,8 +242,8 @@ class SortingPanelActivity : AppCompatActivity() {
 
     private fun findColorForNewCollection(collections: List<CollectionModel>): Int {
         val lastColor = collections.map { it.color }.last()
-        val index = (colletionColors.indexOf(lastColor) + 1) % colletionColors.size
-        return colletionColors[index]
+        val index = (collectionColors.indexOf(lastColor) + 1) % collectionColors.size
+        return collectionColors[index]
     }
 
     private fun onNextClicked() {

@@ -238,12 +238,8 @@ class PermissionFlow(private var permissionState: PermissionStateProvider,
 
         class FirstTimeRequest(private val flow: PermissionFlow) : CaptureState(flow) {
             override fun execute(): State {
-                flow.viewDelegate.showCapturePermissionView(Runnable {
-                    transfer(FinishState(flow))
-
-                }, Runnable {
-                    transfer(FinishState(flow))
-                })
+                flow.viewDelegate.showCapturePermissionView(Runnable {}, Runnable {})
+                transfer(FinishState(flow))
                 flow.pageState.setCapturePageShown()
                 return this
             }

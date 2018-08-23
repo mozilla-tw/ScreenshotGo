@@ -89,7 +89,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val layout = inflater.inflate(R.layout.fragment_main, container, false)
+        val layout = inflater.inflate(R.layout.fragment_home, container, false)
         mainListView = layout.findViewById(R.id.main_list)
         quickAccessContainer = View.inflate(inflater.context, R.layout.view_quick_access, null) as ViewGroup
         searchListView = layout.findViewById(R.id.search_list)

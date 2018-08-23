@@ -125,6 +125,14 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 true
             }
 
+            menu.findItem(R.id.action_svg_viewer).apply {
+                setOnMenuItemClickListener { _ ->
+                    startActivity(Intent(it, SvgViewerActivity::class.java))
+                    true
+                }
+                isVisible = BuildConfig.DEBUG
+            }
+
             createOptionsMenuSearchView(it)
         }
     }

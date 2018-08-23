@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,8 +32,7 @@
             android:taskAffinity="org.mozilla.choose_collection"
             android:theme="@style/SortingPanelTheme"
             android:windowSoftInputMode="adjustNothing" />
-        <activity android:name=".detailpage.DetailPageActivity"></activity>
-
+        <activity android:name=".detailpage.DetailPageActivity" />
         <activity
             android:name=".capture.RequestCaptureActivity"
             android:excludeFromRecents="true"
@@ -40,11 +40,10 @@
             android:launchMode="singleTask"
             android:taskAffinity="org.mozilla.scryer.request_capture_permission"
             android:theme="@style/Theme.AppCompat.NoActionBar.Translucent" />
-
         <activity
             android:name=".setting.SettingsActivity"
-            android:launchMode="singleTask"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTask" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -55,6 +54,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/fileprovider" />
         </provider>
+
+        <activity android:name=".SvgViewerActivity" android:exported="false" />
     </application>
 
 </manifest>

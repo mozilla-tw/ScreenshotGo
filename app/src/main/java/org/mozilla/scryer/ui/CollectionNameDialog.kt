@@ -15,8 +15,83 @@ import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.util.ThreadUtils
+import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 
 class CollectionNameDialog(private val context: Context, private val delegate: Delegate) {
+
+    companion object {
+        fun renameCollection(context: Context, viewModel: ScreenshotViewModel, collectionId: String?) {
+            ThreadUtils.postToBackgroundThread {
+                viewModel.getCollectionList().find { it.id == collectionId }?.let {
+                    ThreadUtils.postToMainThread {
+                        renameCollection(context, viewModel, it)
+                    }
+                }
+            }
+        }
+
+        private fun renameCollection(context: Context, viewModel: ScreenshotViewModel, collection: CollectionModel) {
+
+            val dialog = CollectionNameDialog(context, object : CollectionNameDialog.Delegate {
+                override fun onPositiveAction(dialog: CollectionNameDialog.Interface) {
+                    collection.name = dialog.getInputText()
+                    viewModel.updateCollection(collection)
+                }
+
+                override fun onNegativeAction(dialog: CollectionNameDialog.Interface) {}
+            })
+
+            dialog.initialCollectionName = collection.name
+            dialog.title = context.resources.getText(R.string.dialogue_rename_title_rename).toString()
+            dialog.show()
+        }
+
+        fun createNewCollection(context: Context, viewModel: ScreenshotViewModel) {
+            ThreadUtils.postToBackgroundThread {
+                val collections = viewModel.getCollectionList()
+                ThreadUtils.postToMainThread {
+                    createNewCollection(context, viewModel, collections)
+                }
+            }
+        }
+
+        private fun createNewCollection(context: Context, viewModel: ScreenshotViewModel, collections: List<CollectionModel>) {
+            val dialog = CollectionNameDialog(context, object : CollectionNameDialog.Delegate {
+                override fun onPositiveAction(dialog: CollectionNameDialog.Interface) {
+                    val color = findColorForNewCollection(context, collections)
+                    val model = CollectionModel(dialog.getInputText(), System.currentTimeMillis(), color)
+                    viewModel.addCollection(model)
+                }
+
+                override fun onNegativeAction(dialog: CollectionNameDialog.Interface) {}
+            })
+
+            dialog.title = context.resources.getText(R.string.dialogue_title_collection).toString()
+            dialog.show()
+        }
+
+        private fun findColorForNewCollection(context: Context, collections: List<CollectionModel>): Int {
+            val lastColor = collections.last().color
+            val defaultColor = ContextCompat.getColor(context, R.color.primaryTeal)
+
+            var newColorIndex = 0
+            val typedArray = context.resources.obtainTypedArray(R.array.collection_colors)
+            val length = typedArray.length()
+
+            for (i in 0 until length) {
+                if (typedArray.getColor(i, defaultColor) == lastColor) {
+                    newColorIndex = (i + 1) % length
+                    break
+                }
+            }
+
+            val color = typedArray.getColor(newColorIndex, defaultColor)
+            typedArray.recycle()
+
+            return color
+        }
+    }
+
     var dialog: AlertDialog
     var title: String = ""
 

@@ -104,14 +104,16 @@ class CollectionFragment : Fragment() {
                     startSortingActivity(it)
                 }
             }
+
             R.id.action_search -> {
                 context?.let {
                     ScryerToast.makeText(it, "Not implement", Toast.LENGTH_SHORT).show()
                 }
             }
+
             R.id.action_collection_rename -> {
                 context?.let {
-                    renameCollection(it)
+                    CollectionNameDialog.renameCollection(it, ScreenshotViewModel.get(this), collectionId)
                 }
             }
             else -> return super.onOptionsItemSelected(item)
@@ -177,28 +179,6 @@ class CollectionFragment : Fragment() {
                 }
             }
         })
-    }
-
-    private fun renameCollection(context: Context) {
-        val dialog = CollectionNameDialog(context, object : CollectionNameDialog.Delegate {
-            override fun onPositiveAction(dialog: CollectionNameDialog.Interface) {
-                ThreadUtils.postToBackgroundThread {
-                    val viewModel = ScreenshotViewModel.get(this@CollectionFragment)
-                    viewModel.getCollectionList().find { it.id == collectionId }?.let {
-                        it.name = dialog.getInputText()
-                        viewModel.updateCollection(it)
-                    }
-                }
-            }
-
-            override fun onNegativeAction(dialog: CollectionNameDialog.Interface) {}
-        })
-
-        collectionName?.let {
-            dialog.initialCollectionName = it
-        }
-        dialog.title = resources.getText(R.string.dialogue_rename_title_rename).toString()
-        dialog.show()
     }
 }
 

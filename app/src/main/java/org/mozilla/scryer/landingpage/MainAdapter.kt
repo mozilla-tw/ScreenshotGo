@@ -5,9 +5,10 @@
 
 package org.mozilla.scryer.landingpage
 
-import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.os.Bundle
+import android.support.annotation.LayoutRes
+import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -21,20 +22,24 @@ import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.ui.GridItemDecoration
+import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 
-class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         const val TYPE_SECTION_NAME = 0
         const val TYPE_QUICK_ACCESS = 1
         const val TYPE_COLLECTION_ITEM = 2
+        const val TYPE_NEW_COLLECTION_ITEM = 3
 
         const val POS_QUICK_ACCESS_TITLE = 0
         const val POS_QUICK_ACCESS_LIST = 1
         const val POS_COLLECTION_LIST_TITLE = 2
 
-        const val FIXED_ITEM_COUNT = 3
+        const val PREFIX_ITEM_COUNT = 3
+        const val POSTFIX_ITEM_COUNT = 1
     }
 
     lateinit var quickAccessContainer: View
@@ -50,12 +55,14 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 return createQuickAccessHolder()
             TYPE_COLLECTION_ITEM ->
                 return createCollectionHolder(parent)
+            TYPE_NEW_COLLECTION_ITEM ->
+                return createNewCollectionHolder(parent)
         }
         throw IllegalArgumentException("unexpected view type: $viewType")
     }
 
     override fun getItemCount(): Int {
-        return FIXED_ITEM_COUNT + collectionList.size
+        return PREFIX_ITEM_COUNT + collectionList.size + POSTFIX_ITEM_COUNT
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -63,14 +70,21 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             POS_QUICK_ACCESS_TITLE -> TYPE_SECTION_NAME
             POS_QUICK_ACCESS_LIST -> TYPE_QUICK_ACCESS
             POS_COLLECTION_LIST_TITLE -> TYPE_SECTION_NAME
-            else -> TYPE_COLLECTION_ITEM
+            else -> {
+                val itemIndex = position - PREFIX_ITEM_COUNT
+                if (collectionList.isEmpty() || itemIndex >= collectionList.size) {
+                    TYPE_NEW_COLLECTION_ITEM
+                } else {
+                    TYPE_COLLECTION_ITEM
+                }
+            }
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is SectionNameHolder -> bindSectionNameHolder(holder, position)
-            is SimpleHolder -> return
+            is StaticHolder -> return
             is CollectionHolder -> bindCollectionHolder(holder ,position)
         }
     }
@@ -82,18 +96,19 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private fun createCollectionHolder(parent: ViewGroup): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_collection, parent, false)
-        val itemHolder = CollectionHolder(view)
-        itemHolder.title = view.findViewById(R.id.title)
-        itemHolder.image = view.findViewById(R.id.image)
-        itemHolder.overlay = view.findViewById(R.id.overlay)
+        val itemView = wrapInItemView(parent, R.layout.item_collection)
 
-        view.setOnClickListener {_ ->
+        val itemHolder = CollectionHolder(itemView)
+        itemHolder.title = itemView.findViewById(R.id.title)
+        itemHolder.image = itemView.findViewById(R.id.image)
+        itemHolder.overlay = itemView.findViewById(R.id.overlay)
+
+        itemView.setOnClickListener {_ ->
             itemHolder.adapterPosition.takeIf { position ->
                 position != RecyclerView.NO_POSITION
 
             }?.let { position: Int ->
-                val itemIndex = position - FIXED_ITEM_COUNT
+                val itemIndex = position - PREFIX_ITEM_COUNT
                 val bundle = Bundle().apply {
                     val model = collectionList[itemIndex]
                     putString(CollectionFragment.ARG_COLLECTION_ID, model.id)
@@ -105,6 +120,32 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return itemHolder
     }
 
+    private fun createNewCollectionHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+        val itemView = wrapInItemView(parent, R.layout.item_new_collection)
+        itemView.elevation = 0f
+
+        val holder = StaticHolder(itemView)
+        itemView.setOnClickListener {
+            holder.adapterPosition.takeIf { position ->
+                position != RecyclerView.NO_POSITION
+
+            }?.let { _ ->
+                fragment?.let {
+                    CollectionNameDialog.createNewCollection(parent.context, ScreenshotViewModel.get(it))
+                }
+            }
+        }
+        return holder
+    }
+
+    private fun wrapInItemView(parent: ViewGroup, @LayoutRes layoutId: Int): View {
+        val inflater = LayoutInflater.from(parent.context)
+        val itemView = inflater.inflate(R.layout.home_collection_item_container, parent, false)
+        val slot = itemView.findViewById<ViewGroup>(R.id.slot)
+        inflater.inflate(layoutId, slot, true)
+        return itemView
+    }
+
     private fun createSectionNameHolder(parent: ViewGroup): SectionNameHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.view_home_section_title, parent, false)
 
@@ -114,7 +155,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private fun createQuickAccessHolder(): RecyclerView.ViewHolder {
-        return SimpleHolder(quickAccessContainer)
+        return StaticHolder(quickAccessContainer)
     }
 
     private fun bindSectionNameHolder(holder: SectionNameHolder, position: Int) {
@@ -134,7 +175,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private fun bindCollectionHolder(holder: CollectionHolder, position: Int) {
-        val model = collectionList[position - FIXED_ITEM_COUNT]
+        val model = collectionList[position - PREFIX_ITEM_COUNT]
         holder.title?.text = model.name
 
         val path: String?
@@ -170,7 +211,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
 
-    class SimpleHolder(itemView: View): RecyclerView.ViewHolder(itemView)
+    class StaticHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
     class SectionNameHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         var title: TextView? = null
@@ -196,7 +237,7 @@ class MainAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     class ItemDecoration(columnCount: Int, space: Int, top: Int)
         : GridItemDecoration(columnCount, space, top, space, space, space) {
         override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-            val position = parent.getChildAdapterPosition(view) - FIXED_ITEM_COUNT
+            val position = parent.getChildAdapterPosition(view) - PREFIX_ITEM_COUNT
             if (position < 0) {
                 return
             }

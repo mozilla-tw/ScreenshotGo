@@ -226,24 +226,7 @@ class SortingPanelActivity : AppCompatActivity() {
     }
 
     private fun onNewCollectionClicked() {
-        val dialog = CollectionNameDialog(this, object : CollectionNameDialog.Delegate {
-            override fun onPositiveAction(dialog: CollectionNameDialog.Interface) {
-                val color = findColorForNewCollection(collections)
-                val model = CollectionModel(dialog.getInputText(), System.currentTimeMillis(), color)
-                screenshotViewModel.addCollection(model)
-            }
-
-            override fun onNegativeAction(dialog: CollectionNameDialog.Interface) {}
-        })
-
-        dialog.title = resources.getText(R.string.dialogue_title_collection).toString()
-        dialog.show()
-    }
-
-    private fun findColorForNewCollection(collections: List<CollectionModel>): Int {
-        val lastColor = collections.map { it.color }.last()
-        val index = (collectionColors.indexOf(lastColor) + 1) % collectionColors.size
-        return collectionColors[index]
+        CollectionNameDialog.createNewCollection(this, screenshotViewModel)
     }
 
     private fun onNextClicked() {

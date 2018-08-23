@@ -8,7 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowContentTransitions">true</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
-        <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowBackground">@color/home_background</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="actionOverflowButtonStyle">@style/OverflowButtonStyle</item>
     </style>

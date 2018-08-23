@@ -12,7 +12,6 @@
     android:layout_height="match_parent"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:background="@color/home_background"
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
     <android.support.v7.widget.Toolbar

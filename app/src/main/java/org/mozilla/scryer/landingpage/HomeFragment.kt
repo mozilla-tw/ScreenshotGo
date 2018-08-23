@@ -67,7 +67,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     private lateinit var mainListView: RecyclerView
-    private val mainAdapter: MainAdapter = MainAdapter()
+    private val mainAdapter: MainAdapter = MainAdapter(this)
 
     private lateinit var searchListView: RecyclerView
     private val searchListAdapter: SearchAdapter by lazy {

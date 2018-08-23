@@ -20,6 +20,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         app:layout_constraintDimensionRatio="88:156"
+        app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="@dimen/home_item_corner_radius">
         <ImageView
             android:id="@+id/image_view"

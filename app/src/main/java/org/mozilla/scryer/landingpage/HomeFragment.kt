@@ -164,11 +164,14 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
 
         dialog.findViewById<TextView>(R.id.title)?.setText(R.string.onboarding_fab_title_fab)
+        dialog.findViewById<TextView>(R.id.subtitle)?.setText(R.string.onboarding_fab_content_permission)
         dialog.findViewById<View>(R.id.dont_ask_again_checkbox)?.visibility = View.GONE
+        dialog.findViewById<TextView>(R.id.positive_button)?.setText(R.string.onboarding_fab_action_grant)
         dialog.findViewById<View>(R.id.positive_button)?.setOnClickListener {
             action.run()
             dialog.dismiss()
         }
+        dialog.findViewById<TextView>(R.id.negative_button)?.setText(R.string.onboarding_fab_action_later)
         dialog.findViewById<View>(R.id.negative_button)?.setOnClickListener {
             negativeAction.run()
             dialog.dismiss()
@@ -190,11 +193,11 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         dialog.findViewById<TextView>(R.id.title)?.setText(R.string.onboarding_autogrant_overlay_title)
         dialog.findViewById<View>(R.id.dont_ask_again_checkbox)?.visibility = View.GONE
-        dialog.findViewById<View>(R.id.positive_button)?.visibility = View.GONE
-        dialog.findViewById<View>(R.id.negative_button)?.setOnClickListener {
-            negativeAction.run()
+        dialog.findViewById<View>(R.id.positive_button)?.setOnClickListener {
+            action.run()
             dialog.dismiss()
         }
+        dialog.findViewById<View>(R.id.negative_button)?.visibility = View.GONE
         dialog.setOnCancelListener {
             negativeAction.run()
         }

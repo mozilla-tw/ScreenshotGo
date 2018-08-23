@@ -121,7 +121,7 @@
     <string name="onboarding_rareerror_action_goto">Go to permission</string>
     <string name="onboarding_search_title_soon">Search feature is coming soon</string>
     <string name="onboarding_search_content_survey">We\'re working hard to offer this feature as soon as possible. You can be the first one trying and help us improve the feature.</string>
-    <string name="onboarding_search_action_agree">Ok, I\'m in</string>
+    <string name="onboarding_search_action_agree">OK, I\'m in</string>
     <string name="onboarding_search_action_disagree">No, thanks</string>
     <string name="onboarding_search_content_feedback"></string>
 

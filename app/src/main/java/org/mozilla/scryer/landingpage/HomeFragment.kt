@@ -188,7 +188,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
 
-        dialog.findViewById<TextView>(R.id.title)?.setText(R.string.onboarding_capture_title)
+        dialog.findViewById<TextView>(R.id.title)?.setText(R.string.onboarding_autogrant_overlay_title)
         dialog.findViewById<View>(R.id.dont_ask_again_checkbox)?.visibility = View.GONE
         dialog.findViewById<View>(R.id.positive_button)?.visibility = View.GONE
         dialog.findViewById<View>(R.id.negative_button)?.setOnClickListener {

@@ -46,4 +46,7 @@
     <dimen name="collection_horizontal_padding">16dp</dimen>
     <dimen name="collection_item_space">8dp</dimen>
 
+    <!-- Settings -->
+    <dimen name="settings_list_item_height">48dp</dimen>
+
 </resources>

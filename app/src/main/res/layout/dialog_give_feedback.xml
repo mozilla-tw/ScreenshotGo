@@ -51,7 +51,7 @@
         android:id="@+id/dialog_give_feedback_btn_go_rate"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/settings_list_item_height"
         android:text="@string/feedback_action_rate"
         android:textAppearance="@style/ButtonText" />
 
@@ -64,7 +64,7 @@
         android:id="@+id/dialog_give_feedback_btn_feedback"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/settings_list_item_height"
         android:text="@string/feedback_action_feedback"
         android:textAppearance="@style/ButtonText" />
 </LinearLayout>

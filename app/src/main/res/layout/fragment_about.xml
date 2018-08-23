@@ -7,13 +7,13 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/common_padding_24dp">
 
         <ImageView
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="25dp"
             android:src="@null" />
     </RelativeLayout>
 
@@ -21,39 +21,41 @@
         android:id="@+id/about_text_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginLeft="@dimen/common_padding_24dp"
+        android:layout_marginTop="@dimen/common_padding_16dp"
+        android:layout_marginRight="@dimen/common_padding_24dp"
         android:gravity="center"
         android:text="@string/app_name"
-        android:textColor="@color/grey90"
-        android:textSize="20sp" />
+        android:textAppearance="@style/H2"
+        android:textColor="@color/grey90" />
 
     <TextView
         android:id="@+id/about_text_version"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="18dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginLeft="@dimen/common_padding_24dp"
+        android:layout_marginTop="@dimen/common_padding_8dp"
+        android:layout_marginRight="@dimen/common_padding_24dp"
         android:gravity="center"
-        android:textColor="@color/grey60"
-        android:textSize="16sp" />
+        android:textAppearance="@style/Subtitle2"
+        android:textColor="@color/grey50" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="@dimen/common_padding_24dp"
         android:background="@color/disableGrey" />
 
     <Button
         android:id="@+id/about_btn_support"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:textAlignment="textStart"
+        android:layout_height="@dimen/settings_list_item_height"
+        android:paddingStart="@dimen/common_padding_24dp"
+        android:paddingEnd="@dimen/common_padding_24dp"
         android:text="@string/about_list_support"
-        android:textSize="14sp" />
+        android:textAlignment="textStart"
+        android:textAppearance="@style/Subtitle1" />
 
     <View
         android:layout_width="match_parent"
@@ -64,10 +66,12 @@
         android:id="@+id/about_btn_your_rights_licenses"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:textAlignment="textStart"
+        android:layout_height="@dimen/settings_list_item_height"
+        android:paddingStart="@dimen/common_padding_24dp"
+        android:paddingEnd="@dimen/common_padding_24dp"
         android:text="@string/about_list_right"
-        android:textSize="14sp" />
+        android:textAlignment="textStart"
+        android:textAppearance="@style/Subtitle1" />
 
     <View
         android:layout_width="match_parent"
@@ -78,10 +82,12 @@
         android:id="@+id/about_btn_privacy_notice"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:textAlignment="textStart"
+        android:layout_height="@dimen/settings_list_item_height"
+        android:paddingStart="@dimen/common_padding_24dp"
+        android:paddingEnd="@dimen/common_padding_24dp"
         android:text="@string/about_list_privacy"
-        android:textSize="14sp" />
+        android:textAlignment="textStart"
+        android:textAppearance="@style/Subtitle1" />
 
     <View
         android:layout_width="match_parent"

@@ -48,6 +48,7 @@ import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.setting.SettingsActivity
 import org.mozilla.scryer.ui.BottomDialogFactory
 import org.mozilla.scryer.ui.GridItemDecoration
+import org.mozilla.scryer.ui.ScryerToast
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.util.*
 
@@ -333,6 +334,10 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 return false
             }
         })
+
+        view!!.findViewById<View>(R.id.intercept_view).setOnClickListener {
+            ScryerToast.makeText(it.context, "Not implement", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun initQuickAccessList(context: Context) {

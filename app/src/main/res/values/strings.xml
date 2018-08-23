@@ -66,13 +66,20 @@
     <string name="menu_action_share">Share</string>
 
     <!-- Bottom sheet -->
+    <string name="sheet_enable_title_enable">Enable screenshot service?</string>
+    <string name="sheet_enable_content_enable">You won\'t be able to take screenshots unless this is enabled</string>
+    <string name="sheet_enable_action_enable">Enabled</string>
+    <string name="sheet_unsorted_title_unsorted">Unsorted screenshots</string>
+    <string name="sheet_unsorted_content_shots">%1$d unsorted screenshots. Sort them now?</string>
+    <string name="sheet_box_ask">Don\'t ask again</string>
     <string name="sheet_unsorted_action_sort">Sort</string>
+    <string name="sheet_action_no">No thanks</string>
 
-    <!-- Overlay permission prompt -->
-    <string name="onboarding_fab_title_fab">Instant way to Screenshot</string>
-
-    <!-- Capture permission prompt -->
-    <string name="onboarding_capture_title">Try the Screenshot Button</string>
+    <!-- Snackbar -->
+    <string name="snackbar_disable">Screenshot service disabled</string>
+    <string name="snackbar_enable">Screenshot service enabled</string>
+    <string name="snackbar_addto">Added to %1$s</string>
+    <string name="snackbar_copied">Copied</string>
 
     <!-- Settings -->
     <string name="settings_list_capture">Enable screenshot service</string>
@@ -81,17 +88,26 @@
     <string name="settings_list_sorting">Prompt to save</string>
     <string name="settings_detail_sorting">Always prompt to add screenshot to a collection</string>
     <string name="settings_list_usagedata">Send usage data</string>
-    <string name="settings_detail_mozilla">Mozilla strives to collect only what we need to provide and improve Smart Screenshot for everyone</string>
+    <string name="settings_detail_mozilla">Mozilla strives to collect only what we need to provide and improve %1$s for everyone</string>
+    <string name="settings_action_learnmore">Learn more</string>
     <string name="settings_list_feedback">Give feedback</string>
     <string name="feedback_title_lovefeedback">We love feedback!</string>
     <string name="feedback_detail_letusknow">Let us know what you think.</string>
     <string name="feedback_action_rate">Rate on Google Play</string>
     <string name="feedback_action_feedback">Give us feedback</string>
-    <string name="about_content_version">Version %1$s</string>
     <string name="settings_list_share">Share with friends</string>
-    <string name="share_intro">[TBD]</string>
+    <string name="share_intro"></string>
     <string name="settings_list_about">About</string>
+    <string name="about_title_name">@string/app_name</string>
+    <string name="about_content_version">Version %1$s</string>
     <string name="about_list_support">Support</string>
     <string name="about_list_right">Your Rights/ Licenses</string>
     <string name="about_list_privacy">Privacy Notice</string>
+
+    <!-- Onboarding -->
+    <!-- Overlay permission prompt -->
+    <string name="onboarding_fab_title_fab">Instant way to Screenshot</string>
+
+    <!-- Capture permission prompt -->
+    <string name="onboarding_capture_title">Try the Screenshot Button</string>
 </resources>

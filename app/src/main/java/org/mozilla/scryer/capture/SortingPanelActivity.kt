@@ -216,7 +216,7 @@ class SortingPanelActivity : AppCompatActivity() {
     }
 
     private fun onCollectionClicked(collection: CollectionModel) {
-        toast.show("Added to \"${collection.name}\"", Toast.LENGTH_SHORT)
+        toast.show(getString(R.string.snackbar_addto, collection.name), Toast.LENGTH_SHORT)
 
         currentScreenshot?.let {
             it.collectionId = collection.id

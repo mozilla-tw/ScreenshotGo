@@ -79,6 +79,14 @@ class DragHelper(private val targetView: View,
 
                 return true
             }
+            MotionEvent.ACTION_CANCEL -> {
+                handler.removeCallbacks(longClickRunnable)
+                if (dragging || longPressed) {
+                    dragListener?.onRelease(currentPosition.x, currentPosition.y)
+                }
+
+                return true
+            }
             else -> return false
         }
     }

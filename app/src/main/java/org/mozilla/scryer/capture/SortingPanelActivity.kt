@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import org.mozilla.scryer.Observer
 import org.mozilla.scryer.R
@@ -97,9 +98,9 @@ class SortingPanelActivity : AppCompatActivity() {
     override fun onBackPressed() {
         if (unsortedScreenshots.isNotEmpty()) {
             AlertDialog.Builder(this)
-                    .setTitle(R.string.dialogue_deleteshot_title_delete)
-                    .setMessage(R.string.dialogue_delete_content_cantundo)
-                    .setPositiveButton(R.string.action_delete) { _, _ ->
+                    .setTitle(R.string.dialogue_skipsorting_title_skip)
+                    .setMessage(R.string.dialogue_skipsorting_content_moveto)
+                    .setPositiveButton(R.string.dialogue_skipsorting_action_skip) { _, _ ->
                         flushToUnsortedCollection()
                         finishAndRemoveTask()
                     }
@@ -220,9 +221,11 @@ class SortingPanelActivity : AppCompatActivity() {
         if (screenshots.size == 1) {
             sortingPanel.setActionText(getString(android.R.string.cancel))
             sortingPanel.setProgressVisibility(View.INVISIBLE)
+            sortingPanel.setFakeLayerVisibility(View.INVISIBLE)
         } else {
             sortingPanel.setActionText(getString(R.string.multisorting_action_next))
             sortingPanel.setProgressVisibility(View.VISIBLE)
+            sortingPanel.setFakeLayerVisibility(View.VISIBLE)
         }
 
         sortingPanel.setActionCallback {

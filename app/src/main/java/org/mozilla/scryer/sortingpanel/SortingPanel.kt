@@ -43,6 +43,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     private val hintBar: View by lazy { findViewById<View>(R.id.panel_hint_bar) }
     private val progressView: TextView by lazy { findViewById<TextView>(R.id.panel_title_progress_text) }
     private val actionButton: TextView by lazy { findViewById<TextView>(R.id.panel_title_action_button) }
+    private val fakeLayer: View by lazy { findViewById<View>(R.id.fake_layer) }
 
     private val adapter = SortingPanelAdapter()
 
@@ -198,6 +199,10 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
 
     fun setProgressVisibility(visibility: Int) {
         progressView.visibility = visibility
+    }
+
+    fun setFakeLayerVisibility(visibility: Int) {
+        fakeLayer.visibility = visibility
     }
 
     internal class SavedState : BaseSavedState {

@@ -16,43 +16,51 @@
         android:elevation="@dimen/sorting_panel_elevation"
         android:src="@android:drawable/ic_menu_camera" />
 
-    <View
-        android:id="@+id/fake_layer1"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/fake_layer"
         android:layout_width="0dp"
-        android:layout_height="4dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="3dp"
+        android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="@id/image_view"
         app:layout_constraintRight_toRightOf="@id/image_view"
-        app:layout_constraintBottom_toTopOf="@id/image_view"
-        android:background="@color/sorting_panel_fake_layer" />
+        app:layout_constraintBottom_toTopOf="@id/image_view">
+        <View
+            android:id="@+id/fake_layer1"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="3dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@color/sorting_panel_fake_layer" />
 
-    <View
-        android:id="@+id/fake_layer2"
-        android:layout_width="0dp"
-        android:layout_height="3dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="3dp"
-        app:layout_constraintBottom_toTopOf="@id/fake_layer1"
-        app:layout_constraintLeft_toLeftOf="@id/fake_layer1"
-        app:layout_constraintRight_toRightOf="@id/fake_layer1"
-        android:background="@color/sorting_panel_fake_layer"
-        android:alpha="0.6"/>
+        <View
+            android:id="@+id/fake_layer2"
+            android:layout_width="0dp"
+            android:layout_height="3dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="3dp"
+            app:layout_constraintBottom_toTopOf="@id/fake_layer1"
+            app:layout_constraintLeft_toLeftOf="@id/fake_layer1"
+            app:layout_constraintRight_toRightOf="@id/fake_layer1"
+            android:background="@color/sorting_panel_fake_layer"
+            android:alpha="0.6"/>
 
-    <View
-        android:id="@+id/fake_layer3"
-        android:layout_width="0dp"
-        android:layout_height="2dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="3dp"
-        app:layout_constraintBottom_toTopOf="@id/fake_layer2"
-        app:layout_constraintLeft_toLeftOf="@id/fake_layer2"
-        app:layout_constraintRight_toRightOf="@id/fake_layer2"
-        android:background="@color/sorting_panel_fake_layer"
-        android:alpha="0.3"/>
+        <View
+            android:id="@+id/fake_layer3"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="3dp"
+            app:layout_constraintBottom_toTopOf="@id/fake_layer2"
+            app:layout_constraintLeft_toLeftOf="@id/fake_layer2"
+            app:layout_constraintRight_toRightOf="@id/fake_layer2"
+            android:background="@color/sorting_panel_fake_layer"
+            android:alpha="0.3"/>
+    </android.support.constraint.ConstraintLayout>
 
     <View
         android:id="@+id/background_overlay"

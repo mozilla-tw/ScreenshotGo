@@ -46,6 +46,8 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
 
     private val adapter = SortingPanelAdapter()
 
+    private var actionCallback: (() -> Unit)? = null
+
     private var collectionSourceObserver = Observer<List<CollectionModel>> {
         it?.filter {
             it.id != CollectionModel.CATEGORY_NONE
@@ -160,7 +162,7 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
         }
 
         actionButton.setOnClickListener {
-            adapter.callback?.onNextClick()
+            actionCallback?.invoke()
         }
 
         val rootView = findViewById<View>(R.id.root_view)
@@ -180,6 +182,10 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
 
     fun setActionText(text: String) {
         actionButton.text = text
+    }
+
+    fun setActionCallback(callback: () -> Unit) {
+        actionCallback = callback
     }
 
     fun setProgress(current: Int, total: Int) {
@@ -250,6 +256,5 @@ class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     interface Callback {
         fun onClick(collection: CollectionModel)
         fun onNewCollectionClick()
-        fun onNextClick()
     }
 }

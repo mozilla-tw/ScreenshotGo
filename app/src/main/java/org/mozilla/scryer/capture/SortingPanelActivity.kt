@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
@@ -93,6 +94,31 @@ class SortingPanelActivity : AppCompatActivity() {
         loadScreenshots(intent, this::onLoadScreenshotsSuccess)
     }
 
+    override fun onBackPressed() {
+        if (unsortedScreenshots.isNotEmpty()) {
+            AlertDialog.Builder(this)
+                    .setTitle(R.string.dialogue_deleteshot_title_delete)
+                    .setMessage(R.string.dialogue_delete_content_cantundo)
+                    .setPositiveButton(R.string.action_delete) { _, _ ->
+                        flushToUnsortedCollection()
+                        finishAndRemoveTask()
+                    }
+                    .setNegativeButton(android.R.string.cancel) { _, _ ->
+                    }
+                    .show()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    private fun flushToUnsortedCollection() {
+        for (model in unsortedScreenshots) {
+            model.collectionId = CollectionModel.CATEGORY_NONE
+            // TODO: Batch
+            screenshotViewModel.updateScreenshot(model)
+        }
+    }
+
     private fun loadColors() {
         val typedArray = resources.obtainTypedArray(R.array.collection_colors)
         val length = typedArray.length()
@@ -119,10 +145,6 @@ class SortingPanelActivity : AppCompatActivity() {
 
             override fun onNewCollectionClick() {
                 onNewCollectionClicked()
-            }
-
-            override fun onNextClick() {
-                onNextClicked()
             }
         }
     }
@@ -203,6 +225,10 @@ class SortingPanelActivity : AppCompatActivity() {
             sortingPanel.setProgressVisibility(View.VISIBLE)
         }
 
+        sortingPanel.setActionCallback {
+            onNewModelAvailable()
+        }
+
         if (intent.hasExtra(EXTRA_SHOW_ADD_TO_COLLECTION)
                 && !intent.getBooleanExtra(EXTRA_SHOW_ADD_TO_COLLECTION, true)) {
             Handler().postDelayed({ finishAndRemoveTask() }, 1000)
@@ -227,10 +253,6 @@ class SortingPanelActivity : AppCompatActivity() {
 
     private fun onNewCollectionClicked() {
         CollectionNameDialog.createNewCollection(this, screenshotViewModel)
-    }
-
-    private fun onNextClicked() {
-        onNewModelAvailable()
     }
 
     private fun createNewScreenshot(intent: Intent): ScreenshotModel? {

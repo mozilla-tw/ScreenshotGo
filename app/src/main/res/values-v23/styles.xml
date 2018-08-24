@@ -10,6 +10,7 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowBackground">@color/home_background</item>
         <item name="actionOverflowButtonStyle">@style/OverflowButtonStyle</item>
+        <item name="alertDialogTheme">@style/DialogTheme</item>
     </style>
 
 </resources>

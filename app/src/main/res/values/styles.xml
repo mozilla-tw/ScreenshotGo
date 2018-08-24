@@ -11,10 +11,15 @@
         <item name="android:windowBackground">@color/home_background</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="actionOverflowButtonStyle">@style/OverflowButtonStyle</item>
+        <item name="alertDialogTheme">@style/DialogTheme</item>
     </style>
 
     <style name="OverflowButtonStyle" parent="Widget.AppCompat.Light.ActionButton.Overflow">
         <item name="android:src">@drawable/more</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:colorAccent">@color/primaryTeal</item>
     </style>
 
     <style name="Theme.AppCompat.NoActionBar.Translucent" parent="Theme.AppCompat.NoActionBar">
@@ -29,6 +34,7 @@
         <item name="android:windowBackground">@color/sorting_panel_background</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="alertDialogTheme">@style/DialogTheme</item>
     </style>
 
     <style name="PrimaryTextButton" parent="@style/ButtonText">

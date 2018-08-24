@@ -8,16 +8,12 @@ package org.mozilla.scryer.permission
 import android.content.Context
 import android.preference.PreferenceManager
 import android.support.v4.app.FragmentActivity
-import android.util.Log
-import org.mozilla.scryer.BuildConfig
 import org.mozilla.scryer.MainActivity
 
 class PermissionFlow(private var permissionState: PermissionStateProvider,
                      private var pageState: PageStateProvider,
                      private val viewDelegate: ViewDelegate) {
     companion object {
-        private const val TAG = "PermissionFlow"
-
         private const val KEY_WELCOME_PAGE_SHOWN = "welcome_page_shown"
         private const val KEY_OVERLAY_PAGE_SHOWN = "overlay_page_shown"
         private const val KEY_CAPTURE_PAGE_SHOWN = "capture_page_shown"
@@ -81,12 +77,6 @@ class PermissionFlow(private var permissionState: PermissionStateProvider,
 
     var initialState: State = StorageState(this)
     var state: State = initialState
-        set(value) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "state: ${value::class.java.canonicalName}")
-            }
-            field = value
-        }
 
     fun start() {
         state = initialState.execute()

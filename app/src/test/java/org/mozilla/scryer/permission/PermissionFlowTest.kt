@@ -220,7 +220,7 @@ class PermissionFlowTest {
 
         // Test: First time
         flow.start()
-        assertTrue(flow.state is PermissionFlow.CaptureState.FirstTimeRequest)
+        assertTrue(flow.state is PermissionFlow.FinishState)
 
         // Test: Second time, directly finish the flow
         flow.start()

@@ -65,9 +65,9 @@
             android:padding="0dp"
             android:textAlignment="center"
             android:textColor="@color/grey50"
+            android:text="@string/sheet_box_ask"
             app:buttonTint="@color/primaryTeal"
-            app:layout_constraintBottom_toTopOf="@id/positive_button"
-            tools:text="Don't ask again" />
+            app:layout_constraintBottom_toTopOf="@id/positive_button" />
 
     </android.support.constraint.ConstraintLayout>
 

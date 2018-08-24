@@ -37,6 +37,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.Navigation
 import org.mozilla.scryer.*
+import org.mozilla.scryer.capture.SortingPanelActivity
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.filemonitor.ScreenshotFetcher
@@ -232,7 +233,11 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         log(LOG_TAG, "onStorageGranted")
         storagePermissionView?.visibility = View.GONE
 
-        syncScreenshotsFromExternalStorage()
+        syncScreenshotsFromExternalStorage { unsortedCount ->
+            if (unsortedCount > 0) {
+                showNewScreenshotDetectedDialog(unsortedCount)
+            }
+        }
     }
 
     override fun onOverlayGranted() {
@@ -427,14 +432,38 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         mainAdapter.notifyDataSetChanged()
     }
 
-    private fun syncScreenshotsFromExternalStorage() {
+    private fun syncScreenshotsFromExternalStorage(callback: (unsortedCount: Int) -> Unit) {
         viewModel.getScreenshotList { list ->
             context?.let {
                 ScreenshotFetcher().fetchScreenshots(it) { externalList ->
-                    mergeExternalToDatabase(externalList, list)
+                    val resultList = mergeExternalToDatabase(externalList, list)
+                    callback(resultList.filter { it.collectionId == CollectionModel.UNCATEGORIZED }.size)
                 }
             }
         }
+    }
+
+    private fun showNewScreenshotDetectedDialog(unsortedCount: Int) {
+        val context = context?: return
+
+        val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
+
+        dialog.findViewById<TextView>(R.id.title)?.setText(R.string.sheet_unsorted_title_unsorted)
+        val subtitle = getString(R.string.sheet_unsorted_content_shots, unsortedCount)
+        dialog.findViewById<TextView>(R.id.subtitle)?.text = subtitle
+
+        dialog.findViewById<TextView>(R.id.positive_button)?.setText(R.string.sheet_unsorted_action_sort)
+        dialog.findViewById<View>(R.id.positive_button)?.setOnClickListener {
+            startActivity(SortingPanelActivity.sortCollection(context, CollectionModel.UNCATEGORIZED))
+            dialog.dismiss()
+        }
+
+        dialog.findViewById<TextView>(R.id.negative_button)?.setText(R.string.sheet_action_no)
+        dialog.findViewById<View>(R.id.negative_button)?.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun mergeExternalToDatabase(externalList: List<ScreenshotModel>,

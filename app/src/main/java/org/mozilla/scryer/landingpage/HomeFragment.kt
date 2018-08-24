@@ -336,7 +336,9 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         })
 
         view!!.findViewById<View>(R.id.intercept_view).setOnClickListener {
-            ScryerToast.makeText(it.context, "Not implement", Toast.LENGTH_SHORT).show()
+            if (permissionFlow.isFinished()) {
+                ScryerToast.makeText(it.context, "Not implement", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

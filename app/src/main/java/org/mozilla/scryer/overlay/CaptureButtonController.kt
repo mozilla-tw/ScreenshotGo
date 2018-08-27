@@ -95,13 +95,14 @@ class CaptureButtonController(private val context: Context) {
 
         buttonView.dragListener = object : DragHelper.DragListener {
             var isCollided = false
-            val interpolater = FastOutSlowInInterpolator()
+            val interpolator = FastOutSlowInInterpolator()
 
             override fun onTouch() {
                 buttonView.alpha = ALPHA_ACTIVE
             }
 
             override fun onTap() {
+                buttonView.alpha = ALPHA_INACTIVE
                 clickListener?.onScreenshotButtonClicked()
             }
 
@@ -117,13 +118,13 @@ class CaptureButtonController(private val context: Context) {
                     exitCircleView.animate()
                             .scaleX(EXIT_SCALE_RATIO)
                             .scaleY(EXIT_SCALE_RATIO)
-                            .interpolator = interpolater
+                            .interpolator = interpolator
                     isCollided = true
                 } else if (!isCollide && isCollided) {
                     exitCircleView.animate()
                             .scaleX(1f)
                             .scaleY(1f)
-                            .interpolator = interpolater
+                            .interpolator = interpolator
                     isCollided = false
                 }
 

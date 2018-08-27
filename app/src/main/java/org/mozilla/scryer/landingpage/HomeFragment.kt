@@ -11,10 +11,7 @@ import android.app.Activity
 import android.app.SearchManager
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.graphics.Color
 import android.graphics.Rect
 import android.net.Uri
@@ -26,6 +23,7 @@ import android.support.design.widget.BottomSheetDialog
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
+import android.support.v7.app.AppCompatDialog
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -166,10 +164,11 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         }
     }
 
+    private val dialogQueue = DialogQueue()
+
     @RequiresApi(Build.VERSION_CODES.M)
     override fun showOverlayPermissionView(action: Runnable, negativeAction: Runnable) {
         val context = context?: return
-        dismissPermissionDialog()
 
         val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
 
@@ -190,14 +189,12 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             negativeAction.run()
         }
 
-        dialog.show()
-
         permissionDialog = dialog
+        dialogQueue.show(dialog, null)
     }
 
     override fun showCapturePermissionView(action: Runnable, negativeAction: Runnable) {
         val context = context?: return
-        dismissPermissionDialog()
 
         val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
 
@@ -225,8 +222,10 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver)
         }
 
-        dialog.show()
         permissionDialog = dialog
+        dialogQueue.show(dialog, DialogInterface.OnDismissListener {
+            LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver)
+        })
     }
 
     override fun onStorageGranted() {
@@ -463,7 +462,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             dialog.dismiss()
         }
 
-        dialog.show()
+        dialogQueue.tryShow(dialog, null)
     }
 
     private fun mergeExternalToDatabase(externalList: List<ScreenshotModel>,
@@ -491,5 +490,42 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
     private fun log(tag: String, msg: String) {
         Log.d(tag, msg)
+    }
+
+    private class DialogQueue {
+        private var current: AppCompatDialog? = null
+        private val queue = LinkedList<AppCompatDialog>()
+        private val listeners = HashMap<AppCompatDialog, DialogInterface.OnDismissListener?>()
+
+        fun show(dialog: AppCompatDialog, dismissListener: DialogInterface.OnDismissListener?) {
+            listeners[dialog] = dismissListener
+            queue.offer(dialog)
+            schedule()
+        }
+
+        fun tryShow(dialog: AppCompatDialog, dismissListener: DialogInterface.OnDismissListener?) {
+            current?: run {
+                show(dialog, dismissListener)
+            }
+        }
+
+        private fun schedule() {
+            current?: run {
+                current = queue.poll()?.let { dialog ->
+                    dialog.setOnDismissListener { _ ->
+                        val listener = listeners[dialog]
+                        listener?.let { targetInterface ->
+                            targetInterface.onDismiss(dialog)
+                            listeners.remove(dialog)
+                        }
+                        current = null
+                        schedule()
+                    }
+                    dialog.show()
+
+                    dialog
+                }
+            }
+        }
     }
 }

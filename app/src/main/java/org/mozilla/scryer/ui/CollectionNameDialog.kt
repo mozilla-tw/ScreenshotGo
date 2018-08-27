@@ -160,7 +160,8 @@ class CollectionNameDialog(private val context: Context, private val delegate: D
             }
 
             override fun isCollectionExist(name: String): Boolean {
-                return dialogInterface.getInputText() != initialCollectionName && collections.any { it.name == name }
+                return name.compareTo(initialCollectionName, true) != 0 &&
+                        collections.any { name.compareTo(it.name, true) == 0 }
             }
         })
 

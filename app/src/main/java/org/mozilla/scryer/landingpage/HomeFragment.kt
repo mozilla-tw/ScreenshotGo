@@ -236,9 +236,9 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         log(LOG_TAG, "onStorageGranted")
         storagePermissionView?.visibility = View.GONE
 
-        syncScreenshotsFromExternalStorage { unsortedCount ->
-            if (unsortedCount > 0) {
-                showNewScreenshotsDialog(unsortedCount)
+        syncScreenshotsFromExternalStorage { newScreenshots ->
+            if (newScreenshots.isNotEmpty()) {
+                showNewScreenshotsDialog(newScreenshots)
             }
         }
     }
@@ -435,18 +435,18 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         mainAdapter.notifyDataSetChanged()
     }
 
-    private fun syncScreenshotsFromExternalStorage(callback: (unsortedCount: Int) -> Unit) {
+    private fun syncScreenshotsFromExternalStorage(callback: (newScreenshots: List<ScreenshotModel>) -> Unit) {
         viewModel.getScreenshotList { list ->
             context?.let {
                 ScreenshotFetcher().fetchScreenshots(it) { externalList ->
                     val resultList = mergeExternalToDatabase(externalList, list)
-                    callback(resultList.filter { it.collectionId == CollectionModel.UNCATEGORIZED }.size)
+                    callback(resultList.filter { it.collectionId == CollectionModel.UNCATEGORIZED })
                 }
             }
         }
     }
 
-    private fun showNewScreenshotsDialog(unsortedCount: Int) {
+    private fun showNewScreenshotsDialog(newScreenshots: List<ScreenshotModel>) {
         val context = context?: return
         if (!isNewScreenshotDialogAllowed()) {
             return
@@ -455,7 +455,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
 
         dialog.findViewById<TextView>(R.id.title)?.setText(R.string.sheet_unsorted_title_unsorted)
-        val subtitle = getString(R.string.sheet_unsorted_content_shots, unsortedCount)
+        val subtitle = getString(R.string.sheet_unsorted_content_shots, newScreenshots.size)
         dialog.findViewById<TextView>(R.id.subtitle)?.text = subtitle
 
         dialog.findViewById<TextView>(R.id.positive_button)?.apply {
@@ -473,11 +473,22 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 if (checkbox?.isChecked == true) {
                     setDoNotShowNewScreenshotDialog()
                 }
-                dialog.dismiss()
+                dialog.cancel()
             }
         }
 
+        dialog.setOnCancelListener {
+            updateScreenshotCategory(newScreenshots, CollectionModel.CATEGORY_NONE)
+        }
+
         dialogQueue.tryShow(dialog, null)
+    }
+
+    private fun updateScreenshotCategory(list: List<ScreenshotModel>, collectionId: String) {
+        list.forEach {
+            it.collectionId = collectionId
+            viewModel.updateScreenshot(it)
+        }
     }
 
     private fun mergeExternalToDatabase(externalList: List<ScreenshotModel>,

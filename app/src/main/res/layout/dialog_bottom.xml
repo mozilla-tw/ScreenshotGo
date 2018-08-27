@@ -66,8 +66,8 @@
             android:textAlignment="center"
             android:textColor="@color/grey50"
             android:text="@string/sheet_box_ask"
-            app:buttonTint="@color/primaryTeal"
             app:layout_constraintBottom_toTopOf="@id/positive_button" />
+        <!-- android:colorAccent to customize selected color -->
 
     </android.support.constraint.ConstraintLayout>
 

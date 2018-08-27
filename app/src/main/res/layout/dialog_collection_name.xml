@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/collection_dialog_padding"
+    android:paddingTop="@dimen/collection_dialog_padding"
+    android:paddingEnd="@dimen/collection_dialog_padding">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/grey90"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:ellipsize="end"
+        tools:text="Title"
+        style="@style/Body1" />
+
+    <View
+        android:id="@+id/edit_text_bkg"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/collection_dialog_edittext_height"
+        android:layout_marginTop="8dp"
+        android:paddingStart="@dimen/collection_dialog_edittext_padding_start"
+        android:paddingEnd="@dimen/collection_dialog_edittext_padding_end"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="24dp"
+        android:background="@color/grey20" />
+
+    <View
+        android:id="@+id/edit_text_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintRight_toRightOf="@id/edit_text_bkg"
+        app:layout_constraintTop_toTopOf="@id/edit_text"
+        app:layout_constraintBottom_toBottomOf="@id/edit_text" />
+
+    <EditText
+        android:id="@+id/edit_text"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/collection_dialog_edittext_height"
+        android:paddingStart="@dimen/collection_dialog_edittext_padding_start"
+        android:paddingEnd="@dimen/collection_dialog_edittext_padding_end"
+        android:textCursorDrawable="@drawable/collection_name_dialog_cursor"
+        android:textColorHint="@android:color/darker_gray"
+        android:textColor="@color/grey90"
+        app:layout_constraintLeft_toLeftOf="@id/edit_text_bkg"
+        app:layout_constraintTop_toTopOf="@id/edit_text_bkg"
+        app:layout_constraintRight_toLeftOf="@id/edit_text_icon"
+        app:layout_constraintBottom_toBottomOf="@id/edit_text_bkg"
+        android:layout_marginEnd="12dp"
+        android:background="@android:color/transparent"
+        android:inputType="text"
+        style="@style/Subtitle1"
+        android:hint="@string/dialogue_inputfield_hint" />
+
+    <View
+        android:id="@+id/edit_text_bar"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        app:layout_constraintBottom_toBottomOf="@id/edit_text"
+        android:background="@color/primaryTeal" />
+
+    <TextView
+        android:id="@+id/error_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/collection_dialog_edittext_padding_start"
+        android:paddingEnd="@dimen/collection_dialog_edittext_padding_end"
+        app:layout_constraintTop_toBottomOf="@id/edit_text"
+        android:textColor="@color/errorRed"
+        style="@style/Caption"
+        tools:text="Max is 20 characters" />
+</android.support.constraint.ConstraintLayout>

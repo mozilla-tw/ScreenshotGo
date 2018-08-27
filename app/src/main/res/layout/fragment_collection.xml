@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/home_background"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/home_background"
+        android:elevation="2dp"
+        app:navigationIcon="@drawable/back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="Collection" />
+
+    <TextView
+        android:id="@+id/subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/collection_separator_shots"
+        android:paddingStart="@dimen/collection_horizontal_padding"
+        android:paddingTop="@dimen/collection_vertical_padding"
+        android:paddingEnd="@dimen/collection_horizontal_padding"
+        android:paddingBottom="@dimen/collection_vertical_padding"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        android:textColor="@color/grey60"
+        style="@style/Subtitle1" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/screenshot_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingStart="@dimen/collection_horizontal_padding"
+        android:paddingEnd="@dimen/collection_horizontal_padding"
+        app:layout_constraintTop_toBottomOf="@id/subtitle"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

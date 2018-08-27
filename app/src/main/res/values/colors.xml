@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <!-- Common -->
+    <color name="primaryTeal">#00c8d7</color>
+    <color name="secondaryGreen">#00e5ba</color>
+    <color name="errorRed">#ff4c5c</color>
+    <color name="grey90">#0c0c0d</color>
+    <color name="grey60">#616161</color>
+    <color name="grey50">#737373</color>
+    <color name="disableGrey">#b1b1b3</color>
+    <color name="grey20">#ededed</color>
+    <color name="grey10">#f5f5f5</color>
+    <color name="white">#ffffff</color>
+
+    <!-- Sorting Panel -->
+    <color name="sorting_panel_background">#3f3a4f</color>
+    <color name="sorting_panel_create_button_border">#dddddd</color>
+    <color name="sorting_panel_fake_layer">#d5e4d6</color>
+    <color name="sorting_panel_hint_bar">#d7d7d7</color>
+
+    <!-- Home -->
+    <color name="home_background">@color/white</color>
+    <color name="quick_access_background">@color/grey10</color>
+
+    <array name="collection_colors">
+        <item>#235dff</item>
+        <item>#10c1b6</item>
+        <item>#ffa6a8</item>
+        <item>#f8c300</item>
+        <item>#8400dc</item>
+        <item>#ffb300</item>
+        <item>#008ca0</item>
+        <item>#003689</item>
+        <item>#c5c600</item>
+        <item>#57ccd6</item>
+        <item>#ffa378</item>
+        <item>#ff7678</item>
+        <item>#729f95</item>
+        <item>#007e26</item>
+        <item>#ff5741</item>
+        <item>#e3af00</item>
+        <item>#ff5800</item>
+        <item>#00544c</item>
+    </array>
+</resources>

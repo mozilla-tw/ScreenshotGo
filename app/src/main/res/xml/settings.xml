@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="app_settings">
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="@string/pref_key_enable_capture_service"
+        android:persistent="true"
+        android:summary="@string/settings_detail_capture"
+        android:title="@string/settings_list_capture" />
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="@string/pref_key_enable_floating_screenshot_button"
+        android:persistent="true"
+        android:title="@string/settings_list_fab" />
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="@string/pref_key_enable_add_to_collection"
+        android:persistent="true"
+        android:summary="@string/settings_detail_sorting"
+        android:title="@string/settings_list_sorting" />
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="@string/pref_key_enable_send_usage_data"
+        android:persistent="true"
+        android:summary="@string/settings_detail_mozilla"
+        android:title="@string/settings_list_usagedata" />
+
+    <android.support.v7.preference.Preference
+        android:key="@string/pref_key_give_feedback"
+        android:persistent="false"
+        android:title="@string/settings_list_feedback" />
+
+    <android.support.v7.preference.Preference
+        android:key="@string/pref_key_share_with_friends"
+        android:persistent="false"
+        android:title="@string/settings_list_share" />
+
+    <android.support.v7.preference.Preference
+        android:key="@string/pref_key_about"
+        android:persistent="false"
+        android:title="@string/settings_list_about" />
+
+</android.support.v7.preference.PreferenceScreen>

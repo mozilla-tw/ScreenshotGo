@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="common_padding_24dp">24dp</dimen>
+    <dimen name="common_padding_16dp">16dp</dimen>
+    <dimen name="common_padding_8dp">8dp</dimen>
+    <dimen name="common_padding_4dp">4dp</dimen>
+
+    <!-- Sorting panel -->
+    <dimen name="sorting_panel_padding">24dp</dimen>
+    <dimen name="sorting_panel_title_height">72dp</dimen>
+    <dimen name="sorting_panel_height">268dp</dimen>
+    <dimen name="sorting_panel_item_height">64dp</dimen>
+    <dimen name="sorting_panel_item_spacing">16dp</dimen>
+    <dimen name="sorting_panel_elevation">10dp</dimen>
+    <dimen name="sorting_panel_hint_bar_width">40dp</dimen>
+    <dimen name="sorting_panel_hint_bar_height">4dp</dimen>
+    <dimen name="sorting_panel_hint_bar_radius">2dp</dimen>
+    <dimen name="sorting_panel_hint_bar_margin_top">4dp</dimen>
+
+    <dimen name="toast_horizontal_margin">8dp</dimen>
+    <dimen name="toast_horizontal_padding">16dp</dimen>
+    <dimen name="toast_height">48dp</dimen>
+
+    <!-- Collection Name Dialog -->
+    <dimen name="collection_dialog_padding">24dp</dimen>
+    <dimen name="collection_dialog_edittext_height">56dp</dimen>
+    <dimen name="collection_dialog_edittext_padding_start">16dp</dimen>
+    <dimen name="collection_dialog_edittext_padding_end">8dp</dimen>
+
+    <!-- Home -->
+    <dimen name="home_horizontal_padding">16dp</dimen>
+    <dimen name="home_item_corner_radius">3dp</dimen>
+    <dimen name="section_title_vertical_padding">12dp</dimen>
+
+    <!-- Home: quick access -->
+    <dimen name="quick_access_padding_top">@dimen/section_title_vertical_padding</dimen>
+    <dimen name="quick_access_padding_bottom">16dp</dimen>
+    <dimen name="quick_access_item_space">8dp</dimen>
+    <dimen name="quick_access_item_more_icon_size">54dp</dimen>
+
+    <!-- Home: collections -->
+    <dimen name="home_collection_padding_top">@dimen/section_title_vertical_padding</dimen>
+
+    <!-- Collection -->
+    <dimen name="collection_vertical_padding">8dp</dimen>
+    <dimen name="collection_horizontal_padding">16dp</dimen>
+    <dimen name="collection_item_space">8dp</dimen>
+
+    <!-- Settings -->
+    <dimen name="settings_list_item_height">48dp</dimen>
+
+</resources>

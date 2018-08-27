@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="180dp"
+    android:paddingStart="24dp"
+    android:paddingTop="24dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="20dp">
+
+    <TextView
+        android:id="@+id/title"
+        style="@style/H2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/grey90"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Title" />
+
+    <TextView
+        android:id="@+id/subtitle"
+        style="@style/Body2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/grey50"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        tools:text="Content" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/bottom_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subtitle">
+
+        <TextView
+            android:id="@+id/positive_button"
+            style="@style/ContainedButton"
+            android:layout_width="wrap_content"
+            android:text="@android:string/ok"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <TextView
+            android:id="@+id/negative_button"
+            style="@style/PrimaryTextButton"
+            android:layout_width="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="@android:string/cancel"
+            android:textColor="@color/grey60"
+            app:layout_constraintRight_toLeftOf="@id/positive_button"
+            app:layout_constraintTop_toTopOf="@id/positive_button" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/dont_ask_again_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:checked="false"
+            android:gravity="start|center_vertical"
+            android:padding="0dp"
+            android:textAlignment="center"
+            android:textColor="@color/grey50"
+            android:text="@string/sheet_box_ask"
+            app:buttonTint="@color/primaryTeal"
+            app:layout_constraintBottom_toTopOf="@id/positive_button" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

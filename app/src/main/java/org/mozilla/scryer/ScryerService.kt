@@ -1,0 +1,282 @@
+/* -*- Mode: Java; c-basic-offset: 4; tab-width: 4; indent-tabs-mode: nil; -*-
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+package org.mozilla.scryer
+
+import android.annotation.TargetApi
+import android.app.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
+import android.support.v4.app.NotificationCompat
+import android.support.v4.content.LocalBroadcastManager
+import android.text.TextUtils
+import org.mozilla.scryer.capture.SortingPanelActivity
+import org.mozilla.scryer.capture.RequestCaptureActivity
+import org.mozilla.scryer.capture.ScreenCaptureListener
+import org.mozilla.scryer.capture.ScreenCaptureManager
+import org.mozilla.scryer.filemonitor.FileMonitor
+import org.mozilla.scryer.filemonitor.MediaProviderDelegate
+import org.mozilla.scryer.overlay.CaptureButtonController
+import org.mozilla.scryer.permission.PermissionHelper
+import org.mozilla.scryer.persistence.CollectionModel
+import org.mozilla.scryer.persistence.ScreenshotModel
+
+
+class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCaptureListener {
+    companion object {
+        // TODO: temp id
+        private const val ID_FOREGROUND = 9487
+        private const val ID_SCREENSHOT_DETECTED = 9488
+
+        private const val ACTION_CAPTURE_SCREEN = "action_capture"
+        private const val ACTION_STOP = "action_stop"
+        private const val ACTION_LAUNCH_APP = "action_launch_app"
+
+        private const val DELAY_CAPTURE_NOTIFICATION = 1000L
+        private const val DELAY_CAPTURE_FAB = 0L
+
+        // Broadcast sent from ScryerService
+        const val EVENT_TAKE_SCREENSHOT = "org.mozilla.scryer.take_screenshot"
+    }
+
+    private var isRunning: Boolean = false
+    private var captureButtonController: CaptureButtonController? = null
+
+    private var screenCapturePermissionIntent: Intent? = null
+    private var screenCaptureManager: ScreenCaptureManager? = null
+    private lateinit var requestCaptureFilter: IntentFilter
+    private lateinit var requestCaptureReceiver: BroadcastReceiver
+
+    private val fileMonitor: FileMonitor by lazy {
+        //FileMonitor(FileObserverDelegate(Handler(Looper.getMainLooper())))
+        FileMonitor(MediaProviderDelegate(this, Handler(Looper.getMainLooper())))
+    }
+
+    private val handler = Handler(Looper.getMainLooper())
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (null == intent) {
+            stopSelf()
+            return Service.START_NOT_STICKY
+        }
+
+        if (!ScryerApplication.getSettingsRepository().serviceEnabled) {
+            stopSelf()
+            return Service.START_NOT_STICKY
+        }
+
+        if (!isRunning) {
+            isRunning = true
+            startForeground(getForegroundNotificationId(), getForegroundNotification())
+            initFileMonitors()
+
+        } else when (intent.action) {
+            ACTION_CAPTURE_SCREEN -> postTakeScreenshot(DELAY_CAPTURE_NOTIFICATION)
+            ACTION_STOP -> {
+                ScryerApplication.getSettingsRepository().serviceEnabled = false
+                stopSelf()
+                sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+            }
+        }
+
+        initFloatingButton()
+
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        if (isRunning) {
+            isRunning = false
+            captureButtonController?.destroy()
+            fileMonitor.stopMonitor()
+        }
+        super.onDestroy()
+    }
+
+    private fun initFloatingButton() {
+        if (!PermissionHelper.hasOverlayPermission(this)) {
+            return
+        }
+
+        captureButtonController?: run {
+            captureButtonController = CaptureButtonController(applicationContext)
+            captureButtonController?.setOnClickListener(this)
+            captureButtonController?.init()
+        }
+    }
+
+    private fun initFileMonitors() {
+        fileMonitor.startMonitor(object : FileMonitor.ChangeListener {
+            override fun onChangeFinish(path: String) {
+                postNotification(getScreenshotDetectedNotification())
+                val model = ScreenshotModel(path,
+                        System.currentTimeMillis(),
+                        CollectionModel.UNCATEGORIZED)
+                ScryerApplication.getScreenshotRepository().addScreenshot(listOf(model))
+            }
+        })
+    }
+
+    override fun onScreenshotButtonClicked() {
+        postTakeScreenshot(DELAY_CAPTURE_FAB)
+    }
+
+    override fun onScreenshotButtonLongClicked() {
+        stopSelf()
+    }
+
+    private fun postTakeScreenshot(delayed: Long) {
+        handler.postDelayed({
+            captureButtonController?.hide()
+            takeScreenshot()
+        }, delayed)
+    }
+
+    private fun takeScreenshot() {
+        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(EVENT_TAKE_SCREENSHOT))
+
+        if (screenCapturePermissionIntent != null) {
+            screenCaptureManager?.captureScreen()
+        } else {
+
+            requestCaptureFilter = IntentFilter(RequestCaptureActivity.getResultBroadcastAction(applicationContext))
+            requestCaptureReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context, intent: Intent) {
+                    LocalBroadcastManager.getInstance(applicationContext).unregisterReceiver(requestCaptureReceiver)
+
+                    val resultCode = intent.getIntExtra(RequestCaptureActivity.RESULT_EXTRA_CODE, Activity.RESULT_CANCELED)
+                    if (resultCode != Activity.RESULT_OK) {
+                        onScreenShotTaken("")
+                        return
+                    }
+
+                    screenCapturePermissionIntent = intent.getParcelableExtra(RequestCaptureActivity.RESULT_EXTRA_DATA)
+                    screenCapturePermissionIntent?.let {
+                        screenCaptureManager = ScreenCaptureManager(applicationContext, it, this@ScryerService)
+
+                        if (intent.getBooleanExtra(RequestCaptureActivity.RESULT_EXTRA_PROMPT_SHOWN, true)) {
+                            // Delay capture until after the permission dialog is gone.
+                            handler.postDelayed({ screenCaptureManager?.captureScreen() }, 500)
+                        } else {
+                            screenCaptureManager?.captureScreen()
+                        }
+                    }
+                }
+            }
+
+            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(requestCaptureReceiver, requestCaptureFilter)
+            val intent = Intent(applicationContext, RequestCaptureActivity::class.java)
+            intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
+            applicationContext.startActivity(intent)
+        }
+    }
+
+    override fun onScreenShotTaken(path: String) {
+        captureButtonController?.show()
+        if (!TextUtils.isEmpty(path)) {
+            startSortingPanelActivity(path)
+        }
+    }
+
+    private fun startSortingPanelActivity(path: String) {
+        val intent = SortingPanelActivity.sortNewScreenshot(this, path, ScryerApplication.getSettingsRepository().addToCollectionEnable)
+        intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
+
+    private fun getForegroundNotificationId(): Int {
+        return ID_FOREGROUND
+    }
+
+    private fun getForegroundNotification(): Notification? {
+        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createForegroundChannel()
+        } else {
+            ""
+        }
+
+        val tapIntent = Intent(ACTION_CAPTURE_SCREEN)
+        tapIntent.setClass(this, ScryerService::class.java)
+        val tapPendingIntent = PendingIntent.getService(this, 0, tapIntent, 0)
+
+        val stopIntent = Intent(ACTION_STOP)
+        stopIntent.setClass(this, ScryerService::class.java)
+        val stopPendingIntent = PendingIntent.getService(this, 0, stopIntent, 0)
+        val stopAction = NotificationCompat.Action(android.R.drawable.ic_menu_close_clear_cancel,
+                getString(R.string.notification_action_stop),
+                stopPendingIntent)
+
+        val style = NotificationCompat.BigTextStyle()
+        style.bigText(getString(R.string.notification_action_capture))
+        return NotificationCompat.Builder(this, channelId)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .setSmallIcon(android.R.drawable.ic_menu_camera)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.notification_action_capture))
+                .setContentIntent(tapPendingIntent)
+                .setStyle(style)
+                .addAction(stopAction)
+                .build()
+    }
+
+    private fun getScreenshotDetectedNotification(): Notification {
+        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createMessageChannel()
+        } else {
+            ""
+        }
+
+        val tapIntent = Intent(ACTION_LAUNCH_APP)
+        tapIntent.setClass(this, MainActivity::class.java)
+        val tapPendingIntent = PendingIntent.getActivity(this, 0, tapIntent, 0)
+
+        return NotificationCompat.Builder(this, channelId)
+                .setCategory(Notification.CATEGORY_PROMO)
+                .setSmallIcon(android.R.drawable.ic_menu_upload)
+                .setContentTitle(getString(R.string.app_name))
+                .setContentText(getString(R.string.notification_action_collect))
+                .setContentIntent(tapPendingIntent)
+                .build()
+    }
+
+    private fun postNotification(notification: Notification) {
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(ID_SCREENSHOT_DETECTED, notification)
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private fun createForegroundChannel(): String {
+        val channelId = "foreground_channel"
+        val channelName = "ScreenshotPlus Service"
+        val channel = NotificationChannel(channelId, channelName,
+                NotificationManager.IMPORTANCE_NONE)
+
+        val manager = applicationContext.getSystemService(NotificationManager::class.java)
+        manager?.createNotificationChannel(channel)
+        return channelId
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private fun createMessageChannel(): String {
+        val channelId = "message_channel"
+        val channelName = "ScreenshotPlus Message"
+        val channel = NotificationChannel(channelId, channelName,
+                NotificationManager.IMPORTANCE_HIGH)
+
+        val manager = applicationContext.getSystemService(NotificationManager::class.java)
+        manager?.createNotificationChannel(channel)
+        return channelId
+    }
+}

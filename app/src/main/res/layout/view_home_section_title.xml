@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/section_title_vertical_padding"
+    android:paddingStart="@dimen/home_horizontal_padding"
+    android:paddingEnd="@dimen/home_horizontal_padding"
+    android:textColor="@color/grey90"
+    style="@style/H3"
+    tools:text="Title" />

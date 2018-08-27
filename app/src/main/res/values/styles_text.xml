@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- The unit of letter spacing defined on visual spec is "tracking" (from Sketch). To convert to em,
+    use the following equation: em = tracking / sp -->
+
+    <!-- Text Style -->
+    <style name="H1">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="H2">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">20sp</item>
+        <!-- tracking = 0.15 -->
+        <item name="android:letterSpacing">0.0075</item>
+    </style>
+
+    <style name="H3" parent="H2">
+        <item name="android:textSize">17sp</item>
+        <!-- tracking = 0.15 -->
+        <item name="android:letterSpacing">0.0088</item>
+    </style>
+
+    <style name="Subtitle1">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">16sp</item>
+        <!-- tracking = 0.15 -->
+        <item name="android:letterSpacing">0.0094</item>
+    </style>
+
+    <style name="Subtitle2">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+        <!-- tracking = 0.1 -->
+        <item name="android:letterSpacing">0.0071</item>
+    </style>
+
+    <style name="Body1">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">16sp</item>
+        <!-- tracking = 0.5 -->
+        <item name="android:letterSpacing">0.031</item>
+    </style>
+
+    <style name="Body2">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+        <!-- tracking = 0.25 -->
+        <item name="android:letterSpacing">0.018</item>
+    </style>
+
+    <style name="ButtonText">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
+        <!-- tracking = 0.75 -->
+        <item name="android:letterSpacing">0.054</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/primary_text_button</item>
+    </style>
+
+    <style name="Caption">
+        <item name="android:fontFamily">sans-serif</item>
+        <!-- tracking = 0.5 -->
+        <item name="android:textSize">12sp</item>
+        <item name="android:letterSpacing">0.042</item>
+    </style>
+
+    <style name="QuickAccessMoreText">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">10sp</item>
+        <!-- tracking = 1.5 -->
+        <item name="android:letterSpacing">0.15</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+    </style>
+
+</resources>

@@ -1,27 +1,31 @@
 <resources>
     <string name="app_name">Scryer</string>
 
-    <!-- Shared in multiple screen -->
+    <!-- Label used for buttons to create new collection, e.g. in dialogs-->
     <string name="action_create">Create new</string>
+    <!-- Label used for buttons to delete items, e.g. in dialogs-->
     <string name="action_delete">Delete</string>
+    <!-- Label used for title in screenshot info dialogue, but for action in menu -->
     <string name="info_info">Screenshot info</string>
 
-    <!-- Notification -->
+    <!-- Notification: strings display on the notification to perform various actions -->
     <string name="notification_action_capture">Tap to take screenshot</string>
     <string name="notification_action_open">Open app</string>
     <string name="notification_action_stop">Stop</string>
     <string name="notification_action_collect">Open app to collect screenshots</string>
 
-    <!-- Sorting panel -->
+    <!-- Sorting panel: strings display on the sorting panel to help users categorize screenshots, 
+    Refer to UX spec 1.1-B: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133909_1-1_Key_Flow_Add_To_Collection -->
     <string name="sorting_title_addto">Add to</string>
     <string name="multisorting_count_number">%1$d / %2$d</string>
     <string name="multisorting_action_next">Next</string>
     <string name="sorting_title_move">Move to</string>
+    <!-- Strings display to allow users create collection name -->
     <string name="dialogue_title_collection">Collection name</string>
     <string name="dialogue_inputfield_hint">Give me a name</string>
     <string name="dialogue_action_add">Add</string>
 
-    <!-- Home view -->
+    <!-- Home view: strings display on the home view -->
     <string name="home_action_search">Search</string>
     <string name="menu_home_action_settings">Settings</string>
     <string name="home_separator_access">Quick access</string>
@@ -29,13 +33,13 @@
     <string name="home_separator_collection">Collections</string>
     <string name="home_action_unsorted">Unsorted</string>
 
-    <!-- Collection view -->
+    <!-- Collection view: string displays on the collection view -->
     <string name="collection_separator_shots">%1$d shots</string>
 
-    <!-- Detail view -->
+    <!-- Detail view: string displays on the detail view when triggering OCR -->
     <string name="detail_transition_recognizing">Recognizing&#8230;</string>
 
-    <!-- Dialogue -->
+    <!-- Dialogue: strings display on the dialogues -->
     <string name="dialogue_collecitioninfo_title_info">Collection info</string>
     <string name="dialogue_list_name">Name</string>
     <string name="dialogue_collecitioninfo_list_shot">Total screenshots</string>
@@ -50,22 +54,24 @@
     <string name="dialogue_rename_title_rename">Rename collection</string>
     <string name="dialogue_rename_error_duplicate">There is already a collection with this name</string>
     <string name="dialogue_rename_error_maximum">20 characters maximum</string>
+    <!-- Dialogue: Strings display when users skip multi-sorting panel -->
     <string name="dialogue_skipsorting_title_skip">Skip the rest?</string>
     <string name="dialogue_skipsorting_content_moveto">Skip remaining screenshots and move to "Unsorted?"</string>
     <string name="dialogue_skipsorting_content_count">%1$d remaining</string>
     <string name="dialogue_skipsorting_action_skip">Skip all</string>
 
-    <!-- Menu -->
+    <!-- Menu: strings display when triggering the overflow menu in the top-right corner of each view -->
     <string name="menu_title_action">Actions</string>
     <string name="menu_shot_action_move">Move to&#8230;</string>
     <string name="menu_action_rename">Rename</string>
     <string name="menu_collection_action_info">Info</string>
+    <!-- Strings display to perform actions when selecting text on OCRed screenshot -->
     <string name="menu_ocr_action_web">Web search</string>
     <string name="menu_ocr_action_copy">Copy</string>
     <string name="menu_action_selectall">Select all</string>
     <string name="menu_action_share">Share</string>
 
-    <!-- Bottom sheet -->
+    <!-- Bottom sheet: strings display on the reminder panel -->
     <string name="sheet_enable_title_enable">Enable screenshot service?</string>
     <string name="sheet_enable_content_enable">You won\'t be able to take screenshots unless this is enabled</string>
     <string name="sheet_enable_action_enable">Enabled</string>
@@ -75,13 +81,13 @@
     <string name="sheet_unsorted_action_sort">Sort</string>
     <string name="sheet_action_no">No thanks</string>
 
-    <!-- Snackbar -->
+    <!-- Snackbar: strings to provide confirmations for user's actions -->
     <string name="snackbar_disable">Screenshot service disabled</string>
     <string name="snackbar_enable">Screenshot service enabled</string>
     <string name="snackbar_addto">Added to %1$s</string>
     <string name="snackbar_copied">Copied</string>
 
-    <!-- Settings -->
+    <!-- Settings: strings display in the settings page -->
     <string name="settings_list_capture">Enable screenshot service</string>
     <string name="settings_detail_capture">Allows you to take a screenshot with one tap. Works with whatever is on your screen</string>
     <string name="settings_list_fab">Enable screenshot button</string>
@@ -104,21 +110,23 @@
     <string name="about_list_right">Your Rights/ Licenses</string>
     <string name="about_list_privacy">Privacy Notice</string>
 
-    <!-- Onboarding testing -->
+    <!-- Onboarding: strings to onboard users to grant permissions -->
     <string name="onboarding_storage_title_welcome">Welcome to %1$s</string>
     <string name="onboarding_storage_content_permission">We need your permission to load your current screenshots from Gallery to do the magics.</string>
     <string name="onboarding_storage_action_confirm">Let\'s load it!</string>
     <string name="onboarding_transition_loading">Loading</string>
-    <!-- Overlay permission prompt -->
+    <!-- Overlay permission prompt: strings to onboard users to grant permissions -->
     <string name="onboarding_fab_title_fab">Easiest Way to Screenshot</string>
     <string name="onboarding_fab_content_permission">We need some permissions to let you take screenshots with a floating screenshot button.</string>
     <string name="onboarding_fab_action_later">Later</string>
     <string name="onboarding_fab_action_grant">Go to grant page</string>
+    <!-- Onboarding: strings to inform users when keeping denying permission -->
     <string name="onboarding_error_title_wrong">Oops! Something\'s wrong.</string>
     <string name="onboarding_error_content_permission">%1$s needs this permission to work correctly.</string>
     <string name="onboarding_error_action_allow">Allow permission</string>
     <string name="onboarding_rareerror_content_permission">%1$s needs permission to access your phone\'s storage. Please find Permission to turn on Storage.</string>
     <string name="onboarding_rareerror_action_goto">Go to permission</string>
+    <!-- Onboarding: strings to inform users that the search feature is WIP -->
     <string name="onboarding_search_title_soon">Search feature is coming soon</string>
     <string name="onboarding_search_content_survey">We\'re working hard to offer this feature as soon as possible. You can be the first one trying and help us improve the feature.</string>
     <string name="onboarding_search_action_agree">OK, I\'m in</string>

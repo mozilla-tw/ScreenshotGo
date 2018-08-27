@@ -24,10 +24,8 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatDialog
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
+import android.support.v7.preference.PreferenceManager
+import android.support.v7.widget.*
 import android.util.Log
 import android.view.*
 import android.widget.Button
@@ -58,6 +56,8 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         const val COLLECTION_COLUMN_COUNT = 2
         const val QUICK_ACCESS_ITEM_COUNT = 5
+
+        private const val PREF_SHOW_NEW_SCREENSHOT_DIALOG = "show_new_screenshot_dialog"
     }
 
     private lateinit var quickAccessContainer: ViewGroup
@@ -175,16 +175,23 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         dialog.findViewById<TextView>(R.id.title)?.setText(R.string.onboarding_fab_title_fab)
         dialog.findViewById<TextView>(R.id.subtitle)?.setText(R.string.onboarding_fab_content_permission)
         dialog.findViewById<View>(R.id.dont_ask_again_checkbox)?.visibility = View.GONE
-        dialog.findViewById<TextView>(R.id.positive_button)?.setText(R.string.onboarding_fab_action_grant)
-        dialog.findViewById<View>(R.id.positive_button)?.setOnClickListener {
-            action.run()
-            dialog.dismiss()
+
+        dialog.findViewById<TextView>(R.id.positive_button)?.apply {
+            setText(R.string.onboarding_fab_action_grant)
+            setOnClickListener {
+                action.run()
+                dialog.dismiss()
+            }
         }
-        dialog.findViewById<TextView>(R.id.negative_button)?.setText(R.string.onboarding_fab_action_later)
-        dialog.findViewById<View>(R.id.negative_button)?.setOnClickListener {
-            negativeAction.run()
-            dialog.dismiss()
+
+        dialog.findViewById<TextView>(R.id.negative_button)?.apply {
+            setText(R.string.onboarding_fab_action_later)
+            setOnClickListener {
+                negativeAction.run()
+                dialog.dismiss()
+            }
         }
+
         dialog.setOnCancelListener {
             negativeAction.run()
         }
@@ -218,9 +225,6 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         LocalBroadcastManager.getInstance(context).registerReceiver(receiver,
                 IntentFilter(ScryerService.EVENT_TAKE_SCREENSHOT))
-        dialog.setOnDismissListener { _ ->
-            LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver)
-        }
 
         permissionDialog = dialog
         dialogQueue.show(dialog, DialogInterface.OnDismissListener {
@@ -234,7 +238,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         syncScreenshotsFromExternalStorage { unsortedCount ->
             if (unsortedCount > 0) {
-                showNewScreenshotDetectedDialog(unsortedCount)
+                showNewScreenshotsDialog(unsortedCount)
             }
         }
     }
@@ -442,8 +446,11 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         }
     }
 
-    private fun showNewScreenshotDetectedDialog(unsortedCount: Int) {
+    private fun showNewScreenshotsDialog(unsortedCount: Int) {
         val context = context?: return
+        if (!isNewScreenshotDialogAllowed()) {
+            return
+        }
 
         val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
 
@@ -451,15 +458,23 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val subtitle = getString(R.string.sheet_unsorted_content_shots, unsortedCount)
         dialog.findViewById<TextView>(R.id.subtitle)?.text = subtitle
 
-        dialog.findViewById<TextView>(R.id.positive_button)?.setText(R.string.sheet_unsorted_action_sort)
-        dialog.findViewById<View>(R.id.positive_button)?.setOnClickListener {
-            startActivity(SortingPanelActivity.sortCollection(context, CollectionModel.UNCATEGORIZED))
-            dialog.dismiss()
+        dialog.findViewById<TextView>(R.id.positive_button)?.apply {
+            setText(R.string.sheet_unsorted_action_sort)
+            setOnClickListener {
+                startActivity(SortingPanelActivity.sortCollection(context, CollectionModel.UNCATEGORIZED))
+                dialog.dismiss()
+            }
         }
 
-        dialog.findViewById<TextView>(R.id.negative_button)?.setText(R.string.sheet_action_no)
-        dialog.findViewById<View>(R.id.negative_button)?.setOnClickListener {
-            dialog.dismiss()
+        val checkbox = dialog.findViewById<AppCompatCheckBox>(R.id.dont_ask_again_checkbox)
+        dialog.findViewById<TextView>(R.id.negative_button)?.apply {
+            setText(R.string.sheet_action_no)
+            setOnClickListener {
+                if (checkbox?.isChecked == true) {
+                    setDoNotShowNewScreenshotDialog()
+                }
+                dialog.dismiss()
+            }
         }
 
         dialogQueue.tryShow(dialog, null)
@@ -490,6 +505,21 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
     private fun log(tag: String, msg: String) {
         Log.d(tag, msg)
+    }
+
+    private fun setDoNotShowNewScreenshotDialog() {
+        context?.let {
+            PreferenceManager.getDefaultSharedPreferences(it).edit()
+                    .putBoolean(PREF_SHOW_NEW_SCREENSHOT_DIALOG, false)
+                    .apply()
+        }
+    }
+
+    private fun isNewScreenshotDialogAllowed(): Boolean {
+        return context?.let {
+            PreferenceManager.getDefaultSharedPreferences(it)
+                    .getBoolean(PREF_SHOW_NEW_SCREENSHOT_DIALOG, true)
+        }?: false
     }
 
     private class DialogQueue {

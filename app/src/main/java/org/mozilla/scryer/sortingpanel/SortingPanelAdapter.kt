@@ -90,11 +90,12 @@ class SortingPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         val holder = ItemHolder(view)
         holder.title = view.findViewById(R.id.title)
         holder.title?.setTextColor(ContextCompat.getColor(parent.context, R.color.white))
+        holder.checkIcon = view.findViewById(R.id.check_icon)
 
         holder.itemView.setOnClickListener { _ ->
             ensurePosition(holder) { position ->
                 collections?.let {
-                    callback?.onClick(it[position - 1])
+                    onCollectionClicked(it[position - 1], holder)
                 }
             }
         }
@@ -102,8 +103,25 @@ class SortingPanelAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return holder
     }
 
+    private fun onCollectionClicked(model: CollectionModel, holder: ItemHolder) {
+        holder.itemView.isClickable = false
+
+        holder.checkIcon?.visibility = View.VISIBLE
+        holder.title?.visibility = View.INVISIBLE
+
+        holder.itemView.postDelayed({
+            callback?.onClick(model)
+            holder.itemView.isClickable = true
+
+            holder.checkIcon?.visibility = View.INVISIBLE
+            holder.title?.visibility = View.VISIBLE
+
+        }, 1000)
+    }
+
     private class ItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var title: TextView? = null
+        var checkIcon: View? = null
     }
 
     private class NewItemHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

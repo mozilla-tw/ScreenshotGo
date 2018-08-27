@@ -104,7 +104,7 @@
     <string name="about_list_right">Your Rights/ Licenses</string>
     <string name="about_list_privacy">Privacy Notice</string>
 
-    <!-- Onboarding -->
+    <!-- Onboarding testing -->
     <string name="onboarding_storage_title_welcome">Welcome to %1$s</string>
     <string name="onboarding_storage_content_permission">We need your permission to load your current screenshots from Gallery to do the magics.</string>
     <string name="onboarding_storage_action_confirm">Let\'s load it!</string>

@@ -17,7 +17,7 @@
     <!-- Sorting panel: strings display on the sorting panel to help users categorize screenshots, 
     Refer to UX spec 1.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133909_1-1_Key_Flow_Add_To_Collection -->
     <string name="sorting_title_addto">Add to</string>
-    <string name="multisorting_count_number">%1$d / %2$d</string>
+    <string name="multisorting_count_number" translatable="false">%1$d / %2$d</string>
     <string name="multisorting_action_next">Next</string>
     <string name="sorting_title_move">Move to</string>
     <!-- Strings display to allow users create collection name -->
@@ -34,7 +34,7 @@
     <string name="home_separator_collection">Collections</string>
     <string name="home_action_unsorted">Unsorted</string>
 
-    <!-- Collection view: string displays on the collection view -->
+    <!-- Collection view: string displays on the collection view. Parameter %1$d is the quantity of screenshot files, i.e. 100 shots -->
     <string name="collection_separator_shots">%1$d shots</string>
 
     <!-- Detail view: string displays on the detail view when triggering OCR -->
@@ -44,6 +44,7 @@
     <string name="dialogue_collecitioninfo_title_info">Collection info</string>
     <string name="dialogue_list_name">Name</string>
     <string name="dialogue_collecitioninfo_list_shot">Total screenshots</string>
+    <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 screenshots -->
     <string name="dialogue_collecitioninfo_detail_shot">%1$d screenshots</string>
     <string name="dialogue_collecitioninfo_list_storage">Storage used</string>
     <string name="dialogue_shotinfo_list_size">Size</string>
@@ -51,6 +52,7 @@
     <string name="dialogue_deletecollection_title_delete">Delete collection?</string>
     <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
     <string name="dialogue_delete_content_cantundo">Are you sure? This action cannot be undone.</string>
+    <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 screenshots -->
     <string name="dialogue_deletecollection_content_shots">%1$d screenshots</string>
     <string name="dialogue_rename_title_rename">Rename collection</string>
     <string name="dialogue_rename_error_duplicate">There is already a collection with this name</string>
@@ -59,6 +61,7 @@
     Refer to UX spec 2.4_E: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133917_2-4_Detect_New_Screenshots-->
     <string name="dialogue_skipsorting_title_skip">Skip the rest?</string>
     <string name="dialogue_skipsorting_content_moveto">Skip remaining screenshots and move to "Unsorted?"</string>
+    <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 remaining -->
     <string name="dialogue_skipsorting_content_count">%1$d remaining</string>
     <string name="dialogue_skipsorting_action_skip">Skip all</string>
 
@@ -79,6 +82,7 @@
     <string name="sheet_enable_content_enable">You won\'t be able to take screenshots unless this is enabled</string>
     <string name="sheet_enable_action_enable">Enabled</string>
     <string name="sheet_unsorted_title_unsorted">Unsorted screenshots</string>
+    <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 unsorted screenshots. Sort them now? -->
     <string name="sheet_unsorted_content_shots">%1$d unsorted screenshots. Sort them now?</string>
     <string name="sheet_box_ask">Don\'t ask again</string>
     <string name="sheet_unsorted_action_sort">Sort</string>
@@ -87,6 +91,7 @@
     <!-- Snackbar: strings to provide confirmations for user's actions -->
     <string name="snackbar_disable">Screenshot service disabled</string>
     <string name="snackbar_enable">Screenshot service enabled</string>
+    <!-- Parameter %1$s is the collection name user defined, i.e. Shopping -->
     <string name="snackbar_addto">Added to %1$s</string>
     <string name="snackbar_copied">Copied</string>
 
@@ -98,6 +103,7 @@
     <string name="settings_list_sorting">Prompt to save</string>
     <string name="settings_detail_sorting">Always prompt to add screenshot to a collection</string>
     <string name="settings_list_usagedata">Send usage data</string>
+    <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
     <string name="settings_detail_mozilla">Mozilla strives to collect only what we need to provide and improve %1$s for everyone</string>
     <string name="settings_action_learnmore">Learn more</string>
     <string name="settings_list_feedback">Give feedback</string>
@@ -109,13 +115,14 @@
     <string name="share_intro"></string>
     <string name="settings_list_about">About</string>
     <string name="about_title_name">@string/app_name</string>
+    <!-- Parameter %1$s is version code of the app, i.e. 1.0.0 -->
     <string name="about_content_version">Version %1$s</string>
     <string name="about_list_support">Support</string>
     <string name="about_list_right">Your Rights/ Licenses</string>
     <string name="about_list_privacy">Privacy Notice</string>
 
     <!-- Onboarding: strings to onboard users to grant permissions,
-    Refer to UX spec 7.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133929_7-1_Onboarding -->
+    Refer to UX spec 7.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133929_7-1_Onboarding Parameter %1$s is the app name, i.e. Screenshot Go -->
     <string name="onboarding_storage_title_welcome">Welcome to %1$s</string>
     <string name="onboarding_storage_content_permission">We need your permission to load your current screenshots from Gallery to do the magics.</string>
     <string name="onboarding_storage_action_confirm">Let\'s load it!</string>
@@ -127,8 +134,10 @@
     <string name="onboarding_fab_action_grant">Go to grant page</string>
     <!-- Onboarding: strings to inform users when keeping denying permission -->
     <string name="onboarding_error_title_wrong">Oops! Something\'s wrong.</string>
+    <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
     <string name="onboarding_error_content_permission">%1$s needs this permission to work correctly.</string>
     <string name="onboarding_error_action_allow">Allow permission</string>
+    <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
     <string name="onboarding_rareerror_content_permission">%1$s needs permission to access your phone\'s storage. Please find Permission to turn on Storage.</string>
     <string name="onboarding_rareerror_action_goto">Go to permission</string>
     <!-- Onboarding: strings to inform users that the search feature is WIP,

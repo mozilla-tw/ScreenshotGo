@@ -46,7 +46,9 @@ import org.mozilla.scryer.setting.SettingsActivity
 import org.mozilla.scryer.ui.BottomDialogFactory
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.ui.ScryerToast
+import org.mozilla.scryer.util.ThreadUtils
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
+import java.io.File
 import java.util.*
 
 class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
@@ -493,21 +495,43 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
     private fun mergeExternalToDatabase(externalList: List<ScreenshotModel>,
                                         dbList: List<ScreenshotModel>): List<ScreenshotModel> {
-        val map = HashMap<String, ScreenshotModel>()
-        for (model in dbList) {
-            map[model.absolutePath] = model
-        }
+        // A lookup table consist of files recorded in the database, so we can quickly check whether each file
+        // from external storage had already been recorded before
+        val localModels = dbList.map { it.absolutePath to it }.toMap().toMutableMap()
 
         val results = mutableListOf<ScreenshotModel>()
-        for (externalModel in externalList) {
-            map[externalModel.absolutePath]?.let { dbModel ->
-                externalModel.id = dbModel.id
-                externalModel.collectionId = dbModel.collectionId
-            } ?: run {
+        externalList.forEach { externalModel ->
+            val localModel = localModels[externalModel.absolutePath]
+            localModel?.let {
+                // Already recorded before, sync id and collectionId from local record
+                // TODO: Do we really need to save(rewrite) existed item to db again here(replace)?
+                externalModel.id = localModel.id
+                externalModel.collectionId = localModel.collectionId
+
+                // Remove processed item from the lookup table
+                localModels.remove(externalModel.absolutePath)
+
+            }?: run {
+                // No record found, make a new uncategorized item
                 externalModel.id = UUID.randomUUID().toString()
                 externalModel.collectionId = CollectionModel.UNCATEGORIZED
             }
+
             results.add(externalModel)
+        }
+
+        ThreadUtils.postToBackgroundThread {
+            // Remaining entries are those that exist only in our database, but not in the external storage
+            for (entry in localModels) {
+                val model = entry.value
+                val file = File(model.absolutePath)
+                if (!file.exists()) {
+                    viewModel.deleteScreenshot(model)
+                }
+            }
+            ThreadUtils.postToMainThread {
+                mainAdapter.notifyDataSetChanged()
+            }
         }
 
         viewModel.addScreenshot(results)

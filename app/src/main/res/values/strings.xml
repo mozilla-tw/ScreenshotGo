@@ -50,8 +50,6 @@
     <!-- String displayed as a tag to accomodate the name attribute, e.g. Name: shopping -->
     <string name="dialogue_list_name">Name</string>
     <string name="dialogue_collecitioninfo_list_shot">Total screenshots</string>
-    <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 screenshots -->
-    <string name="dialogue_collecitioninfo_detail_shot">%1$d screenshots</string>
     <string name="dialogue_collecitioninfo_list_storage">Storage used</string>
     <string name="dialogue_shotinfo_list_size">Size</string>
     <string name="dialogue_list_edit">Last edit</string>

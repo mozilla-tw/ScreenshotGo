@@ -86,13 +86,13 @@
 
     <!-- Bottom sheet: strings displayed on the reminder panel -->
     <string name="sheet_enable_title_enable">Enable screenshot service?</string>
-    <string name="sheet_enable_content_enable">You won\’t be able to take screenshots unless this is enabled</string>
+    <string name="sheet_enable_content_enable">You won’t be able to take screenshots unless this is enabled</string>
     <!-- String displayed to allow users to enable the screenshot service -->
     <string name="sheet_enable_action_enable">Enabled</string>
     <string name="sheet_unsorted_title_unsorted">Unsorted screenshots</string>
     <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 unsorted screenshots. Sort them now? -->
     <string name="sheet_unsorted_content_shots">%1$d unsorted screenshots. Sort them now?</string>
-    <string name="sheet_box_ask">Don\’t ask again</string>
+    <string name="sheet_box_ask">Don’t ask again</string>
     <string name="sheet_unsorted_action_sort">Sort</string>
     <string name="sheet_action_no">No thanks</string>
 
@@ -133,7 +133,7 @@
     Refer to UX spec 7.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133929_7-1_Onboarding Parameter %1$s is the app name, i.e. Screenshot Go -->
     <string name="onboarding_storage_title_welcome">Welcome to %1$s</string>
     <string name="onboarding_storage_content_permission">We need your permission to load your current screenshots from Gallery to do the magics.</string>
-    <string name="onboarding_storage_action_confirm">Let\’s load it!</string>
+    <string name="onboarding_storage_action_confirm">Let’s load it!</string>
     <string name="onboarding_transition_loading">Loading</string>
     <!-- Overlay permission prompt: strings to onboard users to grant permissions -->
     <string name="onboarding_fab_title_fab">Easiest Way to Screenshot</string>
@@ -142,21 +142,21 @@
     <string name="onboarding_fab_action_later">Later</string>
     <string name="onboarding_fab_action_grant">Go to grant page</string>
     <!-- Onboarding: strings to inform users when keeping denying permission -->
-    <string name="onboarding_error_title_wrong">Oops! Something\’s wrong.</string>
+    <string name="onboarding_error_title_wrong">Oops! Something’s wrong.</string>
     <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
     <string name="onboarding_error_content_permission">%1$s needs this permission to work correctly.</string>
     <string name="onboarding_error_action_allow">Allow permission</string>
     <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
-    <string name="onboarding_rareerror_content_permission">%1$s needs permission to access your phone\’s storage. Please find Permission to turn on Storage.</string>
+    <string name="onboarding_rareerror_content_permission">%1$s needs permission to access your phone’s storage. Please find Permission to turn on Storage.</string>
     <string name="onboarding_rareerror_action_goto">Go to permission</string>
     <!-- Onboarding: strings to inform users that the search feature is WIP,
     Refer to UX spec 7.3: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133930_7-3_Other_Oborading -->
     <string name="onboarding_search_title_soon">Search feature is coming soon</string>
-    <string name="onboarding_search_content_survey">We\’re working hard to offer this feature as soon as possible. You can be the first one trying and help us improve the feature.</string>
-    <string name="onboarding_search_action_agree">OK, I\’m in</string>
+    <string name="onboarding_search_content_survey">We’re working hard to offer this feature as soon as possible. You can be the first one trying and help us improve the feature.</string>
+    <string name="onboarding_search_action_agree">OK, I’m in</string>
     <string name="onboarding_search_action_disagree">No, thanks</string>
     <string name="onboarding_search_content_feedback"></string>
 
     <!-- Auto-grant overlay permission prompt -->
-    <string name="onboarding_autogrant_overlay_title">Give the screenshot button a try to see what\’ll happen</string>
+    <string name="onboarding_autogrant_overlay_title">Give the screenshot button a try to see what’ll happen</string>
 </resources>

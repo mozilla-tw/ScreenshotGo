@@ -8,40 +8,46 @@
     <!-- Label used for title in screenshot info dialogue, but for action in menu -->
     <string name="info_info">Screenshot info</string>
 
-    <!-- Notification: strings display on the notification to perform various actions -->
+    <!-- Notification: strings displayed on the notification to perform various actions -->
     <string name="notification_action_capture">Tap to take screenshot</string>
     <string name="notification_action_open">Open app</string>
     <string name="notification_action_stop">Stop</string>
     <string name="notification_action_collect">Open app to collect screenshots</string>
 
-    <!-- Sorting panel: strings display on the sorting panel to help users categorize screenshots, 
+    <!-- Sorting panel: strings displayed on the sorting panel to help users categorize screenshots, 
     Refer to UX spec 1.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133909_1-1_Key_Flow_Add_To_Collection -->
     <string name="sorting_title_addto">Add to</string>
     <string name="multisorting_count_number" translatable="false">%1$d / %2$d</string>
+    <!-- String displayed to skip the current screenshot and move on to the next one -->
     <string name="multisorting_action_next">Next</string>
+    <!-- String displayed on the title of sorting panel and the screenshot will be categorized to a collection -->
     <string name="sorting_title_move">Move to</string>
-    <!-- Strings display to allow users create collection name -->
+    <!-- Strings displayed to allow users to create collection name -->
     <string name="dialogue_title_collection">Collection name</string>
+    <!-- String displayed as a hint to ask users to type a name -->
     <string name="dialogue_inputfield_hint">Give me a name</string>
+    <!-- String displayed to create a new collection and add the screenshot into it -->
     <string name="dialogue_action_add">Add</string>
 
-    <!-- Home view: strings display on the home view,
+    <!-- Home view: strings displayed on the home view,
     Refer to UX spec 2.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133914_2-1_Navigation-->
     <string name="home_action_search">Search</string>
     <string name="menu_home_action_settings">Settings</string>
     <string name="home_separator_access">Quick access</string>
     <string name="home_action_more">View all</string>
     <string name="home_separator_collection">Collections</string>
+    <!-- String displayed to allow users to enter a collection with all unsorted screenshots -->
     <string name="home_action_unsorted">Unsorted</string>
 
-    <!-- Collection view: string displays on the collection view. Parameter %1$d is the quantity of screenshot files, i.e. 100 shots -->
+    <!-- Collection view: string displayed on the collection view. Parameter %1$d is the quantity of screenshot files, i.e. 100 shots -->
     <string name="collection_separator_shots">%1$d shots</string>
 
-    <!-- Detail view: string displays on the detail view when triggering OCR -->
+    <!-- Detail view: string displayed on the detail view when recognizing the text on the screenshot -->
     <string name="detail_transition_recognizing">Recognizing&#8230;</string>
 
-    <!-- Dialogue: strings display in the dialogues -->
+    <!-- Dialogue: strings displayed in the dialogues -->
     <string name="dialogue_collecitioninfo_title_info">Collection info</string>
+    <!-- String displayed as a tag to accomodate the name attribute, e.g. Name: shopping -->
     <string name="dialogue_list_name">Name</string>
     <string name="dialogue_collecitioninfo_list_shot">Total screenshots</string>
     <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 screenshots -->
@@ -57,45 +63,47 @@
     <string name="dialogue_rename_title_rename">Rename collection</string>
     <string name="dialogue_rename_error_duplicate">There is already a collection with this name</string>
     <string name="dialogue_rename_error_maximum">20 characters maximum</string>
-    <!-- Dialogue: Strings display when users skip multi-sorting panel,
+    <!-- Dialogue: Strings displayed when users skip multi-sorting panel,
     Refer to UX spec 2.4_E: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133917_2-4_Detect_New_Screenshots-->
     <string name="dialogue_skipsorting_title_skip">Skip the rest?</string>
-    <string name="dialogue_skipsorting_content_moveto">Skip remaining screenshots and move to "Unsorted?"</string>
+    <string name="dialogue_skipsorting_content_moveto">Skip remaining screenshots and move to “Unsorted?”</string>
     <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 remaining -->
     <string name="dialogue_skipsorting_content_count">%1$d remaining</string>
+    <!-- String to allow users to skip sorting the remaining screenshots -->
     <string name="dialogue_skipsorting_action_skip">Skip all</string>
 
-    <!-- Menu: strings display when triggering the overflow menu in the top-right corner of each view -->
+    <!-- Menu: strings displayed when triggering the overflow menu in the top-right corner of each view -->
     <string name="menu_title_action">Actions</string>
     <string name="menu_shot_action_move">Move to&#8230;</string>
     <string name="menu_action_rename">Rename</string>
     <string name="menu_collection_action_info">Info</string>
-    <!-- Strings display to perform actions when selecting text on OCRed screenshot,
+    <!-- Strings displayed to perform actions when selecting text on the screenshot,
     Refer to UX spec 4.2_G&I: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133922_4-2_Image_-_Text_Mode-->
     <string name="menu_ocr_action_web">Web search</string>
     <string name="menu_ocr_action_copy">Copy</string>
     <string name="menu_action_selectall">Select all</string>
     <string name="menu_action_share">Share</string>
 
-    <!-- Bottom sheet: strings display on the reminder panel -->
+    <!-- Bottom sheet: strings displayed on the reminder panel -->
     <string name="sheet_enable_title_enable">Enable screenshot service?</string>
-    <string name="sheet_enable_content_enable">You won\'t be able to take screenshots unless this is enabled</string>
+    <string name="sheet_enable_content_enable">You won\’t be able to take screenshots unless this is enabled</string>
+    <!-- String displayed to allow users to enable the screenshot service -->
     <string name="sheet_enable_action_enable">Enabled</string>
     <string name="sheet_unsorted_title_unsorted">Unsorted screenshots</string>
     <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 unsorted screenshots. Sort them now? -->
     <string name="sheet_unsorted_content_shots">%1$d unsorted screenshots. Sort them now?</string>
-    <string name="sheet_box_ask">Don\'t ask again</string>
+    <string name="sheet_box_ask">Don\’t ask again</string>
     <string name="sheet_unsorted_action_sort">Sort</string>
     <string name="sheet_action_no">No thanks</string>
 
-    <!-- Snackbar: strings to provide confirmations for user's actions -->
+    <!-- Snackbar: strings to provide confirmations for user’s actions -->
     <string name="snackbar_disable">Screenshot service disabled</string>
     <string name="snackbar_enable">Screenshot service enabled</string>
     <!-- Parameter %1$s is the collection name user defined, i.e. Shopping -->
     <string name="snackbar_addto">Added to %1$s</string>
     <string name="snackbar_copied">Copied</string>
 
-    <!-- Settings: strings display in the settings page,
+    <!-- Settings: strings displayed in the settings page,
     Refer to UX spec 6.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133927_6-1_Settings -->
     <string name="settings_list_capture">Enable screenshot service</string>
     <string name="settings_detail_capture">Allows you to take a screenshot with one tap. Works with whatever is on your screen</string>
@@ -125,29 +133,30 @@
     Refer to UX spec 7.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133929_7-1_Onboarding Parameter %1$s is the app name, i.e. Screenshot Go -->
     <string name="onboarding_storage_title_welcome">Welcome to %1$s</string>
     <string name="onboarding_storage_content_permission">We need your permission to load your current screenshots from Gallery to do the magics.</string>
-    <string name="onboarding_storage_action_confirm">Let\'s load it!</string>
+    <string name="onboarding_storage_action_confirm">Let\’s load it!</string>
     <string name="onboarding_transition_loading">Loading</string>
     <!-- Overlay permission prompt: strings to onboard users to grant permissions -->
     <string name="onboarding_fab_title_fab">Easiest Way to Screenshot</string>
     <string name="onboarding_fab_content_permission">We need some permissions to let you take screenshots with a floating screenshot button.</string>
+    <!-- String to allow users to dismiss the onboarding panel -->
     <string name="onboarding_fab_action_later">Later</string>
     <string name="onboarding_fab_action_grant">Go to grant page</string>
     <!-- Onboarding: strings to inform users when keeping denying permission -->
-    <string name="onboarding_error_title_wrong">Oops! Something\'s wrong.</string>
+    <string name="onboarding_error_title_wrong">Oops! Something\’s wrong.</string>
     <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
     <string name="onboarding_error_content_permission">%1$s needs this permission to work correctly.</string>
     <string name="onboarding_error_action_allow">Allow permission</string>
     <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
-    <string name="onboarding_rareerror_content_permission">%1$s needs permission to access your phone\'s storage. Please find Permission to turn on Storage.</string>
+    <string name="onboarding_rareerror_content_permission">%1$s needs permission to access your phone\’s storage. Please find Permission to turn on Storage.</string>
     <string name="onboarding_rareerror_action_goto">Go to permission</string>
     <!-- Onboarding: strings to inform users that the search feature is WIP,
     Refer to UX spec 7.3: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133930_7-3_Other_Oborading -->
     <string name="onboarding_search_title_soon">Search feature is coming soon</string>
-    <string name="onboarding_search_content_survey">We\'re working hard to offer this feature as soon as possible. You can be the first one trying and help us improve the feature.</string>
-    <string name="onboarding_search_action_agree">OK, I\'m in</string>
+    <string name="onboarding_search_content_survey">We\’re working hard to offer this feature as soon as possible. You can be the first one trying and help us improve the feature.</string>
+    <string name="onboarding_search_action_agree">OK, I\’m in</string>
     <string name="onboarding_search_action_disagree">No, thanks</string>
     <string name="onboarding_search_content_feedback"></string>
 
     <!-- Auto-grant overlay permission prompt -->
-    <string name="onboarding_autogrant_overlay_title">Give the screenshot button a try to see what\'ll happen</string>
+    <string name="onboarding_autogrant_overlay_title">Give the screenshot button a try to see what\’ll happen</string>
 </resources>

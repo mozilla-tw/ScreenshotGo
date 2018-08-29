@@ -12,6 +12,13 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        def build_number = System.getenv("BITRISE_BUILD_NUMBER")
+        if (build_number?.trim()) {
+            def build_number_with_offset = build_number.toInteger()
+            versionCode build_number_with_offset
+            versionNameSuffix "(" + build_number_with_offset + ")"
+        }
+
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
             targetCompatibility JavaVersion.VERSION_1_8
@@ -23,10 +30,40 @@ android {
             }
         }
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix applicationIdSuffix
+        }
+    }
+
+    flavorDimensions "product"
+
+    productFlavors {
+        go {
+            resConfigs "en", "in"
+            dimension "product"
+        }
+
+        preview {
+            dimension "product"
+            applicationId "gro.allizom.scryer"
+            applicationIdSuffix ""
+            versionNameSuffix ".nightly"
+        }
+    }
+
+    variantFilter { variant ->
+        def flavors = variant.flavors*.name
+        // We only need a gecko debug and beta build for now.
+        if (flavors.contains("preview") && variant.buildType.name != "release") {
+            setIgnore(true)
         }
     }
 }

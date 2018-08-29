@@ -45,7 +45,7 @@
     <!-- Detail view: string displayed on the detail view when recognizing the text on the screenshot -->
     <string name="detail_transition_recognizing">Recognizing&#8230;</string>
 
-    <!-- Dialogue: strings displayed in the dialogues -->
+    <!-- Dialogue: strings displayed in the dialogues which inform users about a task, e.g. dialogue title, content and action -->
     <string name="dialogue_collecitioninfo_title_info">Collection info</string>
     <!-- String displayed as a tag to accomodate the name attribute, e.g. Name: shopping -->
     <string name="dialogue_list_name">Name</string>

@@ -118,7 +118,8 @@
     <string name="feedback_action_rate">Rate on Google Play</string>
     <string name="feedback_action_feedback">Give us feedback</string>
     <string name="settings_list_share">Share with friends</string>
-    <string name="share_intro"></string>
+    <!-- TODO: wait for designer to confirm -->
+    <string name="share_intro" translatable="false"></string>
     <string name="settings_list_about">About</string>
     <string name="about_title_name">@string/app_name</string>
     <!-- Parameter %1$s is version code of the app, i.e. 1.0.0 -->
@@ -128,17 +129,22 @@
     <string name="about_list_privacy">Privacy Notice</string>
 
     <!-- Onboarding: strings to onboard users to grant permissions,
-    Refer to UX spec 7.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133929_7-1_Onboarding Parameter %1$s is the app name, i.e. Screenshot Go -->
-    <string name="onboarding_storage_title_welcome">Welcome to %1$s</string>
-    <string name="onboarding_storage_content_permission">We need your permission to load your current screenshots from Gallery to do the magics.</string>
-    <string name="onboarding_storage_action_confirm">Let’s load it!</string>
+    Refer to UX spec 7.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133929_7-1_Onboarding Parameter %1$s is the app name, i.e. Screenshot Go
+    TODO: wait for designer to confirm -->
+    <string name="onboarding_storage_title_welcome" translatable="false">Welcome to %1$s</string>
+    <!-- TODO: wait for designer to confirm -->
+    <string name="onboarding_storage_content_permission" translatable="false">We need your permission to load your current screenshots from Gallery to do the magics.</string>
+    <!-- TODO: wait for designer to confirm -->
+    <string name="onboarding_storage_action_confirm" translatable="false">Let’s load it!</string>
     <string name="onboarding_transition_loading">Loading</string>
-    <!-- Overlay permission prompt: strings to onboard users to grant permissions -->
-    <string name="onboarding_fab_title_fab">Easiest Way to Screenshot</string>
-    <string name="onboarding_fab_content_permission">We need some permissions to let you take screenshots with a floating screenshot button.</string>
-    <!-- String to allow users to dismiss the onboarding panel -->
-    <string name="onboarding_fab_action_later">Later</string>
-    <string name="onboarding_fab_action_grant">Go to grant page</string>
+    <!-- Overlay permission prompt: strings to onboard users to grant permissions TODO: wait for designer to confirm -->
+    <string name="onboarding_fab_title_fab" translatable="false">Easiest Way to Screenshot</string>
+    <!-- TODO: wait for designer to confirm -->
+    <string name="onboarding_fab_content_permission" translatable="false">We need some permissions to let you take screenshots with a floating screenshot button.</string>
+    <!-- String to allow users to dismiss the onboarding panel TODO: wait for designer to confirm -->
+    <string name="onboarding_fab_action_later" translatable="false">Later</string>
+    <!-- TODO: wait for designer to confirm -->
+    <string name="onboarding_fab_action_grant" translatable="false">Go to grant page</string>
     <!-- Onboarding: strings to inform users when keeping denying permission -->
     <string name="onboarding_error_title_wrong">Oops! Something’s wrong.</string>
     <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
@@ -148,13 +154,17 @@
     <string name="onboarding_rareerror_content_permission">%1$s needs permission to access your phone’s storage. Please find Permission to turn on Storage.</string>
     <string name="onboarding_rareerror_action_goto">Go to permission</string>
     <!-- Onboarding: strings to inform users that the search feature is WIP,
-    Refer to UX spec 7.3: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133930_7-3_Other_Oborading -->
-    <string name="onboarding_search_title_soon">Search feature is coming soon</string>
-    <string name="onboarding_search_content_survey">We’re working hard to offer this feature as soon as possible. You can be the first one trying and help us improve the feature.</string>
-    <string name="onboarding_search_action_agree">OK, I’m in</string>
-    <string name="onboarding_search_action_disagree">No, thanks</string>
-    <string name="onboarding_search_content_feedback"></string>
-
-    <!-- Auto-grant overlay permission prompt -->
-    <string name="onboarding_autogrant_overlay_title">Give the screenshot button a try to see what’ll happen</string>
+    Refer to UX spec 7.3: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133930_7-3_Other_Oborading
+    TODO: wait for designer to confirm -->
+    <string name="onboarding_search_title_soon" translatable="false">Search feature is coming soon</string>
+    <!-- TODO: wait for designer to confirm -->
+    <string name="onboarding_search_content_survey" translatable="false">We’re working hard to offer this feature as soon as possible. You can be the first one trying and help us improve the feature.</string>
+    <!-- TODO: wait for designer to confirm -->
+    <string name="onboarding_search_action_agree" translatable="false">OK, I’m in</string>
+    <!-- TODO: wait for designer to confirm -->
+    <string name="onboarding_search_action_disagree" translatable="false">No, thanks</string>
+    <!-- TODO: wait for designer to confirm -->
+    <string name="onboarding_search_content_feedback" translatable="false"></string>
+    <!-- Auto-grant overlay permission prompt TODO: wait for designer to confirm -->
+    <string name="onboarding_autogrant_overlay_title" translatable="false">Give the screenshot button a try to see what’ll happen</string>
 </resources>

@@ -95,6 +95,11 @@ class CollectionFragment : Fragment() {
         if (collectionId == null || collectionId == CollectionModel.CATEGORY_NONE) {
             renameItem.isVisible = false
         }
+
+        val deleteItem = menu.findItem(R.id.action_collection_delete)
+        if (collectionId == null || collectionId == CollectionModel.CATEGORY_NONE) {
+            deleteItem.isVisible = false
+        }
         super.onCreateOptionsMenu(menu, inflater)
     }
 

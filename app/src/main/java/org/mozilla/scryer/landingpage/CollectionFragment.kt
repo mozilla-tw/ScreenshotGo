@@ -317,9 +317,9 @@ fun showScreenshotInfoDialog(context: Context, screenshotModel: ScreenshotModel)
     val message = StringBuilder()
     message.apply {
         append(context.getString(R.string.dialogue_list_name)).append("\n")
-        append(getFileNameText(screenshotModel.absolutePath)).append("\n").append("\n")
+        append(getFileNameText(screenshotModel.absolutePath)).append("\n\n")
         append(context.getString(R.string.dialogue_shotinfo_list_size)).append("\n")
-        append(getFileSizeText(File(screenshotModel.absolutePath).length())).append("\n").append("\n")
+        append(getFileSizeText(File(screenshotModel.absolutePath).length())).append("\n\n")
         append(context.getString(R.string.dialogue_list_edit)).append("\n")
         append(getFileDateText(File(screenshotModel.absolutePath).lastModified()))
     }
@@ -364,9 +364,15 @@ fun getFileDateText(timestamp: Long): String {
 }
 
 fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotModel) {
+    val message = StringBuilder()
+    message.apply {
+        append(context.getString(R.string.dialogue_delete_content_cantundo)).append("\n\n")
+        append(getFileSizeText(File(screenshotModel.absolutePath).length()))
+    }
+
     AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.dialogue_deleteshot_title_delete))
-            .setMessage(context.getString(R.string.dialogue_delete_content_cantundo))
+            .setMessage(message)
             .setNegativeButton(context.getString(android.R.string.cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
             .setPositiveButton(context.getString(R.string.action_delete)) { dialog: DialogInterface?, _: Int ->
                 launch {

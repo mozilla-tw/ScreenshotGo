@@ -13,6 +13,11 @@
         app:showAsAction="never"/>
 
     <item
+        android:id="@+id/action_collection_delete"
+        android:title="@string/action_delete"
+        app:showAsAction="never"/>
+
+    <item
         android:id="@+id/action_sort"
         android:title="@string/sheet_unsorted_action_sort"
         android:icon="@drawable/move"

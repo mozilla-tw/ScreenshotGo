@@ -126,6 +126,12 @@ class CollectionFragment : Fragment() {
                     showCollectionInfo(it, ScreenshotViewModel.get(this), collectionId)
                 }
             }
+
+            R.id.action_collection_delete -> {
+                context?.let {
+                    showDeleteCollectionDialog(view, ScreenshotViewModel.get(this), collectionId)
+                }
+            }
             else -> return super.onOptionsItemSelected(item)
         }
 
@@ -455,5 +461,28 @@ private fun showCollectionInfoDialog(context: Context, collection: CollectionMod
             .setTitle(context.getString(R.string.dialogue_collecitioninfo_title_info))
             .setMessage(message)
             .setPositiveButton(context.getString(android.R.string.ok)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
+            .show()
+}
+
+fun showDeleteCollectionDialog(view: View, viewModel: ScreenshotViewModel, collectionId: String?) {
+    val context = view.context
+    AlertDialog.Builder(context)
+            .setTitle(context.getString(R.string.dialogue_deletecollection_title_delete))
+            .setMessage(context.getString(R.string.dialogue_delete_content_cantundo))
+            .setNegativeButton(context.getString(android.R.string.cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
+            .setPositiveButton(context.getString(R.string.action_delete)) { dialog: DialogInterface?, _: Int ->
+                launch {
+                    val collections = viewModel.getCollectionList()
+                    collections.find { it.id == collectionId }?.let {
+                        val screenshots = withContext(DefaultDispatcher) {
+                            viewModel.getScreenshotList(listOf(it.id))
+                        }
+                        viewModel.deleteCollection(it)
+                        screenshots.forEach { File(it.absolutePath).delete() }
+                    }
+                }
+                dialog?.dismiss()
+                Navigation.findNavController(view).navigateUp()
+            }
             .show()
 }

@@ -25,7 +25,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.experimental.DefaultDispatcher
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 import org.mozilla.scryer.*
 import org.mozilla.scryer.Observer
 import org.mozilla.scryer.capture.SortingPanelActivity
@@ -117,6 +120,12 @@ class CollectionFragment : Fragment() {
                     CollectionNameDialog.renameCollection(it, ScreenshotViewModel.get(this), collectionId)
                 }
             }
+
+            R.id.action_collection_info -> {
+                context?.let {
+                    showCollectionInfo(it, ScreenshotViewModel.get(this), collectionId)
+                }
+            }
             else -> return super.onOptionsItemSelected(item)
         }
 
@@ -198,7 +207,7 @@ open class ScreenshotAdapter(val context: Context?) : RecyclerView.Adapter<Recyc
         holder.title = view.findViewById(R.id.title)
         holder.image = view.findViewById(R.id.image_view)
         holder.itemView.setOnClickListener { _ ->
-            holder.getValidPosition{ position: Int ->
+            holder.getValidPosition { position: Int ->
                 DetailPageActivity.showDetailPage(parent.context, screenshotList[position].absolutePath, holder.image)
             }
         }
@@ -403,4 +412,48 @@ fun showShareScreenshotDialog(context: Context, screenshotModel: ScreenshotModel
         } catch (e: ActivityNotFoundException) {
         }
     }
+}
+
+fun showCollectionInfo(context: Context, viewModel: ScreenshotViewModel, collectionId: String?) {
+    launch(UI) {
+        val collections = withContext(DefaultDispatcher) {
+            viewModel.getCollectionList()
+        }
+        collections.find { it.id == collectionId }?.let {
+            val screenshots = withContext(DefaultDispatcher) {
+                viewModel.getScreenshotList(listOf(it.id))
+            }
+            showCollectionInfoDialog(context, it, screenshots)
+        }
+    }
+}
+
+private fun showCollectionInfoDialog(context: Context, collection: CollectionModel, screenshots: List<ScreenshotModel>) {
+    var totalFileSize = 0L
+    var recentModifiedTime = 0L
+    for (screenshot in screenshots) {
+        val file = File(screenshot.absolutePath)
+        totalFileSize += file.length()
+        if (file.lastModified() > recentModifiedTime) {
+            recentModifiedTime = file.lastModified()
+        }
+    }
+
+    val message = StringBuilder()
+    message.apply {
+        append(context.getString(R.string.dialogue_list_name)).append("\n")
+        append(getFileNameText(collection.name)).append("\n\n")
+        append(context.getString(R.string.dialogue_collecitioninfo_list_shot)).append("\n")
+        append(screenshots.size).append("\n\n")
+        append(context.getString(R.string.dialogue_collecitioninfo_list_storage)).append("\n")
+        append(getFileSizeText(totalFileSize)).append("\n\n")
+        append(context.getString(R.string.dialogue_list_edit)).append("\n")
+        append(getFileDateText(recentModifiedTime))
+    }
+
+    AlertDialog.Builder(context)
+            .setTitle(context.getString(R.string.dialogue_collecitioninfo_title_info))
+            .setMessage(message)
+            .setPositiveButton(context.getString(android.R.string.ok)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
+            .show()
 }

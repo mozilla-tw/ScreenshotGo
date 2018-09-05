@@ -12,9 +12,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.navigation.Navigation
@@ -28,7 +26,7 @@ import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 
-class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<RecyclerView.ViewHolder>(), OnContextMenuActionListener {
     companion object {
         const val TYPE_SECTION_NAME = 0
         const val TYPE_QUICK_ACCESS = 1
@@ -41,6 +39,10 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
 
         const val PREFIX_ITEM_COUNT = 3
         const val POSTFIX_ITEM_COUNT = 1
+
+        const val CONTEXT_MENU_ID_RENAME = 0
+        const val CONTEXT_MENU_ID_INFO = 1
+        const val CONTEXT_MENU_ID_DELETE = 2
     }
 
     lateinit var quickAccessContainer: View
@@ -96,10 +98,26 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         }
     }
 
+    override fun onContextMenuAction(item: MenuItem?, itemPosition: Int) {
+        val collectionModel: CollectionModel?
+        val collectionItemPosition = itemPosition - PREFIX_ITEM_COUNT
+        if (collectionItemPosition >= 0 && collectionItemPosition < collectionList.size) {
+            collectionModel = collectionList[collectionItemPosition]
+        } else {
+            return
+        }
+
+        when (item?.itemId) {
+            CONTEXT_MENU_ID_RENAME -> fragment?.context?.let { CollectionNameDialog.renameCollection(it, ScreenshotViewModel.get(fragment), collectionModel.id) }
+            CONTEXT_MENU_ID_INFO -> fragment?.context?.let { showCollectionInfo(it, ScreenshotViewModel.get(fragment), collectionModel.id) }
+            CONTEXT_MENU_ID_DELETE -> fragment?.context?.let { showDeleteCollectionDialog(fragment.view!!, ScreenshotViewModel.get(fragment), collectionModel.id) }
+        }
+    }
+
     private fun createCollectionHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         val itemView = wrapInItemView(parent, R.layout.item_collection)
 
-        val itemHolder = CollectionHolder(itemView)
+        val itemHolder = CollectionHolder(itemView, this)
         itemHolder.title = itemView.findViewById(R.id.title)
         itemHolder.image = itemView.findViewById(R.id.image)
         itemHolder.overlay = itemView.findViewById(R.id.overlay)
@@ -219,10 +237,32 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         var title: TextView? = null
     }
 
-    class CollectionHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    class CollectionHolder(itemView: View, private val onContextMenuActionListener: OnContextMenuActionListener) : RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
         var image: ImageView? = null
         var title: TextView? = null
         var overlay: View? = null
+
+        init {
+            itemView.setOnCreateContextMenuListener(this)
+        }
+
+        override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
+            menu?.setHeaderTitle(v?.context?.getString(R.string.menu_title_action))
+
+            val isUnsortedItem = (adapterPosition - PREFIX_ITEM_COUNT) == 0
+            if (!isUnsortedItem) {
+                menu?.add(0, CONTEXT_MENU_ID_RENAME, 0, v?.context?.getString(R.string.menu_action_rename))?.setOnMenuItemClickListener(this)
+            }
+            menu?.add(0, CONTEXT_MENU_ID_INFO, 0, v?.context?.getString(R.string.dialogue_collecitioninfo_title_info))?.setOnMenuItemClickListener(this)
+            if (!isUnsortedItem) {
+                menu?.add(0, CONTEXT_MENU_ID_DELETE, 0, v?.context?.getString(R.string.action_delete))?.setOnMenuItemClickListener(this)
+            }
+        }
+
+        override fun onMenuItemClick(item: MenuItem?): Boolean {
+            onContextMenuActionListener.onContextMenuAction(item, adapterPosition)
+            return false
+        }
     }
 
     class SpanSizeLookup(private val columnCount: Int) : GridLayoutManager.SpanSizeLookup() {

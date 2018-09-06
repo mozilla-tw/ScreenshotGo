@@ -87,6 +87,9 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
             repository.serviceEnabled = enable
 
+            enableFloatingScreenshotButton.isEnabled = enable
+            enableAddToCollectionButton.isEnabled = enable
+
             return true
         } else if (preference == enableFloatingScreenshotButton) {
             repository.floatingEnable = newValue as Boolean

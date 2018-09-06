@@ -21,6 +21,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     private val enableCaptureService: SwitchPreferenceCompat by lazy { findPreference(getString(R.string.pref_key_enable_capture_service)) as SwitchPreferenceCompat }
     private val enableFloatingScreenshotButton: SwitchPreferenceCompat by lazy { findPreference(getString(R.string.pref_key_enable_floating_screenshot_button)) as SwitchPreferenceCompat }
     private val enableAddToCollectionButton: SwitchPreferenceCompat by lazy { findPreference(getString(R.string.pref_key_enable_add_to_collection)) as SwitchPreferenceCompat }
+    private val enableSendUsageDataButton: SwitchPreferenceCompat by lazy { findPreference(getString(R.string.pref_key_enable_send_usage_data)) as SwitchPreferenceCompat }
     private val giveFeedbackPreference: Preference by lazy { findPreference(getString(R.string.pref_key_give_feedback)) }
     private val shareWithFriendsPreference: Preference by lazy { findPreference(getString(R.string.pref_key_share_with_friends)) }
     private val aboutPreference: Preference by lazy { findPreference(getString(R.string.pref_key_about)) }
@@ -62,6 +63,9 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             enableAddToCollectionButton.isChecked = it
         })
 
+        val appName = context?.resources?.getString(R.string.app_name)
+        enableSendUsageDataButton.summary = context?.resources?.getString(R.string.settings_detail_mozilla, appName)
+
         giveFeedbackPreference.onPreferenceClickListener = this
         shareWithFriendsPreference.onPreferenceClickListener = this
         aboutPreference.onPreferenceClickListener = this
@@ -86,6 +90,9 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             activity?.startService(intent)
 
             repository.serviceEnabled = enable
+
+            enableFloatingScreenshotButton.isEnabled = enable
+            enableAddToCollectionButton.isEnabled = enable
 
             return true
         } else if (preference == enableFloatingScreenshotButton) {
@@ -162,7 +169,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     }
 
     private fun checkOverlayPermission() {
-        val context = context?: return
+        val context = context ?: return
         val hasPermission = PermissionHelper.hasOverlayPermission(context)
 
         if (hasPermission) {
@@ -180,7 +187,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     }
 
     private fun onFloatingEnableStateChanged(enabled: Boolean) {
-        val activity = activity?: return
+        val activity = activity ?: return
 
         if (enabled) {
             if (PermissionHelper.hasOverlayPermission(activity)) {

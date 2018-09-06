@@ -54,6 +54,13 @@
         <item name="android:background">@drawable/contained_button_bkg</item>
     </style>
 
+    <style name="OutlinedButton" parent="@style/PrimaryTextButton">
+        <item name="android:textColor">@color/grey90</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:background">@drawable/outlined_button_bkg</item>
+    </style>
+
     <style name="ScryerBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/ScryerBottomSheetStyle</item>
     </style>

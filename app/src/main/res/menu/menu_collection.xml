@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_collection_rename"
-        android:title="@string/dialogue_rename_title_rename"
+        android:title="@string/menu_action_rename"
         app:showAsAction="never"/>
 
     <item

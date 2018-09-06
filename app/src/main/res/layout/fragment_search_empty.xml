@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?><!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/home_background">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/home_background"
+        android:elevation="2dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/back"
+        app:title=" " />
+
+    <TextView
+        android:id="@+id/title"
+        style="@style/H1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/search_horizontal_padding"
+        android:layout_marginTop="@dimen/common_padding_8dp"
+        android:layout_marginEnd="@dimen/search_horizontal_padding"
+        android:text="@string/onboarding_search_title_soon"
+        android:textColor="@color/grey90"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <TextView
+        android:id="@+id/subtitle"
+        style="@style/Body1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/search_horizontal_padding"
+        android:layout_marginTop="@dimen/common_padding_12dp"
+        android:layout_marginEnd="@dimen/search_horizontal_padding"
+        android:text="@string/onboarding_search_content_survey"
+        android:textColor="@color/grey50"
+        app:layout_constraintTop_toBottomOf="@id/title" />
+
+    <Button
+        android:id="@+id/positive_button"
+        style="@style/OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/search_horizontal_padding"
+        android:layout_marginTop="@dimen/common_padding_16dp"
+        android:layout_marginEnd="@dimen/search_horizontal_padding"
+        android:text="@string/onboarding_search_action_agree"
+        app:layout_constraintTop_toBottomOf="@id/subtitle" />
+
+    <Button
+        android:id="@+id/negative_button"
+        style="@style/OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/search_horizontal_padding"
+        android:layout_marginTop="@dimen/common_padding_12dp"
+        android:layout_marginEnd="@dimen/search_horizontal_padding"
+        android:text="@string/onboarding_search_action_disagree"
+        app:layout_constraintTop_toBottomOf="@id/positive_button" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/image_search"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

@@ -2,6 +2,7 @@
 <resources>
     <dimen name="common_padding_24dp">24dp</dimen>
     <dimen name="common_padding_16dp">16dp</dimen>
+    <dimen name="common_padding_12dp">12dp</dimen>
     <dimen name="common_padding_8dp">8dp</dimen>
     <dimen name="common_padding_4dp">4dp</dimen>
 
@@ -45,6 +46,9 @@
     <dimen name="collection_vertical_padding">8dp</dimen>
     <dimen name="collection_horizontal_padding">16dp</dimen>
     <dimen name="collection_item_space">8dp</dimen>
+
+    <!-- Search -->
+    <dimen name="search_horizontal_padding">40dp</dimen>
 
     <!-- Settings -->
     <dimen name="settings_list_item_height">48dp</dimen>

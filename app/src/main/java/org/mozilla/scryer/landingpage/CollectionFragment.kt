@@ -22,7 +22,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
 import kotlinx.coroutines.experimental.DefaultDispatcher
@@ -37,7 +36,6 @@ import org.mozilla.scryer.extension.getValidPosition
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.ui.CollectionNameDialog
-import org.mozilla.scryer.ui.ScryerToast
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.text.DecimalFormat
@@ -116,7 +114,7 @@ class CollectionFragment : Fragment() {
 
             R.id.action_search -> {
                 context?.let {
-                    ScryerToast.makeText(it, "Not implement", Toast.LENGTH_SHORT).show()
+                    Navigation.findNavController(view).navigate(R.id.action_navigate_to_search, Bundle())
                 }
             }
 

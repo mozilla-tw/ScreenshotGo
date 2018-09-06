@@ -49,7 +49,6 @@ import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.setting.SettingsActivity
 import org.mozilla.scryer.ui.BottomDialogFactory
 import org.mozilla.scryer.ui.GridItemDecoration
-import org.mozilla.scryer.ui.ScryerToast
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.util.*
@@ -373,7 +372,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         view!!.findViewById<View>(R.id.intercept_view).setOnClickListener {
             if (permissionFlow.isFinished()) {
-                ScryerToast.makeText(it.context, "Not implement", Toast.LENGTH_SHORT).show()
+                Navigation.findNavController(view!!).navigate(R.id.action_navigate_to_search, Bundle())
             }
         }
     }

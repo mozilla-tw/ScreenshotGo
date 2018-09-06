@@ -22,7 +22,7 @@
         android:summary="@string/settings_detail_sorting"
         android:title="@string/settings_list_sorting" />
 
-    <android.support.v7.preference.SwitchPreferenceCompat
+    <org.mozilla.scryer.setting.TelemetrySwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_key_enable_send_usage_data"
         android:layout="@layout/preference_custom_item"

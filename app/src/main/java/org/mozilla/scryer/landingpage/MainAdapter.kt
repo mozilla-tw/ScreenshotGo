@@ -110,7 +110,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         when (item?.itemId) {
             CONTEXT_MENU_ID_RENAME -> fragment?.context?.let { CollectionNameDialog.renameCollection(it, ScreenshotViewModel.get(fragment), collectionModel.id) }
             CONTEXT_MENU_ID_INFO -> fragment?.context?.let { showCollectionInfo(it, ScreenshotViewModel.get(fragment), collectionModel.id) }
-            CONTEXT_MENU_ID_DELETE -> fragment?.context?.let { showDeleteCollectionDialog(fragment.view!!, ScreenshotViewModel.get(fragment), collectionModel.id) }
+            CONTEXT_MENU_ID_DELETE -> fragment?.context?.let { showDeleteCollectionDialog(it, ScreenshotViewModel.get(fragment), collectionModel.id, null) }
         }
     }
 

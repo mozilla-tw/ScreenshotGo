@@ -135,7 +135,12 @@ class CollectionFragment : Fragment() {
 
             R.id.action_collection_delete -> {
                 context?.let {
-                    showDeleteCollectionDialog(view, ScreenshotViewModel.get(this), collectionId)
+                    showDeleteCollectionDialog(it, ScreenshotViewModel.get(this), collectionId,
+                            object : OnDeleteCollectionListener {
+                                override fun onDeleteCollection() {
+                                    Navigation.findNavController(view).navigateUp()
+                                }
+                            })
                 }
             }
             else -> return super.onOptionsItemSelected(item)
@@ -341,6 +346,10 @@ interface OnContextMenuActionListener {
     fun onContextMenuAction(item: MenuItem?, itemPosition: Int)
 }
 
+interface OnDeleteCollectionListener {
+    fun onDeleteCollection()
+}
+
 fun showScreenshotInfoDialog(context: Context, screenshotModel: ScreenshotModel) {
     val message = StringBuilder()
     message.apply {
@@ -477,8 +486,7 @@ private fun showCollectionInfoDialog(context: Context, collection: CollectionMod
             .show()
 }
 
-fun showDeleteCollectionDialog(view: View, viewModel: ScreenshotViewModel, collectionId: String?) {
-    val context = view.context
+fun showDeleteCollectionDialog(context: Context, viewModel: ScreenshotViewModel, collectionId: String?, listener: OnDeleteCollectionListener?) {
     AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.dialogue_deletecollection_title_delete))
             .setMessage(context.getString(R.string.dialogue_delete_content_cantundo))
@@ -495,7 +503,7 @@ fun showDeleteCollectionDialog(view: View, viewModel: ScreenshotViewModel, colle
                     }
                 }
                 dialog?.dismiss()
-                Navigation.findNavController(view).navigateUp()
+                listener?.onDeleteCollection()
             }
             .show()
 }

@@ -342,19 +342,14 @@ interface OnContextMenuActionListener {
 }
 
 fun showScreenshotInfoDialog(context: Context, screenshotModel: ScreenshotModel) {
-    val message = StringBuilder()
-    message.apply {
-        append(context.getString(R.string.dialogue_list_name)).append("\n")
-        append(getFileNameText(screenshotModel.absolutePath)).append("\n\n")
-        append(context.getString(R.string.dialogue_shotinfo_list_size)).append("\n")
-        append(getFileSizeText(File(screenshotModel.absolutePath).length())).append("\n\n")
-        append(context.getString(R.string.dialogue_list_edit)).append("\n")
-        append(getFileDateText(File(screenshotModel.absolutePath).lastModified()))
-    }
+    val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_screenshot_info, null as ViewGroup?)
+    dialogView.findViewById<TextView>(R.id.screenshot_info_name_content).text = getFileNameText(screenshotModel.absolutePath)
+    dialogView.findViewById<TextView>(R.id.screenshot_info_file_size_amount).text = getFileSizeText(File(screenshotModel.absolutePath).length())
+    dialogView.findViewById<TextView>(R.id.screenshot_info_last_edit_time).text = getFileDateText(File(screenshotModel.absolutePath).lastModified())
 
     AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.info_info))
-            .setMessage(message)
+            .setView(dialogView)
             .setPositiveButton(context.getString(android.R.string.ok)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
             .show()
 }
@@ -458,21 +453,15 @@ private fun showCollectionInfoDialog(context: Context, collection: CollectionMod
         }
     }
 
-    val message = StringBuilder()
-    message.apply {
-        append(context.getString(R.string.dialogue_list_name)).append("\n")
-        append(getFileNameText(collection.name)).append("\n\n")
-        append(context.getString(R.string.dialogue_collecitioninfo_list_shot)).append("\n")
-        append(screenshots.size).append("\n\n")
-        append(context.getString(R.string.dialogue_collecitioninfo_list_storage)).append("\n")
-        append(getFileSizeText(totalFileSize)).append("\n\n")
-        append(context.getString(R.string.dialogue_list_edit)).append("\n")
-        append(getFileDateText(recentModifiedTime))
-    }
+    val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_collection_info, null as ViewGroup?)
+    dialogView.findViewById<TextView>(R.id.collection_info_name_content).text = getFileNameText(collection.name)
+    dialogView.findViewById<TextView>(R.id.collection_info_total_screenshots_count).text = screenshots.size.toString()
+    dialogView.findViewById<TextView>(R.id.collection_info_storage_used_amount).text = getFileSizeText(totalFileSize)
+    dialogView.findViewById<TextView>(R.id.collection_info_last_edit_time).text = getFileDateText(recentModifiedTime)
 
     AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.dialogue_collecitioninfo_title_info))
-            .setMessage(message)
+            .setView(dialogView)
             .setPositiveButton(context.getString(android.R.string.ok)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
             .show()
 }

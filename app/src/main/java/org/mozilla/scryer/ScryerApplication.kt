@@ -9,6 +9,7 @@ import android.app.Application
 import org.mozilla.scryer.repository.ScreenshotRepository
 import org.mozilla.scryer.setting.PreferenceSettingsRepository
 import org.mozilla.scryer.setting.SettingsRepository
+import org.mozilla.scryer.telemetry.TelemetryWrapper
 
 class ScryerApplication : Application() {
     companion object {
@@ -35,6 +36,7 @@ class ScryerApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         ApplicationHolder.instance = this
+        TelemetryWrapper.init(this)
         screenshotRepository = ScreenshotRepository.createRepository(this) {
             screenshotRepository.setupDefaultContent(this)
         }

@@ -12,6 +12,7 @@ import android.support.v7.app.ActionBar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import org.mozilla.scryer.permission.PermissionViewModel
+import org.mozilla.scryer.telemetry.TelemetryWrapper
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,6 +24,18 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        TelemetryWrapper.startSession()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        TelemetryWrapper.stopSession()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,

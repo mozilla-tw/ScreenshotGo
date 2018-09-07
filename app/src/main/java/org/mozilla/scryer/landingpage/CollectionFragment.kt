@@ -342,19 +342,14 @@ interface OnContextMenuActionListener {
 }
 
 fun showScreenshotInfoDialog(context: Context, screenshotModel: ScreenshotModel) {
-    val message = StringBuilder()
-    message.apply {
-        append(context.getString(R.string.dialogue_list_name)).append("\n")
-        append(getFileNameText(screenshotModel.absolutePath)).append("\n\n")
-        append(context.getString(R.string.dialogue_shotinfo_list_size)).append("\n")
-        append(getFileSizeText(File(screenshotModel.absolutePath).length())).append("\n\n")
-        append(context.getString(R.string.dialogue_list_edit)).append("\n")
-        append(getFileDateText(File(screenshotModel.absolutePath).lastModified()))
-    }
+    val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_screenshot_info, null as ViewGroup?)
+    dialogView.findViewById<TextView>(R.id.screenshot_info_name_content).text = getFileNameText(screenshotModel.absolutePath)
+    dialogView.findViewById<TextView>(R.id.screenshot_info_file_size_amount).text = getFileSizeText(File(screenshotModel.absolutePath).length())
+    dialogView.findViewById<TextView>(R.id.screenshot_info_last_edit_time).text = getFileDateText(File(screenshotModel.absolutePath).lastModified())
 
     AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.info_info))
-            .setMessage(message)
+            .setView(dialogView)
             .setPositiveButton(context.getString(android.R.string.ok)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
             .show()
 }

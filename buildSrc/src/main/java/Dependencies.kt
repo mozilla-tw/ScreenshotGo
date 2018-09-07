@@ -23,4 +23,7 @@ object Versions {
 
     // 3rd party
     val glide = "4.7.1"
+
+    // Mozilla
+    val telemetry = "0.5.1"
 }

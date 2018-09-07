@@ -100,6 +100,8 @@ dependencies {
     implementation "com.google.firebase:firebase-core:${Versions.firebase}"
     implementation "com.google.firebase:firebase-ml-vision:${Versions.firebase_ml}"
 
+    implementation "org.mozilla.components:telemetry:${Versions.telemetry}"
+
     testImplementation "org.mockito:mockito-core:${Versions.mockito}"
 }
 repositories {

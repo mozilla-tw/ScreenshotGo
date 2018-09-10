@@ -12,7 +12,7 @@
     <string name="notification_action_capture">Tap to take screenshot</string>
     <string name="notification_action_open">Open app</string>
     <string name="notification_action_stop">Stop</string>
-    <string name="notification_action_collect">Open app to collect screenshots</string>
+    <string name="notification_action_collect">Open app to sort screenshots</string>
 
     <!-- Sorting panel: strings displayed on the sorting panel to help users categorize screenshots, 
     Refer to UX spec 1.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133909_1-1_Key_Flow_Add_To_Collection -->

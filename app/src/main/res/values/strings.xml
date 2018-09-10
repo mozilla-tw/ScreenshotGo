@@ -121,7 +121,7 @@
     <!-- TODO: wait for designer to confirm -->
     <string name="share_intro" translatable="false"></string>
     <string name="settings_list_about">About</string>
-    <string name="about_title_name">@string/app_name</string>
+    <string name="about_title_name" translatable="false">@string/app_name</string>
     <!-- Parameter %1$s is version code of the app, i.e. 1.0.0 -->
     <string name="about_content_version">Version %1$s</string>
     <string name="about_list_support">Support</string>

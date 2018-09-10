@@ -86,7 +86,7 @@
     <string name="sheet_enable_title_enable">Enable screenshot service?</string>
     <string name="sheet_enable_content_enable">You won’t be able to take screenshots unless this is enabled</string>
     <!-- String displayed to allow users to enable the screenshot service -->
-    <string name="sheet_enable_action_enable">Enabled</string>
+    <string name="sheet_enable_action_enable">Enable</string>
     <string name="sheet_unsorted_title_unsorted">Unsorted screenshots</string>
     <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 unsorted screenshots. Sort them now? -->
     <string name="sheet_unsorted_content_shots">%1$d unsorted screenshots. Sort them now?</string>

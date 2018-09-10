@@ -4,5 +4,11 @@
     Doesn't include removable storage -->
     <external-path
         name="external_files"
-        path="Pictures" />
+        path="." />
+
+    <!--root path means the root of Android device
+    , So we use this to open file under sd card-->
+    <root-path
+        name="sd_card"
+        path="" />
 </paths>

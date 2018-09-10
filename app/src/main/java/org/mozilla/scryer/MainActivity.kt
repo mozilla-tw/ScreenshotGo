@@ -38,6 +38,12 @@ class MainActivity : AppCompatActivity() {
         TelemetryWrapper.stopSession()
     }
 
+    override fun onStop() {
+        super.onStop()
+
+        TelemetryWrapper.stopMainActivity()
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
                                             grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

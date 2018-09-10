@@ -73,6 +73,13 @@ class TelemetryWrapper {
             TelemetryEvent.create(Category.ACTION, Method.BACKGROUND, Object.APP).queue()
         }
 
+        fun stopMainActivity() {
+            TelemetryHolder.get()
+                    .queuePing(TelemetryCorePingBuilder.TYPE)
+                    .queuePing(TelemetryEventPingBuilder.TYPE)
+                    .scheduleUpload()
+        }
+
         private fun isTelemetryEnabled(context: Context): Boolean {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val isEnabledByDefault = BuildConfig.BUILD_TYPE == "release"

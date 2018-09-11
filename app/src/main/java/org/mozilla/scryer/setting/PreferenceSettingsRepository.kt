@@ -9,14 +9,15 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.preference.PreferenceManager
+import org.mozilla.scryer.R
 
-class PreferenceSettingsRepository(context: Context) : SettingsRepository {
+class PreferenceSettingsRepository(private val context: Context) : SettingsRepository {
+
+    private val KEY_SERVICE_ENABLED by lazy { context.getString(R.string.pref_key_enable_capture_service) }
+    private val KEY_FLOATING_ENABLED by lazy { context.getString(R.string.pref_key_enable_floating_screenshot_button) }
+    private val KEY_ADD_TO_COLLECTION_ENABLED by lazy { context.getString(R.string.pref_key_enable_add_to_collection) }
 
     companion object {
-        private const val KEY_SERVICE_ENABLED = "settings_service_enabled"
-        private const val KEY_FLOATING_ENABLED = "settings_floating_enabled"
-        private const val KEY_ADD_TO_COLLECTION_ENABLED = "settings_add_to_collection_enabled"
-
         @Volatile
         private var instance: SettingsRepository? = null
 

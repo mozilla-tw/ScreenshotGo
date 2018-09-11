@@ -47,19 +47,27 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings, rootKey)
 
+        val settingsRepository = ScryerApplication.getSettingsRepository()
+
         enableCaptureService.onPreferenceChangeListener = this
-        ScryerApplication.getSettingsRepository().serviceEnabledObserver.observe(this, Observer {
+
+        enableCaptureService.isChecked = settingsRepository.serviceEnabled
+        enableCaptureServiceChildItems(settingsRepository.serviceEnabled)
+        settingsRepository.serviceEnabledObserver.observe(this, Observer {
             enableCaptureService.isChecked = it
+            enableCaptureServiceChildItems(it)
         })
 
+        enableFloatingScreenshotButton.isChecked = settingsRepository.floatingEnable
         enableFloatingScreenshotButton.onPreferenceChangeListener = this
-        ScryerApplication.getSettingsRepository().floatingEnableObservable.observe(this, Observer { enabled ->
+        settingsRepository.floatingEnableObservable.observe(this, Observer { enabled ->
             enableFloatingScreenshotButton.isChecked = enabled
             onFloatingEnableStateChanged(enabled)
         })
 
+        enableAddToCollectionButton.isChecked = settingsRepository.addToCollectionEnable
         enableAddToCollectionButton.onPreferenceChangeListener = this
-        ScryerApplication.getSettingsRepository().addToCollectionEnableObservable.observe(this, Observer {
+        settingsRepository.addToCollectionEnableObservable.observe(this, Observer {
             enableAddToCollectionButton.isChecked = it
         })
 
@@ -91,9 +99,6 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
 
             repository.serviceEnabled = enable
 
-            enableFloatingScreenshotButton.isEnabled = enable
-            enableAddToCollectionButton.isEnabled = enable
-
             return true
         } else if (preference == enableFloatingScreenshotButton) {
             repository.floatingEnable = newValue as Boolean
@@ -116,6 +121,11 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         }
 
         return false
+    }
+
+    private fun enableCaptureServiceChildItems(enable: Boolean) {
+        enableFloatingScreenshotButton.isEnabled = enable
+        enableAddToCollectionButton.isEnabled = enable
     }
 
     private fun showFeedbackDialog(context: Context) {

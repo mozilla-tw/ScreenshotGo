@@ -5,20 +5,20 @@
     <android.support.v7.preference.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="@string/pref_key_enable_capture_service"
-        android:persistent="true"
+        android:persistent="false"
         android:title="@string/settings_list_capture" />
 
     <android.support.v7.preference.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="@string/pref_key_enable_floating_screenshot_button"
-        android:persistent="true"
+        android:persistent="false"
         android:summary="@string/settings_detail_capture"
         android:title="@string/settings_list_fab" />
 
     <android.support.v7.preference.SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="@string/pref_key_enable_add_to_collection"
-        android:persistent="true"
+        android:persistent="false"
         android:summary="@string/settings_detail_sorting"
         android:title="@string/settings_list_sorting" />
 

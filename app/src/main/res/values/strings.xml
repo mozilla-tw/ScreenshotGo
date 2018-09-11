@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Scryer</string>
+    <string name="app_name" translatable="false">ScreenshotGo</string>
 
     <!-- Label used for buttons to create new collection, e.g. in dialogs-->
     <string name="action_create">Create new</string>
@@ -7,12 +7,14 @@
     <string name="action_delete">Delete</string>
     <!-- Label used for title in screenshot info dialogue, but for action in menu -->
     <string name="info_info">Screenshot info</string>
+    <!-- Label used when no content -->
+    <string name="title_noshots">No screenshots yet!</string>
 
     <!-- Notification: strings displayed on the notification to perform various actions -->
     <string name="notification_action_capture">Tap to take screenshot</string>
     <string name="notification_action_open">Open app</string>
     <string name="notification_action_stop">Stop</string>
-    <string name="notification_action_collect">Open app to sort screenshots</string>
+    <string name="notification_action_collect">Tap to sort screenshots</string>
 
     <!-- Sorting panel: strings displayed on the sorting panel to help users categorize screenshots, 
     Refer to UX spec 1.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133909_1-1_Key_Flow_Add_To_Collection -->
@@ -22,6 +24,12 @@
     <string name="multisorting_action_next">Next</string>
     <!-- String displayed on the title of sorting panel and the screenshot will be categorized to a collection -->
     <string name="sorting_title_move">Move to</string>
+    <!-- Strings displayed to suggest default collections for users to sort -->
+    <string name="sorting_suggestion_1st">Shopping</string>
+    <string name="sorting_suggestion_2nd">Finance & Banking</string>
+    <string name="sorting_suggestion_3rd">News & Article</string>
+    <string name="sorting_suggestion_4th">Photo & Image</string>
+    <string name="sorting_suggestion_5th">Chat history</string>
     <!-- Strings displayed to allow users to create collection name -->
     <string name="dialogue_title_collection">Collection name</string>
     <!-- String displayed as a hint to ask users to type a name -->
@@ -46,6 +54,7 @@
     <string name="detail_transition_recognizing">Recognizing&#8230;</string>
 
     <!-- Dialogue: strings displayed in the dialogues which inform users about a task, e.g. dialogue title, content and action -->
+    <!-- This string also serves as menu action in collection view -->
     <string name="dialogue_collecitioninfo_title_info">Collection info</string>
     <!-- String displayed as a tag to accomodate the name attribute, e.g. Name: shopping -->
     <string name="dialogue_list_name">Name</string>
@@ -74,6 +83,7 @@
     <string name="menu_title_action">Actions</string>
     <string name="menu_shot_action_move">Move to&#8230;</string>
     <string name="menu_action_rename">Rename</string>
+    <!-- Removed to align with dialogue_collecitioninfo_title_info -->
     <string name="menu_collection_action_info">Info</string>
     <!-- Strings displayed to perform actions when selecting text on the screenshot,
     Refer to UX spec 4.2_G&I: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133922_4-2_Image_-_Text_Mode-->
@@ -83,8 +93,8 @@
     <string name="menu_action_share">Share</string>
 
     <!-- Bottom sheet: strings displayed on the reminder panel -->
-    <string name="sheet_enable_title_enable">Enable screenshot service?</string>
-    <string name="sheet_enable_content_enable">You won’t be able to take screenshots unless this is enabled</string>
+    <string name="sheet_enable_title_enable">Enable to take screenshots?</string>
+    <string name="sheet_enable_content_enable">You won't be able to take screenshots with one tap unless this is enabled.</string>
     <!-- String displayed to allow users to enable the screenshot service -->
     <string name="sheet_enable_action_enable">Enable</string>
     <string name="sheet_unsorted_title_unsorted">Unsorted screenshots</string>
@@ -95,22 +105,24 @@
     <string name="sheet_action_no">No thanks</string>
 
     <!-- Snackbar: strings to provide confirmations for user’s actions -->
-    <string name="snackbar_disable">Screenshot service disabled</string>
-    <string name="snackbar_enable">Screenshot service enabled</string>
+    <string name="snackbar_disable">Screenshot feature disabled</string>
+    <string name="snackbar_enable">Screenshot feature enabled</string>
     <!-- Parameter %1$s is the collection name user defined, i.e. Shopping -->
     <string name="snackbar_addto">Added to %1$s</string>
     <string name="snackbar_copied">Copied</string>
 
     <!-- Settings: strings displayed in the settings page,
     Refer to UX spec 6.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133927_6-1_Settings -->
-    <string name="settings_list_capture">Enable screenshot service</string>
-    <string name="settings_detail_capture">Allows you to take a screenshot with one tap. Works with whatever is on your screen</string>
-    <string name="settings_list_fab">Enable screenshot button</string>
+    <string name="settings_list_capture">Enable to take screenshots</string>
+    <!-- The string changes to serve as description of settings_list_fab -->
+    <string name="settings_detail_capture">Allows you to take a screenshot with one tap. Works with whatever is on your screen.</string>
+    <!-- The string displayed to enable a floating button to take screenshot -->
+    <string name="settings_list_fab">Enable GO button</string>
     <string name="settings_list_sorting">Prompt to save</string>
     <string name="settings_detail_sorting">Always prompt to add screenshot to a collection</string>
     <string name="settings_list_usagedata">Send usage data</string>
     <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
-    <string name="settings_detail_mozilla">Mozilla strives to collect only what we need to provide and improve %1$s for everyone</string>
+    <string name="settings_detail_mozilla">Mozilla strives to collect only what we need to provide and improve %1$s for everyone.</string>
     <string name="settings_action_learnmore">Learn more</string>
     <string name="settings_list_feedback">Give feedback</string>
     <string name="feedback_title_lovefeedback">We love feedback!</string>
@@ -118,35 +130,35 @@
     <string name="feedback_action_rate">Rate on Google Play</string>
     <string name="feedback_action_feedback">Give us feedback</string>
     <string name="settings_list_share">Share with friends</string>
-    <!-- TODO: wait for designer to confirm -->
-    <string name="share_intro" translatable="false"></string>
+    <!-- The strings displys when users share the app with friends-->
+    <string name="share_intro">Hey, check out this new app that helps you organize and find your screenshots easily. It’s called Firefox ScreenshotGo. %1$s</string>
     <string name="settings_list_about">About</string>
-    <string name="about_title_name" translatable="false">@string/app_name</string>
+    <string name="about_title_name" translatable="false">Firefox ScreenshotGo</string>
     <!-- Parameter %1$s is version code of the app, i.e. 1.0.0 -->
     <string name="about_content_version">Version %1$s</string>
     <string name="about_list_support">Support</string>
-    <string name="about_list_right">Your Rights/ Licenses</string>
+    <string name="about_list_right">Your Rights</string>
     <string name="about_list_privacy">Privacy Notice</string>
 
     <!-- Onboarding: strings to onboard users to grant permissions,
-    Refer to UX spec 7.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133929_7-1_Onboarding Parameter %1$s is the app name, i.e. Screenshot Go
-    TODO: wait for designer to confirm -->
-    <string name="onboarding_storage_title_welcome" translatable="false">Welcome to %1$s</string>
-    <!-- TODO: wait for designer to confirm -->
-    <string name="onboarding_storage_content_permission" translatable="false">We need your permission to load your current screenshots from Gallery to do the magics.</string>
-    <!-- TODO: wait for designer to confirm -->
-    <string name="onboarding_storage_action_confirm" translatable="false">Let’s load it!</string>
+    Refer to UX spec 7.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133929_7-1_Onboarding Parameter %1$s is the app name, i.e. Screenshot Go -->
+    <string name="onboarding_storage_title_welcome">Welcome to %1$s</string>
+    <string name="onboarding_storage_content_permission">To help you organize and find your screenshots better, we’ll need your permission to access your storage.</string>
+    <!-- The string displays if the system autogrants storage permission -->
+    <string name="onboarding_storage_content_autogrant">%1$s helps you organize and find your screenshots better.</string>
+    <string name="onboarding_storage_action_confirm">Let’s GO</string>
     <string name="onboarding_transition_loading">Loading</string>
-    <!-- Overlay permission prompt: strings to onboard users to grant permissions TODO: wait for designer to confirm -->
-    <string name="onboarding_fab_title_fab" translatable="false">Easiest Way to Screenshot</string>
-    <!-- TODO: wait for designer to confirm -->
-    <string name="onboarding_fab_content_permission" translatable="false">We need some permissions to let you take screenshots with a floating screenshot button.</string>
-    <!-- String to allow users to dismiss the onboarding panel TODO: wait for designer to confirm -->
-    <string name="onboarding_fab_action_later" translatable="false">Later</string>
-    <!-- TODO: wait for designer to confirm -->
-    <string name="onboarding_fab_action_grant" translatable="false">Go to grant page</string>
+    <!-- Overlay permission prompt: strings to onboard users to grant permissions -->
+    <string name="onboarding_fab_title_fab">Get the GO button</string>
+    <string name="onboarding_fab_content_permission">The GO button lets you take and organize your screenshots anytime, anywhere. We’ll need your permission to enable it.</string>
+    <!-- String to allow users to dismiss the onboarding panel -->
+    <string name="onboarding_fab_action_later">Later</string>
+    <string name="onboarding_fab_action_grant">Grant Permission</string>
+    <!-- Auto-grant overlay permission prompt -->
+    <string name="onboarding_autogrant_overlay_title">Use the GO button to take and organize screenshots anytime, anywhere.</string>
+    <string name="onboarding_autogrant_overlay_gotit">Got it</string>
     <!-- Onboarding: strings to inform users when keeping denying permission -->
-    <string name="onboarding_error_title_wrong">Oops! Something’s wrong.</string>
+    <string name="onboarding_error_title_wrong">Oops! Something’s wrong</string>
     <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
     <string name="onboarding_error_content_permission">%1$s needs this permission to work correctly.</string>
     <string name="onboarding_error_action_allow">Allow permission</string>
@@ -154,17 +166,11 @@
     <string name="onboarding_rareerror_content_permission">%1$s needs permission to access your phone’s storage. Please find Permission to turn on Storage.</string>
     <string name="onboarding_rareerror_action_goto">Go to permission</string>
     <!-- Onboarding: strings to inform users that the search feature is WIP,
-    Refer to UX spec 7.3: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133930_7-3_Other_Oborading
-    TODO: wait for designer to confirm -->
-    <string name="onboarding_search_title_soon" translatable="false">Search feature is coming soon</string>
-    <!-- TODO: wait for designer to confirm -->
-    <string name="onboarding_search_content_survey" translatable="false">We’re working hard to offer this feature as soon as possible. You can be the first one trying and help us improve the feature.</string>
-    <!-- TODO: wait for designer to confirm -->
-    <string name="onboarding_search_action_agree" translatable="false">OK, I’m in</string>
-    <!-- TODO: wait for designer to confirm -->
-    <string name="onboarding_search_action_disagree" translatable="false">No, thanks</string>
-    <!-- TODO: wait for designer to confirm -->
-    <string name="onboarding_search_content_feedback" translatable="false"></string>
-    <!-- Auto-grant overlay permission prompt TODO: wait for designer to confirm -->
-    <string name="onboarding_autogrant_overlay_title" translatable="false">Give the screenshot button a try to see what’ll happen</string>
+    Refer to UX spec 7.3: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133930_7-3_Other_Oborading -->
+    <string name="onboarding_search_title_soon">Search is coming soon!</string>
+    <!-- The string displayed to describe the survey -->
+    <string name="onboarding_search_content_survey">We’re working on a search feature to help you find your screenshots even faster. Interested?</string>
+    <string name="onboarding_search_action_agree">Yes please</string>
+    <string name="onboarding_search_action_disagree">Nope</string>
+    <string name="onboarding_search_content_feedback">Thanks for your feedback!</string>
 </resources>

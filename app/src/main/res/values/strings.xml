@@ -121,7 +121,7 @@
     <string name="settings_list_sorting">Prompt to save</string>
     <string name="settings_detail_sorting">Always prompt to add screenshot to a collection</string>
     <string name="settings_list_usagedata">Send usage data</string>
-    <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
+    <!-- Parameter %1$s is the app name, i.e. Firefox ScreenshotGo -->
     <string name="settings_detail_mozilla">Mozilla strives to collect only what we need to provide and improve %1$s for everyone.</string>
     <string name="settings_action_learnmore">Learn more</string>
     <string name="settings_list_feedback">Give feedback</string>
@@ -130,8 +130,8 @@
     <string name="feedback_action_rate">Rate on Google Play</string>
     <string name="feedback_action_feedback">Give us feedback</string>
     <string name="settings_list_share">Share with friends</string>
-    <!-- The strings displys when users share the app with friends-->
-    <string name="share_intro">Hey, check out this new app that helps you organize and find your screenshots easily. It’s called Firefox ScreenshotGo. %1$s</string>
+    <!-- The strings displys when users share the app with friends. %1$s is the app name i.e. Firefox ScreenshotGo, and %2$s is the Google Play url -->
+    <string name="share_intro">Hey, check out this new app that helps you organize and find your screenshots easily. It’s called %1$s. %2$s</string>
     <string name="settings_list_about">About</string>
     <string name="about_title_name" translatable="false">Firefox ScreenshotGo</string>
     <!-- Parameter %1$s is version code of the app, i.e. 1.0.0 -->
@@ -141,10 +141,10 @@
     <string name="about_list_privacy">Privacy Notice</string>
 
     <!-- Onboarding: strings to onboard users to grant permissions,
-    Refer to UX spec 7.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133929_7-1_Onboarding Parameter %1$s is the app name, i.e. Screenshot Go -->
+    Refer to UX spec 7.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133929_7-1_Onboarding Parameter %1$s is the app name, i.e. Firefox ScreenshotGo -->
     <string name="onboarding_storage_title_welcome">Welcome to %1$s</string>
     <string name="onboarding_storage_content_permission">To help you organize and find your screenshots better, we’ll need your permission to access your storage.</string>
-    <!-- The string displays if the system autogrants storage permission -->
+    <!-- The string displays if the system autogrants storage permission. Parameter %1$s is the app name, i.e. Firefox ScreenshotGo -->
     <string name="onboarding_storage_content_autogrant">%1$s helps you organize and find your screenshots better.</string>
     <string name="onboarding_storage_action_confirm">Let’s GO</string>
     <string name="onboarding_transition_loading">Loading</string>
@@ -159,10 +159,10 @@
     <string name="onboarding_autogrant_overlay_gotit">Got it</string>
     <!-- Onboarding: strings to inform users when keeping denying permission -->
     <string name="onboarding_error_title_wrong">Oops! Something’s wrong</string>
-    <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
+    <!-- Parameter %1$s is the app name, i.e. Firefox ScreenshotGo -->
     <string name="onboarding_error_content_permission">%1$s needs this permission to work correctly.</string>
     <string name="onboarding_error_action_allow">Allow permission</string>
-    <!-- Parameter %1$s is the app name, i.e. Screenshot Go -->
+    <!-- Parameter %1$s is the app name, i.e. Firefox ScreenshotGo -->
     <string name="onboarding_rareerror_content_permission">%1$s needs permission to access your phone’s storage. Please find Permission to turn on Storage.</string>
     <string name="onboarding_rareerror_action_goto">Go to permission</string>
     <!-- Onboarding: strings to inform users that the search feature is WIP,

@@ -26,10 +26,10 @@
     <string name="sorting_title_move">Move to</string>
     <!-- Strings displayed to suggest default collections for users to sort -->
     <string name="sorting_suggestion_1st">Shopping</string>
-    <string name="sorting_suggestion_2nd">Finance & Banking</string>
-    <string name="sorting_suggestion_3rd">News & Article</string>
-    <string name="sorting_suggestion_4th">Photo & Image</string>
-    <string name="sorting_suggestion_5th">Chat history</string>
+    <string name="sorting_suggestion_2nd">Finance &amp; Banking</string>
+    <string name="sorting_suggestion_3rd">News &amp; Article</string>
+    <string name="sorting_suggestion_4th">Chat history</string>
+    <string name="sorting_suggestion_5th">Event &amp; Activity</string>
     <!-- Strings displayed to allow users to create collection name -->
     <string name="dialogue_title_collection">Collection name</string>
     <!-- String displayed as a hint to ask users to type a name -->
@@ -94,7 +94,7 @@
 
     <!-- Bottom sheet: strings displayed on the reminder panel -->
     <string name="sheet_enable_title_enable">Enable to take screenshots?</string>
-    <string name="sheet_enable_content_enable">You won't be able to take screenshots with one tap unless this is enabled.</string>
+    <string name="sheet_enable_content_enable">You won’t be able to take screenshots with one tap unless this is enabled.</string>
     <!-- String displayed to allow users to enable the screenshot service -->
     <string name="sheet_enable_action_enable">Enable</string>
     <string name="sheet_unsorted_title_unsorted">Unsorted screenshots</string>

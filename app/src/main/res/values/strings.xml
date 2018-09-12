@@ -80,8 +80,6 @@
     <string name="menu_title_action">Actions</string>
     <string name="menu_shot_action_move">Move to&#8230;</string>
     <string name="menu_action_rename">Rename</string>
-    <!-- Removed to align with dialogue_collecitioninfo_title_info -->
-    <string name="menu_collection_action_info">Info</string>
     <!-- Strings displayed to perform actions when selecting text on the screenshot,
     Refer to UX spec 4.2_G&I: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133922_4-2_Image_-_Text_Mode-->
     <string name="menu_ocr_action_web">Web search</string>
@@ -114,7 +112,7 @@
     <string name="settings_list_capture">Enable to take screenshots</string>
     <!-- The string changes to serve as description of settings_list_fab -->
     <string name="settings_detail_capture">Allows you to take a screenshot with one tap. Works with whatever is on your screen.</string>
-    <!-- The string displayed to enable a floating button to take screenshot, and the placeholder is "GO" from the product name -->
+    <!-- The string displayed to enable a floating button to take screenshot, and the placeholder %1$s is "GO" from the product name -->
     <string name="settings_list_fab">Enable %1$s button</string>
     <string name="settings_list_sorting">Prompt to save</string>
     <string name="settings_detail_sorting">Always prompt to add screenshot to a collection</string>
@@ -146,13 +144,14 @@
     <string name="onboarding_storage_content_autogrant">%1$s helps you organize and find your screenshots better.</string>
     <string name="onboarding_storage_action_confirm" translatable="false">Let’s GO</string>
     <string name="onboarding_transition_loading">Loading</string>
-    <!-- Overlay permission prompt: strings to onboard users to grant permissions, and the placeholder is "GO" from the product name -->
+    <!-- Overlay permission prompt: strings to onboard users to grant permissions, and the placeholder %1$s is "GO" from the product name -->
     <string name="onboarding_fab_title_fab">Get the %1$s button</string>
+    <!-- The placeholder %1$s is "GO" from the product name -->
     <string name="onboarding_fab_content_permission">The %1$s button lets you take and organize your screenshots anytime, anywhere. We’ll need your permission to enable it.</string>
     <!-- String to allow users to dismiss the onboarding panel -->
     <string name="onboarding_fab_action_later">Later</string>
     <string name="onboarding_fab_action_grant">Grant Permission</string>
-    <!-- Auto-grant overlay permission prompt -->
+    <!-- Auto-grant overlay permission prompt. The placeholder %1$s is "GO" from the product name -->
     <string name="onboarding_autogrant_overlay_title">Use the %1$s button to take and organize screenshots anytime, anywhere.</string>
     <string name="onboarding_autogrant_overlay_gotit">Got it</string>
     <!-- Onboarding: strings to inform users when keeping denying permission -->

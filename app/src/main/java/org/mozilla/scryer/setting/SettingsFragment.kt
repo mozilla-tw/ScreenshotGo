@@ -151,8 +151,11 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     private fun showShareAppDialog(context: Context) {
         val sendIntent = Intent(Intent.ACTION_SEND)
         sendIntent.type = "text/plain"
-        sendIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name))
-        sendIntent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_intro))
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_full_name))
+        sendIntent.putExtra(Intent.EXTRA_TEXT,
+                context.getString(R.string.share_intro,
+                        context.getString(R.string.app_full_name),
+                        context.getString(R.string.share_app_google_play_url)))
         context.startActivity(Intent.createChooser(sendIntent, null))
     }
 

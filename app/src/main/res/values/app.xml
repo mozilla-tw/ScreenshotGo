@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">ScreenshotGo</string>
+    <string name="app_full_name" translatable="false">Firefox ScreenshotGo</string>
+
+    <string name="multisorting_count_number" translatable="false">%1$d / %2$d</string>
+    <!-- TODO Update to the production url -->
+    <string name="share_app_google_play_url" translatable="false"></string>
+</resources>

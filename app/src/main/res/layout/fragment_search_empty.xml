@@ -13,7 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/home_background"
-        android:elevation="2dp"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/back"
         app:title=" " />
@@ -50,6 +49,7 @@
         android:layout_marginStart="@dimen/search_horizontal_padding"
         android:layout_marginTop="@dimen/common_padding_16dp"
         android:layout_marginEnd="@dimen/search_horizontal_padding"
+        android:stateListAnimator="@null"
         android:text="@string/onboarding_search_action_agree"
         app:layout_constraintTop_toBottomOf="@id/subtitle" />
 
@@ -61,15 +61,16 @@
         android:layout_marginStart="@dimen/search_horizontal_padding"
         android:layout_marginTop="@dimen/common_padding_12dp"
         android:layout_marginEnd="@dimen/search_horizontal_padding"
+        android:stateListAnimator="@null"
         android:text="@string/onboarding_search_action_disagree"
         app:layout_constraintTop_toBottomOf="@id/positive_button" />
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/image_search"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
+        android:src="@drawable/image_search"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />

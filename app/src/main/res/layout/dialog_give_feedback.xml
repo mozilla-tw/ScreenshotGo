@@ -38,14 +38,14 @@
             android:layout_width="144dp"
             android:layout_height="144dp"
             android:layout_centerHorizontal="true"
-            android:src="@null" />
+            android:src="@drawable/image_feedback" />
     </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="@dimen/common_padding_16dp"
-        android:background="@color/disableGrey" />
+        android:background="@color/grey20" />
 
     <Button
         android:id="@+id/dialog_give_feedback_btn_go_rate"
@@ -58,7 +58,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/disableGrey" />
+        android:background="@color/grey20" />
 
     <Button
         android:id="@+id/dialog_give_feedback_btn_feedback"

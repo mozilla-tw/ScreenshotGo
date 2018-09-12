@@ -8,6 +8,8 @@
     <style name="H1">
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textSize">24sp</item>
+        <!-- line height = 30 -->
+        <item name="android:lineSpacingMultiplier">1.25</item>
     </style>
 
     <style name="H2">
@@ -15,12 +17,16 @@
         <item name="android:textSize">20sp</item>
         <!-- tracking = 0.15 -->
         <item name="android:letterSpacing">0.0075</item>
+        <!-- line height = 26 -->
+        <item name="android:lineSpacingMultiplier">1.3</item>
     </style>
 
     <style name="H3" parent="H2">
         <item name="android:textSize">17sp</item>
         <!-- tracking = 0.15 -->
         <item name="android:letterSpacing">0.0088</item>
+        <!-- line height = 23 -->
+        <item name="android:lineSpacingMultiplier">1.35</item>
     </style>
 
     <style name="Subtitle1">
@@ -28,6 +34,8 @@
         <item name="android:textSize">16sp</item>
         <!-- tracking = 0.15 -->
         <item name="android:letterSpacing">0.0094</item>
+        <!-- line height = 24 -->
+        <item name="android:lineSpacingMultiplier">1.5</item>
     </style>
 
     <style name="Subtitle2">
@@ -35,6 +43,8 @@
         <item name="android:textSize">14sp</item>
         <!-- tracking = 0.1 -->
         <item name="android:letterSpacing">0.0071</item>
+        <!-- line height = 19 -->
+        <item name="android:lineSpacingMultiplier">1.36</item>
     </style>
 
     <style name="Body1">
@@ -42,6 +52,8 @@
         <item name="android:textSize">16sp</item>
         <!-- tracking = 0.5 -->
         <item name="android:letterSpacing">0.031</item>
+        <!-- line height = 19 -->
+        <item name="android:lineSpacingMultiplier">1.25</item>
     </style>
 
     <style name="Body2">
@@ -49,6 +61,8 @@
         <item name="android:textSize">14sp</item>
         <!-- tracking = 0.25 -->
         <item name="android:letterSpacing">0.018</item>
+        <!-- line height = 20 -->
+        <item name="android:lineSpacingMultiplier">1.43</item>
     </style>
 
     <style name="ButtonText">
@@ -56,15 +70,19 @@
         <item name="android:textSize">14sp</item>
         <!-- tracking = 0.75 -->
         <item name="android:letterSpacing">0.054</item>
+        <!-- line height = 16 -->
+        <item name="android:lineSpacingMultiplier">1.14</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/primary_text_button</item>
     </style>
 
     <style name="Caption">
         <item name="android:fontFamily">sans-serif</item>
-        <!-- tracking = 0.5 -->
         <item name="android:textSize">12sp</item>
+        <!-- tracking = 0.5 -->
         <item name="android:letterSpacing">0.042</item>
+        <!-- line height = 16 -->
+        <item name="android:lineSpacingMultiplier">1.33</item>
     </style>
 
     <style name="QuickAccessMoreText">

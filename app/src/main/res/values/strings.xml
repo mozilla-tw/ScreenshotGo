@@ -113,11 +113,12 @@
 
     <!-- Settings: strings displayed in the settings page,
     Refer to UX spec 6.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133927_6-1_Settings -->
+    <!-- the string displayed to inform users this switch needs to be enabled to take screenshots. If enabled, the system reveals two more options for users to customize -->
     <string name="settings_list_capture">Enable to take screenshots</string>
     <!-- The string changes to serve as description of settings_list_fab -->
     <string name="settings_detail_capture">Allows you to take a screenshot with one tap. Works with whatever is on your screen.</string>
-    <!-- The string displayed to enable a floating button to take screenshot -->
-    <string name="settings_list_fab">Enable GO button</string>
+    <!-- The string displayed to enable a floating button to take screenshot, and the placeholder is "GO" from the product name -->
+    <string name="settings_list_fab">Enable %1$s button</string>
     <string name="settings_list_sorting">Prompt to save</string>
     <string name="settings_detail_sorting">Always prompt to add screenshot to a collection</string>
     <string name="settings_list_usagedata">Send usage data</string>
@@ -146,16 +147,16 @@
     <string name="onboarding_storage_content_permission">To help you organize and find your screenshots better, we’ll need your permission to access your storage.</string>
     <!-- The string displays if the system autogrants storage permission. Parameter %1$s is the app name, i.e. Firefox ScreenshotGo -->
     <string name="onboarding_storage_content_autogrant">%1$s helps you organize and find your screenshots better.</string>
-    <string name="onboarding_storage_action_confirm">Let’s GO</string>
+    <string name="onboarding_storage_action_confirm" translatable="false">Let’s GO</string>
     <string name="onboarding_transition_loading">Loading</string>
-    <!-- Overlay permission prompt: strings to onboard users to grant permissions -->
-    <string name="onboarding_fab_title_fab">Get the GO button</string>
-    <string name="onboarding_fab_content_permission">The GO button lets you take and organize your screenshots anytime, anywhere. We’ll need your permission to enable it.</string>
+    <!-- Overlay permission prompt: strings to onboard users to grant permissions, and the placeholder is "GO" from the product name -->
+    <string name="onboarding_fab_title_fab">Get the %1$s button</string>
+    <string name="onboarding_fab_content_permission">The %1$s button lets you take and organize your screenshots anytime, anywhere. We’ll need your permission to enable it.</string>
     <!-- String to allow users to dismiss the onboarding panel -->
     <string name="onboarding_fab_action_later">Later</string>
     <string name="onboarding_fab_action_grant">Grant Permission</string>
     <!-- Auto-grant overlay permission prompt -->
-    <string name="onboarding_autogrant_overlay_title">Use the GO button to take and organize screenshots anytime, anywhere.</string>
+    <string name="onboarding_autogrant_overlay_title">Use the %1$s button to take and organize screenshots anytime, anywhere.</string>
     <string name="onboarding_autogrant_overlay_gotit">Got it</string>
     <!-- Onboarding: strings to inform users when keeping denying permission -->
     <string name="onboarding_error_title_wrong">Oops! Something’s wrong</string>
@@ -171,6 +172,7 @@
     <!-- The string displayed to describe the survey -->
     <string name="onboarding_search_content_survey">We’re working on a search feature to help you find your screenshots even faster. Interested?</string>
     <string name="onboarding_search_action_agree">Yes please</string>
+    <!-- The string should represent an informal variant of no -->
     <string name="onboarding_search_action_disagree">Nope</string>
     <string name="onboarding_search_content_feedback">Thanks for your feedback!</string>
 </resources>

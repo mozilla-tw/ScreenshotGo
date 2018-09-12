@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">ScreenshotGo</string>
-
     <!-- Label used for buttons to create new collection, e.g. in dialogs-->
     <string name="action_create">Create new</string>
     <!-- Label used for buttons to delete items, e.g. in dialogs-->
@@ -19,7 +17,6 @@
     <!-- Sorting panel: strings displayed on the sorting panel to help users categorize screenshots, 
     Refer to UX spec 1.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133909_1-1_Key_Flow_Add_To_Collection -->
     <string name="sorting_title_addto">Add to</string>
-    <string name="multisorting_count_number" translatable="false">%1$d / %2$d</string>
     <!-- String displayed to skip the current screenshot and move on to the next one -->
     <string name="multisorting_action_next">Next</string>
     <!-- String displayed on the title of sorting panel and the screenshot will be categorized to a collection -->
@@ -133,7 +130,7 @@
     <!-- The strings displys when users share the app with friends. %1$s is the app name i.e. Firefox ScreenshotGo, and %2$s is the Google Play url -->
     <string name="share_intro">Hey, check out this new app that helps you organize and find your screenshots easily. It’s called %1$s. %2$s</string>
     <string name="settings_list_about">About</string>
-    <string name="about_title_name" translatable="false">Firefox ScreenshotGo</string>
+    <string name="about_title_name" translatable="false">@string/app_full_name</string>
     <!-- Parameter %1$s is version code of the app, i.e. 1.0.0 -->
     <string name="about_content_version">Version %1$s</string>
     <string name="about_list_support">Support</string>

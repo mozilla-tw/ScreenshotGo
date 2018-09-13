@@ -1,12 +1,15 @@
 package org.mozilla.scryer.setting
 
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.ActionBar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import org.mozilla.scryer.R
 import org.mozilla.scryer.getSupportActionBar
@@ -22,6 +25,14 @@ class AboutFragment : Fragment() {
 
         val versionText = view.findViewById<TextView>(R.id.about_text_version)
         versionText?.text = getString(R.string.about_content_version, getAppVersion())
+
+        val privacyNoticeButton = view.findViewById<Button>(R.id.about_btn_privacy_notice)
+        privacyNoticeButton.setOnClickListener {
+            val intent = Intent()
+            intent.action = Intent.ACTION_VIEW
+            intent.data = Uri.parse(getString(R.string.about_privacy_notice_url))
+            startActivity(intent)
+        }
 
         return view
     }

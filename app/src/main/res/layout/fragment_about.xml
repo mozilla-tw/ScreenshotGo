@@ -44,7 +44,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="@dimen/common_padding_24dp"
-        android:background="@color/disableGrey" />
+        android:background="@color/grey20" />
 
     <Button
         android:id="@+id/about_btn_support"
@@ -60,7 +60,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/disableGrey" />
+        android:background="@color/grey20" />
 
     <Button
         android:id="@+id/about_btn_your_rights_licenses"
@@ -76,7 +76,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/disableGrey" />
+        android:background="@color/grey20" />
 
     <Button
         android:id="@+id/about_btn_privacy_notice"
@@ -92,5 +92,5 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/disableGrey" />
+        android:background="@color/grey20" />
 </LinearLayout>

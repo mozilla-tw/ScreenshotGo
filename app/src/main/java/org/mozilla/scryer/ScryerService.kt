@@ -23,13 +23,13 @@ import kotlinx.coroutines.experimental.launch
 import org.mozilla.scryer.capture.RequestCaptureActivity
 import org.mozilla.scryer.capture.ScreenCaptureListener
 import org.mozilla.scryer.capture.ScreenCaptureManager
-import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.filemonitor.FileMonitor
 import org.mozilla.scryer.filemonitor.MediaProviderDelegate
 import org.mozilla.scryer.overlay.CaptureButtonController
 import org.mozilla.scryer.permission.PermissionHelper
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.ui.ScryerToast
 
 
@@ -61,7 +61,6 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
     private var isRunning: Boolean = false
     private var captureButtonController: CaptureButtonController? = null
 
-    private var screenCapturePermissionIntent: Intent? = null
     private var screenCaptureManager: ScreenCaptureManager? = null
     private lateinit var requestCaptureFilter: IntentFilter
     private lateinit var requestCaptureReceiver: BroadcastReceiver
@@ -194,40 +193,35 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
     private fun takeScreenshot() {
         LocalBroadcastManager.getInstance(this).sendBroadcast(Intent(EVENT_TAKE_SCREENSHOT))
 
-        if (screenCapturePermissionIntent != null) {
-            screenCaptureManager?.captureScreen()
-        } else {
+        requestCaptureFilter = IntentFilter(RequestCaptureActivity.getResultBroadcastAction(applicationContext))
+        requestCaptureReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                LocalBroadcastManager.getInstance(applicationContext).unregisterReceiver(requestCaptureReceiver)
 
-            requestCaptureFilter = IntentFilter(RequestCaptureActivity.getResultBroadcastAction(applicationContext))
-            requestCaptureReceiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context, intent: Intent) {
-                    LocalBroadcastManager.getInstance(applicationContext).unregisterReceiver(requestCaptureReceiver)
+                val resultCode = intent.getIntExtra(RequestCaptureActivity.RESULT_EXTRA_CODE, Activity.RESULT_CANCELED)
+                if (resultCode != Activity.RESULT_OK) {
+                    onScreenShotTaken("")
+                    return
+                }
 
-                    val resultCode = intent.getIntExtra(RequestCaptureActivity.RESULT_EXTRA_CODE, Activity.RESULT_CANCELED)
-                    if (resultCode != Activity.RESULT_OK) {
-                        onScreenShotTaken("")
-                        return
-                    }
+                val screenCapturePermissionIntent: Intent? = intent.getParcelableExtra(RequestCaptureActivity.RESULT_EXTRA_DATA)
+                screenCapturePermissionIntent?.let {
+                    screenCaptureManager = ScreenCaptureManager(applicationContext, it, this@ScryerService)
 
-                    screenCapturePermissionIntent = intent.getParcelableExtra(RequestCaptureActivity.RESULT_EXTRA_DATA)
-                    screenCapturePermissionIntent?.let {
-                        screenCaptureManager = ScreenCaptureManager(applicationContext, it, this@ScryerService)
-
-                        if (intent.getBooleanExtra(RequestCaptureActivity.RESULT_EXTRA_PROMPT_SHOWN, true)) {
-                            // Delay capture until after the permission dialog is gone.
-                            handler.postDelayed({ screenCaptureManager?.captureScreen() }, 500)
-                        } else {
-                            screenCaptureManager?.captureScreen()
-                        }
+                    if (intent.getBooleanExtra(RequestCaptureActivity.RESULT_EXTRA_PROMPT_SHOWN, true)) {
+                        // Delay capture until after the permission dialog is gone.
+                        handler.postDelayed({ screenCaptureManager?.captureScreen() }, 500)
+                    } else {
+                        screenCaptureManager?.captureScreen()
                     }
                 }
             }
-
-            LocalBroadcastManager.getInstance(applicationContext).registerReceiver(requestCaptureReceiver, requestCaptureFilter)
-            val intent = Intent(applicationContext, RequestCaptureActivity::class.java)
-            intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
-            applicationContext.startActivity(intent)
         }
+
+        LocalBroadcastManager.getInstance(applicationContext).registerReceiver(requestCaptureReceiver, requestCaptureFilter)
+        val intent = Intent(applicationContext, RequestCaptureActivity::class.java)
+        intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NEW_TASK
+        applicationContext.startActivity(intent)
     }
 
     override fun onScreenShotTaken(path: String) {

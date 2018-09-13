@@ -51,7 +51,7 @@
   <string name="sheet_unsorted_title_unsorted">Tangkapan Layar Belum Disortir</string>
   <string name="sheet_unsorted_content_shots">%1$d tangkapan layar yang belum disortir. Sortir sekarang?</string>
   <string name="sheet_box_ask">Jangan tanya lagi</string>
-  <string name="sheet_unsorted_action_sort">Urutkan</string>
+  <string name="sheet_unsorted_action_sort">Sortir</string>
   <string name="sheet_action_no">Tidak, terima kasih</string>
   <string name="snackbar_disable">Layanan tangkapan layar dinonaktifkan</string>
   <string name="snackbar_enable">Layanan tangkapan layar diaktifkan</string>

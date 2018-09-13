@@ -25,7 +25,7 @@
         android:layout_marginTop="@dimen/common_padding_16dp"
         android:layout_marginRight="@dimen/common_padding_24dp"
         android:gravity="center"
-        android:text="@string/app_name"
+        android:text="@string/app_full_name"
         android:textAppearance="@style/H2"
         android:textColor="@color/grey90" />
 

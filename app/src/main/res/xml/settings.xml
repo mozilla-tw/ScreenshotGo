@@ -12,8 +12,7 @@
         android:defaultValue="true"
         android:key="@string/pref_key_enable_floating_screenshot_button"
         android:persistent="false"
-        android:summary="@string/settings_detail_capture"
-        android:title="@string/settings_list_fab" />
+        android:summary="@string/settings_detail_capture" />
 
     <android.support.v7.preference.SwitchPreferenceCompat
         android:defaultValue="true"
@@ -27,7 +26,6 @@
         android:key="@string/pref_key_enable_send_usage_data"
         android:layout="@layout/preference_custom_item"
         android:persistent="true"
-        android:summary="@string/settings_detail_mozilla"
         android:title="@string/settings_list_usagedata" />
 
     <android.support.v7.preference.Preference

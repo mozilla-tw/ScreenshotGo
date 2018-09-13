@@ -27,6 +27,14 @@ class AboutFragment : Fragment() {
         val versionText = view.findViewById<TextView>(R.id.about_text_version)
         versionText?.text = getString(R.string.about_content_version, getAppVersion(context!!))
 
+        val supportButton = view.findViewById<Button>(R.id.about_btn_support)
+        supportButton.setOnClickListener {
+            val intent = Intent()
+            intent.action = Intent.ACTION_VIEW
+            intent.data = Uri.parse(getSupportPageUrl(context!!))
+            startActivity(intent)
+        }
+
         val privacyNoticeButton = view.findViewById<Button>(R.id.about_btn_privacy_notice)
         privacyNoticeButton.setOnClickListener {
             val intent = Intent()
@@ -52,6 +60,12 @@ class AboutFragment : Fragment() {
 
     private fun updateActionBarTitle(actionBar: ActionBar) {
         actionBar.title = getString(R.string.settings_list_about)
+    }
+
+    private fun getSupportPageUrl(context: Context): String {
+        return context.getString(R.string.about_support_url,
+                getAppVersion(context),
+                getLanguageTag(Locale.getDefault()))
     }
 }
 

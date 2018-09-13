@@ -1,5 +1,6 @@
 package org.mozilla.scryer.setting
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -13,7 +14,7 @@ import android.widget.Button
 import android.widget.TextView
 import org.mozilla.scryer.R
 import org.mozilla.scryer.getSupportActionBar
-
+import java.util.*
 
 class AboutFragment : Fragment() {
     companion object {
@@ -24,7 +25,7 @@ class AboutFragment : Fragment() {
         val view: View = inflater.inflate(R.layout.fragment_about, container, false)
 
         val versionText = view.findViewById<TextView>(R.id.about_text_version)
-        versionText?.text = getString(R.string.about_content_version, getAppVersion())
+        versionText?.text = getString(R.string.about_content_version, getAppVersion(context!!))
 
         val privacyNoticeButton = view.findViewById<Button>(R.id.about_btn_privacy_notice)
         privacyNoticeButton.setOnClickListener {
@@ -35,16 +36,6 @@ class AboutFragment : Fragment() {
         }
 
         return view
-    }
-
-    private fun getAppVersion(): String {
-        var appVersion = ""
-        try {
-            appVersion = context?.packageManager?.getPackageInfo(context?.packageName, 0)?.versionName ?: ""
-        } catch (e: PackageManager.NameNotFoundException) {
-            // Nothing to do if we can't find the package name.
-        }
-        return appVersion
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -62,4 +53,64 @@ class AboutFragment : Fragment() {
     private fun updateActionBarTitle(actionBar: ActionBar) {
         actionBar.title = getString(R.string.settings_list_about)
     }
+}
+
+fun getAppVersion(context: Context): String {
+    var appVersion = ""
+    try {
+        appVersion = context.packageManager.getPackageInfo(context.packageName, 0)?.versionName ?: ""
+    } catch (e: PackageManager.NameNotFoundException) {
+        // Nothing to do if we can't find the package name.
+    }
+    return appVersion
+}
+
+/**
+ * Gecko uses locale codes like "es-ES", whereas a Java [Locale]
+ * stringifies as "es_ES".
+ *
+ *
+ * This method approximates the Java 7 method
+ * `Locale#toLanguageTag()`.
+ *
+ * @return a locale string suitable for passing to Gecko.
+ */
+fun getLanguageTag(locale: Locale): String {
+    // If this were Java 7:
+    // return locale.toLanguageTag();
+
+    val language = getLanguage(locale)
+    val country = locale.country // Can be an empty string.
+    return if (country == "") {
+        language
+    } else "$language-$country"
+}
+
+/**
+ * Sometimes we want just the language for a locale, not the entire language
+ * tag. But Java's .getLanguage method is wrong.
+ *
+ *
+ * This method is equivalent to the first part of
+ * [Locales.getLanguageTag].
+ *
+ * @return a language string, such as "he" for the Hebrew locales.
+ */
+private fun getLanguage(locale: Locale): String {
+    // Can, but should never be, an empty string.
+    val language = locale.language
+
+    // Modernize certain language codes.
+    if (language == "iw") {
+        return "he"
+    }
+
+    if (language == "in") {
+        return "id"
+    }
+
+    return if (language == "ji") {
+        "yi"
+    } else language
+
 }

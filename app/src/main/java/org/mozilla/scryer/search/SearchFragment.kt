@@ -7,23 +7,41 @@ package org.mozilla.scryer.search
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.preference.PreferenceManager
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
+import android.widget.Toast
 import androidx.navigation.Navigation
 import org.mozilla.scryer.R
 import org.mozilla.scryer.getSupportActionBar
 import org.mozilla.scryer.setSupportActionBar
+import org.mozilla.scryer.ui.ScryerToast
 
 class SearchFragment : Fragment() {
+    private val PREF_SEARCH_FEEDBACK_HAS_SHOWN = "pref_search_feedback_has_shown"
+
+    private val toast: ScryerToast by lazy {
+        ScryerToast(context!!)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val layout = inflater.inflate(R.layout.fragment_search_empty, container, false)
 
-        layout.findViewById<Button>(R.id.positive_button).setOnClickListener { Navigation.findNavController(view).navigateUp() }
-        layout.findViewById<Button>(R.id.negative_button).setOnClickListener { Navigation.findNavController(view).navigateUp() }
+        if (!hasSearchFeedbackShown()) {
+            layout.findViewById<TextView>(R.id.subtitle).text = getString(R.string.onboarding_search_content_survey)
+            layout.findViewById<Button>(R.id.positive_button).visibility = View.VISIBLE
+            layout.findViewById<Button>(R.id.positive_button).setOnClickListener {
+                doAfterFeedback()
+            }
+            layout.findViewById<Button>(R.id.negative_button).visibility = View.VISIBLE
+            layout.findViewById<Button>(R.id.negative_button).setOnClickListener {
+                doAfterFeedback()
+            }
+        }
 
         return layout
     }
@@ -51,5 +69,26 @@ class SearchFragment : Fragment() {
         getSupportActionBar(activity).apply {
             setDisplayHomeAsUpEnabled(true)
         }
+    }
+
+    private fun doAfterFeedback() {
+        setSearchFeedbackHasShown()
+        toast.show(getString(R.string.onboarding_search_content_feedback), Toast.LENGTH_SHORT)
+        Navigation.findNavController(view).navigateUp()
+    }
+
+    private fun setSearchFeedbackHasShown() {
+        context?.let {
+            PreferenceManager.getDefaultSharedPreferences(it).edit()
+                    .putBoolean(PREF_SEARCH_FEEDBACK_HAS_SHOWN, true)
+                    .apply()
+        }
+    }
+
+    private fun hasSearchFeedbackShown(): Boolean {
+        return context?.let {
+            PreferenceManager.getDefaultSharedPreferences(it)
+                    .getBoolean(PREF_SEARCH_FEEDBACK_HAS_SHOWN, false)
+        } ?: false
     }
 }

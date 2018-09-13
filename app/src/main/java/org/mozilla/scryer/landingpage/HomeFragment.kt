@@ -37,7 +37,6 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import org.mozilla.scryer.*
-import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.filemonitor.ScreenshotFetcher
@@ -47,6 +46,7 @@ import org.mozilla.scryer.permission.PermissionViewModel
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.setting.SettingsActivity
+import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.ui.BottomDialogFactory
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
@@ -157,7 +157,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         welcomeView?.apply {
             findViewById<TextView>(R.id.title).text = getString(R.string.onboarding_storage_title_welcome,
-                    getString(R.string.app_name))
+                    getString(R.string.app_full_name))
 
             findViewById<TextView>(R.id.description).text = getString(if (withStoragePermission) {
                     R.string.onboarding_storage_content_permission
@@ -165,7 +165,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 } else {
                     R.string.onboarding_storage_content_autogrant
 
-                }, getString(R.string.app_name))
+                }, getString(R.string.app_full_name))
 
             showStoragePermissionView(this, action)
         }
@@ -181,7 +181,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             stub.inflate()
 
         })?.apply {
-            val appName = getString(R.string.app_name)
+            val appName = getString(R.string.app_full_name)
             val description = findViewById<TextView>(R.id.description)
             val actionButton = findViewById<TextView>(R.id.action_button)
             if (isRational) {
@@ -215,9 +215,9 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val context = context?: return
 
         val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
-
-        dialog.findViewById<TextView>(R.id.title)?.setText(R.string.onboarding_fab_title_fab)
-        dialog.findViewById<TextView>(R.id.subtitle)?.setText(R.string.onboarding_fab_content_permission)
+        val appNameGo = getString(R.string.app_name_go)
+        dialog.findViewById<TextView>(R.id.title)?.text = getString(R.string.onboarding_fab_title_fab, appNameGo)
+        dialog.findViewById<TextView>(R.id.subtitle)?.text = getString(R.string.onboarding_fab_content_permission, appNameGo)
         dialog.findViewById<View>(R.id.dont_ask_again_checkbox)?.visibility = View.GONE
 
         dialog.findViewById<TextView>(R.id.positive_button)?.apply {
@@ -248,8 +248,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val context = context?: return
 
         val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
-
-        dialog.findViewById<TextView>(R.id.title)?.setText(R.string.onboarding_autogrant_overlay_title)
+        dialog.findViewById<TextView>(R.id.title)?.text = getString(R.string.onboarding_autogrant_overlay_title, getString(R.string.app_name_go))
         dialog.findViewById<View>(R.id.dont_ask_again_checkbox)?.visibility = View.GONE
         dialog.findViewById<View>(R.id.positive_button)?.setOnClickListener {
             action.run()

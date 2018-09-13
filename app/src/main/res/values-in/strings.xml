@@ -59,7 +59,6 @@
   <string name="snackbar_copied">Disalin</string>
   <string name="settings_list_capture">Aktifkan layanan tangkapan layar</string>
   <string name="settings_detail_capture">Memungkinkan Anda membuat tangkapan layar dengan sekali ketuk. Bekerja dengan apa pun yang ada di layar Anda</string>
-  <string name="settings_list_fab">Aktifkan tombol tangkapan layar</string>
   <string name="settings_list_sorting">Tanyakan saat ingin menyimpan</string>
   <string name="settings_detail_sorting">Selalu tanyakan untuk menambahkan tangkapan layar ke koleksi</string>
   <string name="settings_list_usagedata">Kirim data penggunaan</string>

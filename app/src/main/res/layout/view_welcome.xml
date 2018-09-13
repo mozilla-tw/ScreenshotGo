@@ -22,7 +22,6 @@
         android:layout_marginTop="48dp"
         android:layout_marginEnd="40dp"
         android:textColor="@color/grey90"
-        android:text="@string/onboarding_storage_title_welcome"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"

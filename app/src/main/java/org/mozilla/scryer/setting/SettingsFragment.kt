@@ -58,6 +58,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             enableCaptureServiceChildItems(it)
         })
 
+        enableFloatingScreenshotButton.title = getString(R.string.settings_list_fab, getString(R.string.app_name_go))
         enableFloatingScreenshotButton.isChecked = settingsRepository.floatingEnable
         enableFloatingScreenshotButton.onPreferenceChangeListener = this
         settingsRepository.floatingEnableObservable.observe(this, Observer { enabled ->
@@ -71,8 +72,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             enableAddToCollectionButton.isChecked = it
         })
 
-        val appName = context?.resources?.getString(R.string.app_name)
-        enableSendUsageDataButton.summary = context?.resources?.getString(R.string.settings_detail_mozilla, appName)
+        enableSendUsageDataButton.summary = getString(R.string.settings_detail_mozilla, getString(R.string.app_full_name))
 
         giveFeedbackPreference.onPreferenceClickListener = this
         shareWithFriendsPreference.onPreferenceClickListener = this

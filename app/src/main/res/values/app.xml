@@ -7,5 +7,7 @@
     <string name="multisorting_count_number" translatable="false">%1$d / %2$d</string>
     <!-- TODO Update to the production url -->
     <string name="share_app_google_play_url" translatable="false"></string>
+    <string name="about_support_url" translatable="false">https://support.mozilla.org/1/firefox/%1$s/Android/%2$s/screenshot-help</string>
+    <string name="telemetry_data_usage_url" translatable="false">https://support.mozilla.org/1/mobile/%1$s/Android/%2$s/usage-data</string>
     <string name="about_privacy_notice_url" translatable="false">https://www.mozilla.org/privacy/screenshot-go/</string>
 </resources>

@@ -14,10 +14,15 @@ import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityOptionsCompat
+import android.support.v4.content.ContextCompat
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
@@ -30,7 +35,11 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import org.mozilla.scryer.BuildConfig
 import org.mozilla.scryer.R
+import org.mozilla.scryer.landingpage.showDeleteScreenshotDialog
+import org.mozilla.scryer.landingpage.showScreenshotInfoDialog
+import org.mozilla.scryer.landingpage.showShareScreenshotDialog
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import kotlin.coroutines.experimental.suspendCoroutine
 
@@ -124,6 +133,37 @@ class DetailPageActivity : AppCompatActivity() {
                 super.onBackPressed()
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_detail, menu)
+
+        if (menu != null) {
+            val shareMenu = menu.findItem(R.id.action_share)
+            val wrapped = DrawableCompat.wrap(shareMenu.icon)
+            DrawableCompat.setTint(wrapped, ContextCompat.getColor(this, R.color.white))
+        }
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.action_share -> {
+                showShareScreenshotDialog(this, screenshots[view_pager.currentItem])
+            }
+            R.id.action_move_to -> {
+                startActivity(SortingPanelActivity.sortOldScreenshot(this, screenshots[view_pager.currentItem].id))
+            }
+            R.id.action_screenshot_info -> {
+                showScreenshotInfoDialog(this, screenshots[view_pager.currentItem])
+            }
+            R.id.action_delete -> {
+                showDeleteScreenshotDialog(this, screenshots[view_pager.currentItem])
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun initActionBar() {
@@ -281,7 +321,7 @@ class DetailPageActivity : AppCompatActivity() {
     }
 
     private fun processTextRecognitionResult(texts: FirebaseVisionText) {
-        val blocks = texts.blocks.toMutableList().apply {  }
+        val blocks = texts.blocks.toMutableList().apply { }
         blocks.sortBy { it.boundingBox?.centerY() }
 
         if (blocks.size == 0) {

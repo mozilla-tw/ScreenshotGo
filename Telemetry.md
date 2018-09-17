@@ -1,26 +1,26 @@
 # Telemetry
-For clients that have "send usage data" enabled, Scryer sends a "core" ping and an "event" ping to Mozilla's telemetry service. Sending telemetry can be disabled in the app's settings. Builds of "Scryer" have telemetry enabled by default ("opt-out").
+For clients that have "send usage data" enabled, ScreenshotGo sends a "core" ping and an "event" ping to Mozilla's telemetry service. Sending telemetry can be disabled in the app's settings. Builds of "ScreenshotGo" have telemetry enabled by default ("opt-out").
 
-Note: Scryer is still in development and this documentation is subject to change.
+Note: ScreenshotGo is still in development and this documentation is subject to change.
 
 # Install campaign tracking
 
 We use [Adjust SDK](https://github.com/adjust/android_sdk) to evaluate the effectiveness of our campaign channel. What data has been collected can be found in the code [here](https://github.com/adjust/android_sdk/blob/0abfac3ace0c10795d78f4d89e2c607d41d13426/Adjust/adjust/src/main/java/com/adjust/sdk/PackageBuilder.java#L210). The evaluation process is accomplished by 1. Receive [INSTALL_REFERRER Intent](https://developer.android.com/reference/com/google/android/gms/tagmanager/InstallReferrerReceiver.html) from Google Play; 2. Send the referrer string back to [adjust server(https://app.adjust.com)](https://github.com/adjust/android_sdk/blob/0abfac3ace0c10795d78f4d89e2c607d41d13426/Adjust/adjust/src/main/java/com/adjust/sdk/Constants.java#L29) when the application is [alive](https://developer.android.com/reference/android/app/Application.html#onCreate%28%29).
 
-# Scryer uses Firebase to improve our product
+# ScreenshotGo uses Firebase to improve our product
 
-Scryer also uses Google’s [Firebase](https://firebase.google.com/) platform to help us improve performance, support crashes, understand your experience with Scryer and improve the user experience through A/B testing and in-product messaging. Below are the specific Firebase Products we use
+ScreenshotGo also uses Google’s [Firebase](https://firebase.google.com/) platform to help us improve performance, support crashes, understand your experience with ScreenshotGo and improve the user experience through A/B testing and in-product messaging. Below are the specific Firebase Products we use
 * Google Analytics; to analyze anonymous user attributions and behavior to make informed decisions on our product roadmap. 
-* Remote Config; to customize your Scryer experience such as changing the look and feel, rolling out features gradually, running A/B tests, delivering customized content, or making other updates without deploying a new version.
-* Cloud Messaging; to send messages and notifications so we can bring contextual hints to you to help you use Scryer better 
-* Crashlytics; to understand crashes better so you can use Scryer without problems  
-* Performance Monitoring; to diagnose app performance issues so we can keep Scryer really fast
+* Remote Config; to customize your ScreenshotGo experience such as changing the look and feel, rolling out features gradually, running A/B tests, delivering customized content, or making other updates without deploying a new version.
+* Cloud Messaging; to send messages and notifications so we can bring contextual hints to you to help you use ScreenshotGo better 
+* Crashlytics; to understand crashes better so you can use ScreenshotGo without problems  
+* Performance Monitoring; to diagnose app performance issues so we can keep ScreenshotGo really fast
 
 Learn more about Firebase data collection [here](https://support.google.com/firebase/answer/6318039) or you have the option to turn off Firebase by disabling “Send Usage Data” in your Settings. For events automatically collected by Firebase, see [here](https://support.google.com/firebase/answer/6317485?hl=en)
 
 # Core ping
 
-Scryer creates and tries to send a "core" ping whenever the app goes to the background. This core ping uses the same format as Firefox for Android and is [documented on firefox-source-docs.mozilla.org](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/data/core-ping.html).
+ScreenshotGo creates and tries to send a "core" ping whenever the app goes to the background. This core ping uses the same format as Firefox for Android and is [documented on firefox-source-docs.mozilla.org](https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/telemetry/data/core-ping.html).
 
 
 # Event ping

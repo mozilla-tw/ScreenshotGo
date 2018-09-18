@@ -23,7 +23,7 @@ import java.io.FileOutputStream
 
 class ScreenCaptureManager(context: Context, private val screenCapturePermissionIntent: Intent, private val screenCaptureListener: ScreenCaptureListener) {
     companion object {
-        const val SCREENSHOT_DIR = "screenshot+"
+        const val SCREENSHOT_DIR = "ScreenshotGo"
     }
 
     private val projectionManager: MediaProjectionManager = context.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -101,7 +101,7 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
         override fun onImageAvailable(reader: ImageReader) {
             imageReader?.setOnImageAvailableListener(null, null)
 
-            val filePath: String = screenshotPath + "/my_screenshot_" + System.currentTimeMillis() + ".jpg"
+            val filePath: String = screenshotPath + "/Screenshot_" + System.currentTimeMillis() + ".jpg"
             var bitmap: Bitmap? = null
             var croppedBitmap: Bitmap? = null
 

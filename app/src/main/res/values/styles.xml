@@ -23,12 +23,17 @@
     <style name="DetailPageTheme.Base" parent="AppTheme">
         <item name="android:windowTranslucentStatus">true</item>
         <item name="toolbarNavigationButtonStyle">@style/ToolbarNavigationButtonStyle</item>
+        <item name="actionOverflowButtonStyle">@style/DetailPageOverflowButtonStyle</item>
     </style>
 
     <style name="DetailPageTheme" parent="DetailPageTheme.Base" />
 
     <style name="OverflowButtonStyle" parent="Widget.AppCompat.Light.ActionButton.Overflow">
         <item name="android:src">@drawable/more</item>
+    </style>
+
+    <style name="DetailPageOverflowButtonStyle" parent="OverflowButtonStyle">
+        <item name="android:tint">@color/white</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">

@@ -117,7 +117,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         when (preference) {
             giveFeedbackPreference -> context?.let { showFeedbackDialog(it); return true }
             shareWithFriendsPreference -> context?.let { showShareAppDialog(it); return true }
-            aboutPreference -> context?.let { showAboutPage(it); return true }
+            aboutPreference -> context?.let { showAboutPage(); return true }
         }
 
         return false
@@ -140,7 +140,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             dialog?.dismiss()
         }
         dialogView.findViewById<Button>(R.id.dialog_give_feedback_btn_feedback).setOnClickListener {
-            // TODO: go to feedback web page
+            goToFeedback(context)
             dialog?.dismiss()
         }
         dialog.setView(dialogView)
@@ -159,7 +159,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         context.startActivity(Intent.createChooser(sendIntent, null))
     }
 
-    private fun showAboutPage(context: Context) {
+    private fun showAboutPage() {
         activity?.supportFragmentManager
                 ?.beginTransaction()
                 ?.replace(R.id.container, AboutFragment())
@@ -179,6 +179,12 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         }
+    }
+
+    private fun goToFeedback(context: Context) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.give_us_feedback_url)))
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
     }
 
     private fun checkOverlayPermission() {

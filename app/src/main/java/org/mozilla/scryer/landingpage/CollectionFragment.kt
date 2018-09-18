@@ -10,8 +10,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Rect
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.FileProvider
@@ -31,11 +29,11 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import org.mozilla.scryer.*
 import org.mozilla.scryer.Observer
-import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.extension.getValidPosition
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
@@ -431,12 +429,7 @@ fun showShareScreenshotDialog(context: Context, screenshotModel: ScreenshotModel
     launch {
         val authorities = BuildConfig.APPLICATION_ID + ".provider.fileprovider"
         val file = File(screenshotModel.absolutePath)
-        val fileUri: Uri?
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            fileUri = FileProvider.getUriForFile(context, authorities, file)
-        } else {
-            fileUri = Uri.fromFile(file)
-        }
+        val fileUri = FileProvider.getUriForFile(context, authorities, file)
         val share = Intent(Intent.ACTION_SEND)
         share.putExtra(Intent.EXTRA_STREAM, fileUri)
         share.type = "image/*"

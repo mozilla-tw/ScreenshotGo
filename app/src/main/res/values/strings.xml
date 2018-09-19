@@ -46,7 +46,12 @@
 
     <!-- Collection view: string displayed on the collection view. Parameter %1$d is the quantity of screenshot files, i.e. 100 shots -->
     <string name="collection_separator_shots">%1$d shots</string>
-
+    <!-- String displalyed when recognizing text on screenshot experiencing unknown error -->
+    <string name="detail_ocr_error_failed">Recognize failed</string>
+    <!-- String displayed when recognizing text on screenshots discovering the size of screenshot is beyond the accptable ratio -->
+    <string name="detail_ocr_error_edgecase">Something went wrong? Crop the screenshot and retry.</string>
+    <!-- String displayed when recognizing no text on the screenshot -->
+    <string name="detail_ocr_error_notext">No text found</string>
     <!-- Detail view: string displayed on the detail view when recognizing the text on the screenshot -->
     <string name="detail_transition_recognizing">Recognizing&#8230;</string>
 
@@ -87,8 +92,8 @@
     <string name="menu_action_selectall">Select all</string>
     <string name="menu_action_share">Share</string>
 
-    <!-- Bottom sheet: strings displayed on the reminder panel -->
-    <string name="sheet_enable_title_enable">Enable to take screenshots?</string>
+    <!-- Bottom sheet: strings displayed on the reminder panel, and the placeholder %1$s is the app name, ScreenshotGo -->
+    <string name="sheet_enable_title_enable">Enable %1$s to take screenshots?</string>
     <string name="sheet_enable_content_enable">You won’t be able to take screenshots with one tap unless this is enabled.</string>
     <!-- String displayed to allow users to enable the screenshot service -->
     <string name="sheet_enable_action_enable">Enable</string>

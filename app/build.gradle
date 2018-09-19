@@ -39,10 +39,6 @@ android {
         }
 
         debug {
-            minifyEnabled false
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
             applicationIdSuffix ".debug"
             versionNameSuffix applicationIdSuffix
         }
@@ -57,10 +53,11 @@ android {
         }
 
         preview {
-            dimension "product"
             applicationId "gro.allizom.scryer"
             applicationIdSuffix ""
             versionNameSuffix ".nightly"
+            resConfigs "en", "in"
+            dimension "product"
         }
     }
 

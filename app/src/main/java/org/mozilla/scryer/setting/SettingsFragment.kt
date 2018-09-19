@@ -124,8 +124,8 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     }
 
     private fun enableCaptureServiceChildItems(enable: Boolean) {
-        enableFloatingScreenshotButton.isEnabled = enable
-        enableAddToCollectionButton.isEnabled = enable
+        enableFloatingScreenshotButton.isVisible = enable
+        enableAddToCollectionButton.isVisible = enable
     }
 
     private fun showFeedbackDialog(context: Context) {

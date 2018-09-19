@@ -92,7 +92,7 @@
     <string name="menu_action_selectall">Select all</string>
     <string name="menu_action_share">Share</string>
 
-    <!-- Bottom sheet: strings displayed on the reminder panel -->
+    <!-- Bottom sheet: strings displayed on the reminder panel, the placeholder %1$s is the app name, ScreenshotGo -->
     <string name="sheet_enable_title_enable">Enable %1$s to take screenshots?</string>
     <string name="sheet_enable_content_enable">You won’t be able to take screenshots with one tap unless this is enabled.</string>
     <!-- String displayed to allow users to enable the screenshot service -->

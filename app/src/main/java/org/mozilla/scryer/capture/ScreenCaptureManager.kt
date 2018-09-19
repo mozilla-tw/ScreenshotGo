@@ -63,7 +63,13 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
 
     private fun startProjection() {
         uiHandler.post {
-            mediaProjection = projectionManager.getMediaProjection(Activity.RESULT_OK, screenCapturePermissionIntent)
+            try {
+                mediaProjection = projectionManager.getMediaProjection(Activity.RESULT_OK, screenCapturePermissionIntent)
+            } catch (exception: IllegalStateException) {
+                // There is no hint from MediaProjectionManager to know if there is already a
+                // MediaProjection instance running. So, just catch the exception and skip the capture.
+                return@post
+            }
             createVirtualDisplay()
             // register media projection stop callback
             mediaProjection?.registerCallback(MediaProjectionStopCallback(), workerHandler)

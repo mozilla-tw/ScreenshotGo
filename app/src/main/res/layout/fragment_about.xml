@@ -1,49 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/common_padding_24dp">
+        android:background="@color/grey10"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/common_padding_24dp"
+        android:paddingTop="@dimen/about_vertical_padding"
+        android:paddingEnd="@dimen/common_padding_24dp"
+        android:paddingBottom="@dimen/about_vertical_padding">
 
         <ImageView
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_centerHorizontal="true"
-            android:src="@null" />
-    </RelativeLayout>
+            android:src="@drawable/image_appbeta" />
 
-    <TextView
-        android:id="@+id/about_text_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/common_padding_24dp"
-        android:layout_marginTop="@dimen/common_padding_16dp"
-        android:layout_marginRight="@dimen/common_padding_24dp"
-        android:gravity="center"
-        android:text="@string/app_full_name"
-        android:textAppearance="@style/H2"
-        android:textColor="@color/grey90" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/common_padding_12dp"
+            android:src="@drawable/image_logotype" />
 
-    <TextView
-        android:id="@+id/about_text_version"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/common_padding_24dp"
-        android:layout_marginTop="@dimen/common_padding_8dp"
-        android:layout_marginRight="@dimen/common_padding_24dp"
-        android:gravity="center"
-        android:textAppearance="@style/Subtitle2"
-        android:textColor="@color/grey50" />
+        <TextView
+            android:id="@+id/about_text_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/common_padding_20dp"
+            android:gravity="center"
+            android:textAppearance="@style/Caption"
+            android:textColor="@color/grey60" />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="@dimen/common_padding_24dp"
         android:background="@color/grey20" />
 
     <Button

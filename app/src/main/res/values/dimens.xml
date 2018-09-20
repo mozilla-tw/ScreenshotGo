@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="common_padding_24dp">24dp</dimen>
+    <dimen name="common_padding_20dp">20dp</dimen>
     <dimen name="common_padding_16dp">16dp</dimen>
     <dimen name="common_padding_12dp">12dp</dimen>
     <dimen name="common_padding_8dp">8dp</dimen>
@@ -53,5 +54,6 @@
 
     <!-- Settings -->
     <dimen name="settings_list_item_height">48dp</dimen>
+    <dimen name="about_vertical_padding">40dp</dimen>
 
 </resources>

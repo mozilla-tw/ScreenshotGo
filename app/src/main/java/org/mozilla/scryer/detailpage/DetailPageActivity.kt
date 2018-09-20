@@ -37,6 +37,7 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import org.mozilla.scryer.BuildConfig
 import org.mozilla.scryer.R
+import org.mozilla.scryer.landingpage.OnDeleteScreenshotListener
 import org.mozilla.scryer.landingpage.showDeleteScreenshotDialog
 import org.mozilla.scryer.landingpage.showScreenshotInfoDialog
 import org.mozilla.scryer.landingpage.showShareScreenshotDialog
@@ -180,7 +181,12 @@ class DetailPageActivity : AppCompatActivity() {
                 showScreenshotInfoDialog(this, screenshots[view_pager.currentItem])
             }
             R.id.action_delete -> {
-                showDeleteScreenshotDialog(this, screenshots[view_pager.currentItem])
+                showDeleteScreenshotDialog(this, screenshots[view_pager.currentItem],
+                        object : OnDeleteScreenshotListener {
+                            override fun onDeleteScreenshot() {
+                                finish()
+                            }
+                        })
             }
             else -> return super.onOptionsItemSelected(item)
         }

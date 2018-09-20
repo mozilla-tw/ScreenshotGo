@@ -72,6 +72,11 @@ class DetailPageActivity : AppCompatActivity() {
 
     private val mGraphicOverlay: GraphicOverlay by lazy { findViewById<GraphicOverlay>(R.id.graphic_overlay) }
 
+    private var shareMenu: MenuItem? = null
+    private var moveToMenu: MenuItem? = null
+    private var screenshotInfoMenu: MenuItem? = null
+    private var deleteMenu: MenuItem? = null
+
     /** Where did the user came from to this page **/
     private val srcCollectionId: String? by lazy {
         intent?.getStringExtra(EXTRA_COLLECTION_ID)
@@ -149,9 +154,15 @@ class DetailPageActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_detail, menu)
 
         if (menu != null) {
-            val shareMenu = menu.findItem(R.id.action_share)
-            val wrapped = DrawableCompat.wrap(shareMenu.icon)
-            DrawableCompat.setTint(wrapped, ContextCompat.getColor(this, R.color.white))
+            shareMenu = menu.findItem(R.id.action_share)
+            shareMenu?.let {
+                val wrapped = DrawableCompat.wrap(it.icon)
+                DrawableCompat.setTint(wrapped, ContextCompat.getColor(this, R.color.white))
+            }
+
+            moveToMenu = menu.findItem(R.id.action_move_to)
+            screenshotInfoMenu = menu.findItem(R.id.action_screenshot_info)
+            deleteMenu = menu.findItem(R.id.action_delete)
         }
 
         return true
@@ -315,6 +326,8 @@ class DetailPageActivity : AppCompatActivity() {
             text_mode_fab.verticalScrollbarPosition = View.INVISIBLE
             loadingViewController.hide()
 
+            enableActionMenu(false)
+
         } else {
             text_mode_panel.visibility = View.GONE
             text_mode_background.visibility = View.GONE
@@ -328,7 +341,16 @@ class DetailPageActivity : AppCompatActivity() {
                 cancel_fab.visibility = View.INVISIBLE
                 text_mode_fab.visibility = View.VISIBLE
             }
+
+            enableActionMenu(true)
         }
+    }
+
+    private fun enableActionMenu(enable: Boolean) {
+        shareMenu?.isVisible = enable
+        moveToMenu?.isVisible = enable
+        screenshotInfoMenu?.isVisible = enable
+        deleteMenu?.isVisible = enable
     }
 
     @Suppress("ConstantConditionIf")
@@ -372,7 +394,7 @@ class DetailPageActivity : AppCompatActivity() {
                         .addOnFailureListener { _ ->
                             cont.resume(null)
                         }
-    }
+            }
 
     private fun processTextRecognitionResult(texts: FirebaseVisionText) {
         val blocks = texts.blocks.toMutableList().apply { }

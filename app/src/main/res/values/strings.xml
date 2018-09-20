@@ -47,7 +47,7 @@
     <!-- Collection view: string displayed on the collection view. Parameter %1$d is the quantity of screenshot files, i.e. 100 shots -->
     <string name="collection_separator_shots">%1$d shots</string>
     <!-- String displayed when text recognition has an unknown error -->
-    <string name="detail_ocr_error_failed">Recognize failed</string>
+    <string name="detail_ocr_error_failed">Text recognition failed</string>
     <!-- String displayed when text recognition fails because the image is too big or has unacceptable proportion -->
     <string name="detail_ocr_error_edgecase">Something went wrong? Crop the screenshot and retry.</string>
     <!-- String displayed when recognizing no text on the screenshot -->

@@ -355,6 +355,10 @@ interface OnContextMenuActionListener {
     fun onContextMenuAction(item: MenuItem?, itemPosition: Int)
 }
 
+interface OnDeleteScreenshotListener {
+    fun onDeleteScreenshot()
+}
+
 interface OnDeleteCollectionListener {
     fun onDeleteCollection()
 }
@@ -404,7 +408,7 @@ fun getFileDateText(timestamp: Long): String {
     return dateFormat.format(cal.time)
 }
 
-fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotModel) {
+fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotModel, listener: OnDeleteScreenshotListener? = null) {
     val message = StringBuilder()
     message.apply {
         append(context.getString(R.string.dialogue_delete_content_cantundo)).append("\n\n")
@@ -421,6 +425,7 @@ fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotMode
                     File(screenshotModel.absolutePath).delete()
                 }
                 dialog?.dismiss()
+                listener?.onDeleteScreenshot()
             }
             .show()
 }

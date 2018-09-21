@@ -1,0 +1,17 @@
+<resources>
+    <!-- Text shown in the "Your rights" screen.
+    %1$s will be replaced with the name of the app (e.g. Firefox ScreenshotGo) -->
+    <string name="your_rights_content_1">%1$s is made available to you by Mozilla under the terms of the Mozilla Public License and other permissive licenses, which means that you may use, copy, modify, and distribute portions of the codebase that are open source.</string>
+
+    <!-- Text shown in the "Your rights" screen.
+    %1$s will be replaced with the name of the app (e.g. Firefox ScreenshotGo) -->
+    <string name="your_rights_content_2">You are not granted any trademark rights or licenses to our trademarks, including without limitation the Mozilla, Firefox and %1$s names or logos.</string>
+
+    <!-- Text shown in the "Your rights" screen.
+    %1$s will be replaced with a URL linking to the privacy notice -->
+    <string name="your_rights_content_3"><![CDATA[Our <a href="%1$s">Privacy Notice</a> describes what information we receive from you and how we handle that information.]]></string>
+
+    <!-- Text shown in the "Your rights" screen.
+    %1$s will be replaced with the name of the app (e.g. Firefox ScreenshotGo) -->
+    <string name="your_rights_content_4">By choosing to submit feedback on %1$s, you give us permission to use the feedback to improve our products.</string>
+</resources>

@@ -59,7 +59,7 @@
         android:background="@color/grey20" />
 
     <Button
-        android:id="@+id/about_btn_your_rights_licenses"
+        android:id="@+id/about_btn_your_rights"
         style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="@dimen/settings_list_item_height"

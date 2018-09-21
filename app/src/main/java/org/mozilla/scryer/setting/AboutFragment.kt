@@ -35,6 +35,11 @@ class AboutFragment : Fragment() {
             startActivity(intent)
         }
 
+        val yourRightsButton = view.findViewById<Button>(R.id.about_btn_your_rights)
+        yourRightsButton.setOnClickListener {
+            showYourRightsPage()
+        }
+
         val privacyNoticeButton = view.findViewById<Button>(R.id.about_btn_privacy_notice)
         privacyNoticeButton.setOnClickListener {
             val intent = Intent()
@@ -66,6 +71,14 @@ class AboutFragment : Fragment() {
         return context.getString(R.string.about_support_url,
                 getAppVersion(context),
                 getLanguageTag(Locale.getDefault()))
+    }
+
+    private fun showYourRightsPage() {
+        activity?.supportFragmentManager
+                ?.beginTransaction()
+                ?.replace(R.id.container, YourRightsFragment())
+                ?.addToBackStack(YourRightsFragment.TAG)
+                ?.commitAllowingStateLoss()
     }
 }
 

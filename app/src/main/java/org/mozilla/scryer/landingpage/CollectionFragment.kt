@@ -447,14 +447,16 @@ fun showShareScreenshotDialog(context: Context, screenshotModel: ScreenshotModel
 
 fun showCollectionInfo(context: Context, viewModel: ScreenshotViewModel, collectionId: String?) {
     launch(UI) {
-        val collections = withContext(DefaultDispatcher) {
-            viewModel.getCollectionList()
-        }
-        collections.find { it.id == collectionId }?.let {
-            val screenshots = withContext(DefaultDispatcher) {
-                viewModel.getScreenshotList(listOf(it.id))
+        collectionId?.let {
+            val collection = withContext(DefaultDispatcher) {
+                viewModel.getCollection(it)
             }
-            showCollectionInfoDialog(context, it, screenshots)
+            collection?.let {
+                val screenshots = withContext(DefaultDispatcher) {
+                    viewModel.getScreenshotList(listOf(it.id))
+                }
+                showCollectionInfoDialog(context, it, screenshots)
+            }
         }
     }
 }

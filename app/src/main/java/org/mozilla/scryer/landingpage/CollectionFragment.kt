@@ -484,24 +484,50 @@ private fun showCollectionInfoDialog(context: Context, collection: CollectionMod
 }
 
 fun showDeleteCollectionDialog(context: Context, viewModel: ScreenshotViewModel, collectionId: String?, listener: OnDeleteCollectionListener?) {
-    AlertDialog.Builder(context)
-            .setTitle(context.getString(R.string.dialogue_deletecollection_title_delete))
-            .setMessage(context.getString(R.string.dialogue_delete_content_cantundo))
-            .setNegativeButton(context.getString(android.R.string.cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
-            .setPositiveButton(context.getString(R.string.action_delete)) { dialog: DialogInterface?, _: Int ->
-                launch {
-                    collectionId?.let { viewModel.getCollection(it) }?.let { collection ->
-                        val screenshots = viewModel.getScreenshotList(listOf(collection.id))
-                        viewModel.deleteCollection(collection)
-
-                        screenshots.forEach { screenshot ->
-                            File(screenshot.absolutePath).delete()
-                            viewModel.deleteScreenshot(screenshot)
-                        }
-                    }
-                }
-                dialog?.dismiss()
-                listener?.onDeleteCollection()
+    launch(UI) {
+        collectionId?.let {
+            val collection = withContext(DefaultDispatcher) {
+                viewModel.getCollection(it)
             }
-            .show()
+            collection?.let {
+                val screenshots = withContext(DefaultDispatcher) {
+                    viewModel.getScreenshotList(listOf(it.id))
+                }
+
+                val totalFileSize = withContext(DefaultDispatcher) {
+                    var totalFileSize = 0L
+                    for (screenshot in screenshots) {
+                        val file = File(screenshot.absolutePath)
+                        totalFileSize += file.length()
+                    }
+                    totalFileSize
+                }
+
+                val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_confirmation, null as ViewGroup?)
+                dialogView.findViewById<TextView>(R.id.confirmation_message).text = context.getString(R.string.dialogue_delete_content_cantundo)
+                dialogView.findViewById<TextView>(R.id.confirmation_message_content_first_line).text = context.getString(R.string.dialogue_deletecollection_content_shots, screenshots.size)
+                dialogView.findViewById<TextView>(R.id.confirmation_message_content_first_line).visibility = View.VISIBLE
+                dialogView.findViewById<TextView>(R.id.confirmation_message_content_second_line).text = getFileSizeText(totalFileSize)
+                dialogView.findViewById<TextView>(R.id.confirmation_message_content_second_line).visibility = View.VISIBLE
+
+                AlertDialog.Builder(context)
+                        .setTitle(context.getString(R.string.dialogue_deletecollection_title_delete))
+                        .setView(dialogView)
+                        .setNegativeButton(context.getString(android.R.string.cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
+                        .setPositiveButton(context.getString(R.string.action_delete)) { dialog: DialogInterface?, _: Int ->
+                            launch {
+                                viewModel.deleteCollection(it)
+                                screenshots.forEach { screenshot ->
+                                    File(screenshot.absolutePath).delete()
+                                    viewModel.deleteScreenshot(screenshot)
+                                }
+                            }
+                            dialog?.dismiss()
+                            listener?.onDeleteCollection()
+                        }
+                        .show()
+            }
+        }
+
+    }
 }

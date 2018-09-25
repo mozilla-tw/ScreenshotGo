@@ -26,6 +26,9 @@
   <string name="home_separator_collection">Koleksi</string>
   <string name="home_action_unsorted">Belum Disortir</string>
   <string name="collection_separator_shots">%1$d tangkapan</string>
+  <string name="detail_ocr_error_failed">Gagal mengenali teks</string>
+  <string name="detail_ocr_error_edgecase">Ada yang salah? Potong tangkapan layar dan coba kembali.</string>
+  <string name="detail_ocr_error_notext">Teks tidak ditemukan</string>
   <string name="detail_transition_recognizing">Mengenali…</string>
   <string name="dialogue_collecitioninfo_title_info">Info koleksi</string>
   <string name="dialogue_list_name">Nama</string>
@@ -51,7 +54,7 @@
   <string name="menu_ocr_action_copy">Salin</string>
   <string name="menu_action_selectall">Pilih semua</string>
   <string name="menu_action_share">Bagikan</string>
-  <string name="sheet_enable_title_enable">Aktifkan untuk menangkap layar?</string>
+  <string name="sheet_enable_title_enable">Aktifkan %1$s untuk menangkap layar?</string>
   <string name="sheet_enable_content_enable">Anda tidak dapat menangkap layar dengan sekali ketuk kecuali ini diaktifkan.</string>
   <string name="sheet_enable_action_enable">Aktif</string>
   <string name="sheet_unsorted_title_unsorted">Tangkapan Layar Belum Disortir</string>
@@ -66,7 +69,7 @@
   <string name="settings_list_capture">Aktifkan untuk menangkap layar</string>
   <string name="settings_detail_capture">Memungkinkan Anda menangkap layar dengan sekali ketuk. Bekerja dengan apa pun yang ada di layar Anda.</string>
   <string name="settings_list_fab">Aktifkan tombol %1$s</string>
-  <string name="settings_list_sorting">Tanyakan saat ingin menyimpan</string>
+  <string name="settings_list_sorting">Tanyakan untuk menyortir</string>
   <string name="settings_detail_sorting">Selalu tanyakan untuk menambahkan tangkapan layar ke koleksi</string>
   <string name="settings_list_usagedata">Kirim data penggunaan</string>
   <string name="settings_detail_mozilla">Mozilla berusaha untuk mengumpulkan hanya apa yang kami perlu untuk sediakan dan meningkatkan %1$s untuk setiap orang.</string>
@@ -74,8 +77,8 @@
   <string name="settings_list_feedback">Kirim saran</string>
   <string name="feedback_title_lovefeedback">Kami menyukai saran!</string>
   <string name="feedback_detail_letusknow">Beritahu kami pendapat Anda.</string>
-  <string name="feedback_action_rate">Beri nilai di Google Play</string>
-  <string name="feedback_action_feedback">Kirim saran</string>
+  <string name="feedback_action_rate">Ya, beri 5 bintang!</string>
+  <string name="feedback_action_feedback">Tidak, kirim saran.</string>
   <string name="settings_list_share">Bagikan dengan teman</string>
   <string name="share_intro">Hei, lihat aplikasi baru ini yang membantu Anda mengelola dan menemukan tangkapan layar Anda dengan mudah. Aplikasi ini bernama %1$s. %2$s</string>
   <string name="settings_list_about">Tentang</string>

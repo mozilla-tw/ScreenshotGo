@@ -565,7 +565,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val context = context?: return
         val dialog = BottomDialogFactory.create(context, R.layout.dialog_bottom)
 
-        dialog.findViewById<TextView>(R.id.title)?.setText(R.string.sheet_enable_title_enable)
+        dialog.findViewById<TextView>(R.id.title)?.text = getString(R.string.sheet_enable_title_enable, getString(R.string.app_full_name))
         dialog.findViewById<TextView>(R.id.subtitle)?.text = getString(R.string.sheet_enable_content_enable)
 
         dialog.findViewById<TextView>(R.id.positive_button)?.apply {

@@ -2,6 +2,7 @@ package org.mozilla.scryer.telemetry
 
 import android.content.Context
 import android.preference.PreferenceManager
+import android.support.annotation.Nullable
 import org.mozilla.scryer.BuildConfig
 import org.mozilla.scryer.R
 import org.mozilla.telemetry.Telemetry
@@ -65,12 +66,12 @@ class TelemetryWrapper {
 
         fun startSession() {
             TelemetryHolder.get().recordSessionStart()
-            TelemetryEvent.create(Category.ACTION, Method.FOREGROUND, Object.APP).queue()
+            EventBuilder(Category.ACTION, Method.FOREGROUND, Object.APP).queue()
         }
 
         fun stopSession() {
             TelemetryHolder.get().recordSessionEnd()
-            TelemetryEvent.create(Category.ACTION, Method.BACKGROUND, Object.APP).queue()
+            EventBuilder(Category.ACTION, Method.BACKGROUND, Object.APP).queue()
         }
 
         fun stopMainActivity() {
@@ -84,6 +85,23 @@ class TelemetryWrapper {
             val preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val isEnabledByDefault = BuildConfig.BUILD_TYPE == "release"
             return preferences.getBoolean(context.resources.getString(R.string.pref_key_enable_send_usage_data), isEnabledByDefault)
+        }
+    }
+
+    internal class EventBuilder @JvmOverloads constructor(category: String, method: String, @Nullable `object`: String, value: String? = null) {
+        var telemetryEvent: TelemetryEvent = TelemetryEvent.create(category, method, `object`, value)
+        //TODO: Add firebase event
+
+        fun extra(key: String, value: String): EventBuilder {
+            telemetryEvent.extra(key, value)
+            return this
+        }
+
+        fun queue() {
+            val context = TelemetryHolder.get().configuration.context
+            if (context != null) {
+                telemetryEvent.queue()
+            }
         }
     }
 }

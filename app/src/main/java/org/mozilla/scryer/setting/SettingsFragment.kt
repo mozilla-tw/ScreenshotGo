@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import org.mozilla.scryer.*
 import org.mozilla.scryer.permission.PermissionHelper
+import org.mozilla.scryer.preference.PreferenceWrapper
 
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
 
@@ -27,6 +28,12 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     private val aboutPreference: Preference by lazy { findPreference(getString(R.string.pref_key_about)) }
 
     private var overlayPermissionRequested = false
+
+    private val pref: PreferenceWrapper? by lazy {
+        context?.let {
+            PreferenceWrapper(it)
+        }
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -98,6 +105,12 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
             activity?.startService(intent)
 
             repository.serviceEnabled = enable
+
+            // Reset the flag not to show the prompt dialog
+            // especially when user stops the service from notification
+            if (enable) {
+                pref?.setShouldPromptEnableService(false)
+            }
 
             return true
         } else if (preference == enableFloatingScreenshotButton) {

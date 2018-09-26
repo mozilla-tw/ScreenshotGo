@@ -409,15 +409,14 @@ fun getFileDateText(timestamp: Long): String {
 }
 
 fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotModel, listener: OnDeleteScreenshotListener? = null) {
-    val message = StringBuilder()
-    message.apply {
-        append(context.getString(R.string.dialogue_delete_content_cantundo)).append("\n\n")
-        append(getFileSizeText(File(screenshotModel.absolutePath).length()))
-    }
+    val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_confirmation, null as ViewGroup?)
+    dialogView.findViewById<TextView>(R.id.confirmation_message).text = context.getString(R.string.dialogue_delete_content_cantundo)
+    dialogView.findViewById<TextView>(R.id.confirmation_message_content_first_line).text = getFileSizeText(File(screenshotModel.absolutePath).length())
+    dialogView.findViewById<TextView>(R.id.confirmation_message_content_first_line).visibility = View.VISIBLE
 
     AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.dialogue_deleteshot_title_delete))
-            .setMessage(message)
+            .setView(dialogView)
             .setNegativeButton(context.getString(android.R.string.cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
             .setPositiveButton(context.getString(R.string.action_delete)) { dialog: DialogInterface?, _: Int ->
                 launch {
@@ -448,14 +447,16 @@ fun showShareScreenshotDialog(context: Context, screenshotModel: ScreenshotModel
 
 fun showCollectionInfo(context: Context, viewModel: ScreenshotViewModel, collectionId: String?) {
     launch(UI) {
-        val collections = withContext(DefaultDispatcher) {
-            viewModel.getCollectionList()
-        }
-        collections.find { it.id == collectionId }?.let {
-            val screenshots = withContext(DefaultDispatcher) {
-                viewModel.getScreenshotList(listOf(it.id))
+        collectionId?.let {
+            val collection = withContext(DefaultDispatcher) {
+                viewModel.getCollection(it)
             }
-            showCollectionInfoDialog(context, it, screenshots)
+            collection?.let {
+                val screenshots = withContext(DefaultDispatcher) {
+                    viewModel.getScreenshotList(listOf(it.id))
+                }
+                showCollectionInfoDialog(context, it, screenshots)
+            }
         }
     }
 }
@@ -485,24 +486,53 @@ private fun showCollectionInfoDialog(context: Context, collection: CollectionMod
 }
 
 fun showDeleteCollectionDialog(context: Context, viewModel: ScreenshotViewModel, collectionId: String?, listener: OnDeleteCollectionListener?) {
-    AlertDialog.Builder(context)
-            .setTitle(context.getString(R.string.dialogue_deletecollection_title_delete))
-            .setMessage(context.getString(R.string.dialogue_delete_content_cantundo))
-            .setNegativeButton(context.getString(android.R.string.cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
-            .setPositiveButton(context.getString(R.string.action_delete)) { dialog: DialogInterface?, _: Int ->
-                launch {
-                    collectionId?.let { viewModel.getCollection(it) }?.let { collection ->
-                        val screenshots = viewModel.getScreenshotList(listOf(collection.id))
-                        viewModel.deleteCollection(collection)
-
-                        screenshots.forEach { screenshot ->
-                            File(screenshot.absolutePath).delete()
-                            viewModel.deleteScreenshot(screenshot)
-                        }
-                    }
-                }
-                dialog?.dismiss()
-                listener?.onDeleteCollection()
+    launch(UI) {
+        collectionId?.let {
+            val collection = withContext(DefaultDispatcher) {
+                viewModel.getCollection(it)
             }
-            .show()
+            collection?.let {
+                val screenshots = withContext(DefaultDispatcher) {
+                    viewModel.getScreenshotList(listOf(it.id))
+                }
+
+                val totalFileSize = withContext(DefaultDispatcher) {
+                    var totalFileSize = 0L
+                    for (screenshot in screenshots) {
+                        val file = File(screenshot.absolutePath)
+                        totalFileSize += file.length()
+                    }
+                    totalFileSize
+                }
+
+                // fool the lint
+                val screenshotCount: Int = screenshots.size
+
+                val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_confirmation, null as ViewGroup?)
+                dialogView.findViewById<TextView>(R.id.confirmation_message).text = context.getString(R.string.dialogue_delete_content_cantundo)
+                dialogView.findViewById<TextView>(R.id.confirmation_message_content_first_line).text = context.getString(R.string.dialogue_deletecollection_content_shots, screenshotCount)
+                dialogView.findViewById<TextView>(R.id.confirmation_message_content_first_line).visibility = View.VISIBLE
+                dialogView.findViewById<TextView>(R.id.confirmation_message_content_second_line).text = getFileSizeText(totalFileSize)
+                dialogView.findViewById<TextView>(R.id.confirmation_message_content_second_line).visibility = View.VISIBLE
+
+                AlertDialog.Builder(context)
+                        .setTitle(context.getString(R.string.dialogue_deletecollection_title_delete))
+                        .setView(dialogView)
+                        .setNegativeButton(context.getString(android.R.string.cancel)) { dialog: DialogInterface?, _: Int -> dialog?.dismiss() }
+                        .setPositiveButton(context.getString(R.string.action_delete)) { dialog: DialogInterface?, _: Int ->
+                            launch {
+                                viewModel.deleteCollection(it)
+                                screenshots.forEach { screenshot ->
+                                    File(screenshot.absolutePath).delete()
+                                    viewModel.deleteScreenshot(screenshot)
+                                }
+                            }
+                            dialog?.dismiss()
+                            listener?.onDeleteCollection()
+                        }
+                        .show()
+            }
+        }
+
+    }
 }

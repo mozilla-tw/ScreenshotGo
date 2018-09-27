@@ -1,7 +1,7 @@
 <resources>
     <!-- Text shown in the "Your rights" screen.
     %1$s will be replaced with the name of the app (e.g. Firefox ScreenshotGo) -->
-    <string name="your_rights_content_1">%1$s is made available to you by Mozilla under the terms of the Mozilla Public License and other permissive licenses, which means that you may use, copy, modify, and distribute portions of the codebase that are open source.</string>
+    <string name="your_rights_content_1">%1$s is made available to you by Mozilla under the terms of the Mozilla Public License and other permissive licenses, which means that you may use, copy, modify, and distribute portions of the codebase that are open source.  Some portions of the codebase include proprietary code from Google Firebase.</string>
 
     <!-- Text shown in the "Your rights" screen.
     %1$s will be replaced with the name of the app (e.g. Firefox ScreenshotGo) -->

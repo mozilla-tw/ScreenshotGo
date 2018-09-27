@@ -21,6 +21,7 @@ import org.mozilla.scryer.R
 import org.mozilla.scryer.extension.getValidPosition
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
@@ -141,6 +142,8 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
                 if (navController.currentDestination?.id == R.id.MainFragment) {
                     navController.navigate(R.id.action_navigate_to_collection, bundle)
                 }
+
+                TelemetryWrapper.clickHomeCollectionItem(position)
             }
         }
         return itemHolder
@@ -160,6 +163,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
                     // since we don't want to show name conflict error msg on the dialog, set excludeSuggestion to true
                     CollectionNameDialog.createNewCollection(parent.context, ScreenshotViewModel.get(it),
                             true) {}
+                    TelemetryWrapper.clickHomeCreateNewCollectionItem()
                 }
             }
         }

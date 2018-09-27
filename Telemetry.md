@@ -69,6 +69,12 @@ The event ping contains a list of events ([see event format on firefox-source-do
 | Create collection | action   | click   | home_create_new_collection |             |            |
 | Settings          | action   | click   | home_settings              |             |            |
 
+### Capture
+
+| Event             | category | method  |   object                   |    value    |   extra    |
+|-------------------|----------|---------|----------------------------|-------------|------------|
+| Capture           | action   | click   | capture_button             |             |            |
+
 ### Search
 
 | Event             | category | method  |   object                   |    value    |   extra    |

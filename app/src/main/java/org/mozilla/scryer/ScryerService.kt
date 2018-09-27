@@ -32,6 +32,7 @@ import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.preference.PreferenceWrapper
 import org.mozilla.scryer.sortingpanel.SortingPanelActivity
+import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.ScryerToast
 
 
@@ -199,6 +200,7 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
 
     override fun onScreenshotButtonClicked() {
         postTakeScreenshot(DELAY_CAPTURE_FAB)
+        TelemetryWrapper.clickCaptureButton()
     }
 
     override fun onScreenshotButtonDismissed() {

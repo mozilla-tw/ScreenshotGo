@@ -19,6 +19,7 @@ import androidx.navigation.Navigation
 import org.mozilla.scryer.R
 import org.mozilla.scryer.getSupportActionBar
 import org.mozilla.scryer.setSupportActionBar
+import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.ScryerToast
 
 class SearchFragment : Fragment() {
@@ -36,10 +37,12 @@ class SearchFragment : Fragment() {
             layout.findViewById<Button>(R.id.positive_button).visibility = View.VISIBLE
             layout.findViewById<Button>(R.id.positive_button).setOnClickListener {
                 doAfterFeedback()
+                TelemetryWrapper.clickSearchInterested()
             }
             layout.findViewById<Button>(R.id.negative_button).visibility = View.VISIBLE
             layout.findViewById<Button>(R.id.negative_button).setOnClickListener {
                 doAfterFeedback()
+                TelemetryWrapper.clickSearchNotInterested()
             }
         }
 

@@ -36,6 +36,8 @@ class TelemetryWrapper {
         const val HOME_COLLECTIONS = "home_collections"
         const val HOME_CREATE_NEW_COLLECTION = "home_create_new_collection"
         const val HOME_SETTINGS = "home_settings"
+        const val SEARCH_INTERESTED = "search_interested"
+        const val SEARCH_NOT_INTERESTED = "search_not_interested"
     }
 
     private object Extra {
@@ -123,6 +125,14 @@ class TelemetryWrapper {
 
         fun clickHomeSettings() {
             EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_SETTINGS).queue()
+        }
+
+        fun clickSearchInterested() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.SEARCH_INTERESTED).queue()
+        }
+
+        fun clickSearchNotInterested() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.SEARCH_NOT_INTERESTED).queue()
         }
     }
 

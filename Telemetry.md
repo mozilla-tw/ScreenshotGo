@@ -48,6 +48,17 @@ The event ping contains a list of events ([see event format on firefox-source-do
 | Start session (App is in the foreground) | action   | foreground | app    |        |
 | Stop session (App is in the background)  | action   | background | app    |        |
 
+### Home
+
+| Event             | category | method  |   object                   |    value    |   extra    |
+|-------------------|----------|---------|----------------------------|-------------|------------|
+| Search            | action   | click   | home_search_bar            |             |            |
+| Quick access      | action   | click   | home_quick_access          |             | on:[index] |
+| Quick access      | action   | click   | home_quick_access          |             | on: more   |
+| Collections       | action   | click   | home_collections           |             |            |
+| Create collection | action   | click   | home_create_new_collection |             |            |
+| Settings          | action   | click   | home_settings              |             |            |
+
 ## Limits
 
 * An event ping will contain up to but no more than 500 events

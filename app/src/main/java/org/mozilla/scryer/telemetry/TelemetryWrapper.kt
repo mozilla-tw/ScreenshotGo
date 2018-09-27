@@ -20,16 +20,30 @@ import org.mozilla.telemetry.storage.FileTelemetryStorage
 class TelemetryWrapper {
 
     private object Category {
-        val ACTION = "action"
+        const val ACTION = "action"
     }
 
     private object Method {
-        val FOREGROUND = "foreground"
-        val BACKGROUND = "background"
+        const val FOREGROUND = "foreground"
+        const val BACKGROUND = "background"
+        const val CLICK = "click"
     }
 
     private object Object {
-        val APP = "app"
+        const val APP = "app"
+        const val HOME_SEARCH_BAR = "home_search_bar"
+        const val HOME_QUICK_ACCESS = "home_quick_access"
+        const val HOME_COLLECTIONS = "home_collections"
+        const val HOME_CREATE_NEW_COLLECTION = "home_create_new_collection"
+        const val HOME_SETTINGS = "home_settings"
+    }
+
+    private object Extra {
+        const val ON = "on"
+    }
+
+    private object ExtraValue {
+        const val MORE = "more"
     }
 
     companion object {
@@ -64,6 +78,12 @@ class TelemetryWrapper {
             }
         }
 
+        private fun isTelemetryEnabled(context: Context): Boolean {
+            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val isEnabledByDefault = BuildConfig.BUILD_TYPE == "release"
+            return preferences.getBoolean(context.resources.getString(R.string.pref_key_enable_send_usage_data), isEnabledByDefault)
+        }
+
         fun startSession() {
             TelemetryHolder.get().recordSessionStart()
             EventBuilder(Category.ACTION, Method.FOREGROUND, Object.APP).queue()
@@ -81,10 +101,28 @@ class TelemetryWrapper {
                     .scheduleUpload()
         }
 
-        private fun isTelemetryEnabled(context: Context): Boolean {
-            val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val isEnabledByDefault = BuildConfig.BUILD_TYPE == "release"
-            return preferences.getBoolean(context.resources.getString(R.string.pref_key_enable_send_usage_data), isEnabledByDefault)
+        fun clickHomeSearchBar() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_SEARCH_BAR).queue()
+        }
+
+        fun clickHomeQuickAccessItem(index: Int) {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_QUICK_ACCESS).extra(Extra.ON, index.toString()).queue()
+        }
+
+        fun clickHomeQuickAccessMoreItem() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_QUICK_ACCESS).extra(Extra.ON, ExtraValue.MORE).queue()
+        }
+
+        fun clickHomeCollectionItem(index: Int) {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_COLLECTIONS).extra(Extra.ON, index.toString()).queue()
+        }
+
+        fun clickHomeCreateNewCollectionItem() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_CREATE_NEW_COLLECTION).queue()
+        }
+
+        fun clickHomeSettings() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_SETTINGS).queue()
         }
     }
 

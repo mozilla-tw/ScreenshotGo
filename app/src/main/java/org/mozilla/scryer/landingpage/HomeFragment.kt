@@ -45,11 +45,12 @@ import org.mozilla.scryer.permission.PermissionFlow
 import org.mozilla.scryer.permission.PermissionHelper
 import org.mozilla.scryer.permission.PermissionViewModel
 import org.mozilla.scryer.persistence.CollectionModel
-import org.mozilla.scryer.persistence.SuggestCollectionHelper
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.persistence.SuggestCollectionHelper
 import org.mozilla.scryer.preference.PreferenceWrapper
 import org.mozilla.scryer.setting.SettingsActivity
 import org.mozilla.scryer.sortingpanel.SortingPanelActivity
+import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.BottomDialogFactory
 import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
@@ -139,6 +140,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
             menu.findItem(R.id.action_settings).setOnMenuItemClickListener { _ ->
                 startActivity(Intent(it, SettingsActivity::class.java))
+                TelemetryWrapper.clickHomeSettings()
                 true
             }
 
@@ -405,6 +407,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         view!!.findViewById<View>(R.id.intercept_view).setOnClickListener {
             if (permissionFlow.isFinished()) {
                 Navigation.findNavController(view!!).navigate(R.id.action_navigate_to_search, Bundle())
+                TelemetryWrapper.clickHomeSearchBar()
             }
         }
     }
@@ -413,10 +416,12 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         quickAccessAdapter.clickListener = object : QuickAccessAdapter.ItemClickListener {
             override fun onItemClick(screenshotModel: ScreenshotModel, holder: ScreenshotItemHolder) {
                 DetailPageActivity.showDetailPage(context, screenshotModel, holder.image)
+                TelemetryWrapper.clickHomeQuickAccessItem(holder.adapterPosition)
             }
 
             override fun onMoreClick(holder: RecyclerView.ViewHolder) {
                 Navigation.findNavController(holder.itemView).navigate(R.id.action_navigate_to_collection, Bundle())
+                TelemetryWrapper.clickHomeQuickAccessMoreItem()
             }
         }
 

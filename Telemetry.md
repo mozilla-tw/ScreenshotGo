@@ -48,6 +48,16 @@ The event ping contains a list of events ([see event format on firefox-source-do
 | Start session (App is in the foreground) | action   | foreground | app    |        |
 | Stop session (App is in the background)  | action   | background | app    |        |
 
+### Welcome
+
+| Event             | category | method  |   object                   |    value    |   extra    |
+|-------------------|----------|---------|----------------------------|-------------|------------|
+| Welcome           | action   | show    | welcome_page               |             |            |
+| Let's go          | action   | click   | welcome_storage_permission |             |            |
+| Overlay permission| action   | show    | welcome_overlay_permission |             |            |
+| Overlay permission| action   | click   | welcome_overlay_permission | positive    |            |
+| Overlay permission| action   | click   | welcome_overlay_permission | negative    |            |
+
 ### Home
 
 | Event             | category | method  |   object                   |    value    |   extra    |

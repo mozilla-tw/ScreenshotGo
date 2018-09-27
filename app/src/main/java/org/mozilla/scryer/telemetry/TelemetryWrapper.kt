@@ -27,10 +27,14 @@ class TelemetryWrapper {
         const val FOREGROUND = "foreground"
         const val BACKGROUND = "background"
         const val CLICK = "click"
+        const val SHOW = "show"
     }
 
     private object Object {
         const val APP = "app"
+        const val WELCOME_PAGE = "welcome_page"
+        const val WELCOME_STORAGE_PERMISSION = "welcome_storage_permission"
+        const val WELCOME_OVERLAY_PERMISSION = "welcome_overlay_permission"
         const val HOME_SEARCH_BAR = "home_search_bar"
         const val HOME_QUICK_ACCESS = "home_quick_access"
         const val HOME_COLLECTIONS = "home_collections"
@@ -38,6 +42,11 @@ class TelemetryWrapper {
         const val HOME_SETTINGS = "home_settings"
         const val SEARCH_INTERESTED = "search_interested"
         const val SEARCH_NOT_INTERESTED = "search_not_interested"
+    }
+
+    object Value {
+        const val POSITIVE = "positive"
+        const val NEGATIVE = "negative"
     }
 
     private object Extra {
@@ -101,6 +110,22 @@ class TelemetryWrapper {
                     .queuePing(TelemetryCorePingBuilder.TYPE)
                     .queuePing(TelemetryEventPingBuilder.TYPE)
                     .scheduleUpload()
+        }
+
+        fun showWelcomePage() {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.WELCOME_PAGE).queue()
+        }
+
+        fun clickWelcomeStoragePermission() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.WELCOME_STORAGE_PERMISSION).queue()
+        }
+
+        fun showWelcomeOverlayPermission() {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.WELCOME_OVERLAY_PERMISSION).queue()
+        }
+
+        fun clickWelcomeOverlayPermission(value: String) {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.WELCOME_OVERLAY_PERMISSION, value).queue()
         }
 
         fun clickHomeSearchBar() {

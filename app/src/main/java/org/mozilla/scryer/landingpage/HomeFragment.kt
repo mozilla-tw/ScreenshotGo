@@ -237,7 +237,6 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         dialog.findViewById<View>(R.id.dont_ask_again_checkbox)?.visibility = View.GONE
 
         dialog.findViewById<TextView>(R.id.positive_button)?.apply {
-            setText(R.string.onboarding_fab_action_grant)
             setOnClickListener {
                 action.run()
                 dialog.dismiss()

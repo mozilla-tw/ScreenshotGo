@@ -1,6 +1,6 @@
 <resources>
     <!-- Label used for buttons to create new collection, e.g. in dialogs-->
-    <string name="action_create">Create new</string>
+    <string name="action_create">Create new collection</string>
     <!-- Label used for buttons to delete items, e.g. in dialogs-->
     <string name="action_delete">Delete</string>
     <!-- Label used for title in screenshot info dialogue, but for action in menu -->
@@ -53,7 +53,7 @@
     <!-- String displayed when recognizing no text on the screenshot -->
     <string name="detail_ocr_error_notext">No text found</string>
     <!-- Detail view: string displayed on the detail view when recognizing the text on the screenshot -->
-    <string name="detail_transition_recognizing">Recognizing&#8230;</string>
+    <string name="detail_transition_recognizing">Text recognizing&#8230;</string>
 
     <!-- Dialogue: strings displayed in the dialogues which inform users about a task, e.g. dialogue title, content and action -->
     <!-- This string also serves as menu action in collection view -->
@@ -155,7 +155,7 @@
     <string name="onboarding_fab_content_permission">The %1$s button lets you take and organize your screenshots anytime, anywhere. We’ll need your permission to enable it.</string>
     <!-- String to allow users to dismiss the onboarding panel -->
     <string name="onboarding_fab_action_later">Later</string>
-    <string name="onboarding_fab_action_grant">Grant Permission</string>
+    <string name="onboarding_fab_action_grant">Ok</string>
     <!-- Auto-grant overlay permission prompt. The placeholder %1$s is "GO" from the product name -->
     <string name="onboarding_autogrant_overlay_title">Use the %1$s button to take and organize screenshots anytime, anywhere.</string>
     <string name="onboarding_autogrant_overlay_gotit">Got it</string>

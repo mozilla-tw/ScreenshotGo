@@ -316,12 +316,12 @@ class ScreenshotItemHolder(itemView: View, private val onContextMenuActionListen
     }
 
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
-        menu?.setHeaderTitle(v?.context?.getString(R.string.menu_title_action))
-
-        menu?.add(0, CONTEXT_MENU_ID_MOVE_TO, 0, v?.context?.getString(R.string.menu_shot_action_move))?.setOnMenuItemClickListener(this)
-        menu?.add(0, CONTEXT_MENU_ID_INFO, 0, v?.context?.getString(R.string.info_info))?.setOnMenuItemClickListener(this)
-        menu?.add(0, CONTEXT_MENU_ID_SHARE, 0, v?.context?.getString(R.string.menu_action_share))?.setOnMenuItemClickListener(this)
-        menu?.add(0, CONTEXT_MENU_ID_DELETE, 0, v?.context?.getString(R.string.action_delete))?.setOnMenuItemClickListener(this)
+        v?.context?.let {
+            menu?.add(0, CONTEXT_MENU_ID_MOVE_TO, 0, it.getString(R.string.menu_shot_action_move))?.setOnMenuItemClickListener(this)
+            menu?.add(0, CONTEXT_MENU_ID_INFO, 0, it.getString(R.string.info_info))?.setOnMenuItemClickListener(this)
+            menu?.add(0, CONTEXT_MENU_ID_SHARE, 0, it.getString(R.string.menu_action_share))?.setOnMenuItemClickListener(this)
+            menu?.add(0, CONTEXT_MENU_ID_DELETE, 0, it.getString(R.string.action_delete))?.setOnMenuItemClickListener(this)
+        }
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {

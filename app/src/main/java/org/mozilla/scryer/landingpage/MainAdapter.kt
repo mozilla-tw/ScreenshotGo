@@ -264,16 +264,17 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         }
 
         override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
-            menu?.setHeaderTitle(v?.context?.getString(R.string.menu_title_action))
+            v?.context?.let {
+                val isUnsortedItem = (adapterPosition - PREFIX_ITEM_COUNT) == 0
+                if (!isUnsortedItem) {
+                    menu?.add(0, CONTEXT_MENU_ID_RENAME, 0, it.getString(R.string.menu_action_rename))?.setOnMenuItemClickListener(this)
+                }
+                menu?.add(0, CONTEXT_MENU_ID_INFO, 0, it.getString(R.string.dialogue_collecitioninfo_title_info))?.setOnMenuItemClickListener(this)
+                if (!isUnsortedItem) {
+                    menu?.add(0, CONTEXT_MENU_ID_DELETE, 0, it.getString(R.string.action_delete))?.setOnMenuItemClickListener(this)
+                }
+            }
 
-            val isUnsortedItem = (adapterPosition - PREFIX_ITEM_COUNT) == 0
-            if (!isUnsortedItem) {
-                menu?.add(0, CONTEXT_MENU_ID_RENAME, 0, v?.context?.getString(R.string.menu_action_rename))?.setOnMenuItemClickListener(this)
-            }
-            menu?.add(0, CONTEXT_MENU_ID_INFO, 0, v?.context?.getString(R.string.dialogue_collecitioninfo_title_info))?.setOnMenuItemClickListener(this)
-            if (!isUnsortedItem) {
-                menu?.add(0, CONTEXT_MENU_ID_DELETE, 0, v?.context?.getString(R.string.action_delete))?.setOnMenuItemClickListener(this)
-            }
         }
 
         override fun onMenuItemClick(item: MenuItem?): Boolean {

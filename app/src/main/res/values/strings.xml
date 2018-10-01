@@ -1,6 +1,6 @@
 <resources>
     <!-- Label used for buttons to create new collection, e.g. in dialogs-->
-    <string name="action_create">Create new</string>
+    <string name="action_create">Create new collection</string>
     <!-- Label used for buttons to delete items, e.g. in dialogs-->
     <string name="action_delete">Delete</string>
     <!-- Label used for title in screenshot info dialogue, but for action in menu -->
@@ -53,7 +53,7 @@
     <!-- String displayed when recognizing no text on the screenshot -->
     <string name="detail_ocr_error_notext">No text found</string>
     <!-- Detail view: string displayed on the detail view when recognizing the text on the screenshot -->
-    <string name="detail_transition_recognizing">Recognizing&#8230;</string>
+    <string name="detail_transition_recognizing">Text recognizing&#8230;</string>
 
     <!-- Dialogue: strings displayed in the dialogues which inform users about a task, e.g. dialogue title, content and action -->
     <!-- This string also serves as menu action in collection view -->
@@ -66,7 +66,7 @@
     <string name="dialogue_list_edit">Last edit</string>
     <string name="dialogue_deletecollection_title_delete">Delete collection?</string>
     <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
-    <string name="dialogue_delete_content_cantundo">Are you sure? This action cannot be undone.</string>
+    <string name="dialogue_delete_content_cantundo">Are you sure? This action will permanently delete all of its screenshots from the phone.</string>
     <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 screenshots -->
     <string name="dialogue_deletecollection_content_shots">%1$d screenshots</string>
     <string name="dialogue_rename_title_rename">Rename collection</string>

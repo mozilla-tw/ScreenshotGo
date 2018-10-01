@@ -66,7 +66,7 @@
     <string name="dialogue_list_edit">Last edit</string>
     <string name="dialogue_deletecollection_title_delete">Delete collection?</string>
     <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
-    <string name="dialogue_delete_content_cantundo">Are you sure? This action cannot be undone.</string>
+    <string name="dialogue_delete_content_cantundo">Are you sure? This action will permanently delete all of its screenshots from the phone.</string>
     <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 screenshots -->
     <string name="dialogue_deletecollection_content_shots">%1$d screenshots</string>
     <string name="dialogue_rename_title_rename">Rename collection</string>
@@ -155,7 +155,7 @@
     <string name="onboarding_fab_content_permission">The %1$s button lets you take and organize your screenshots anytime, anywhere. We’ll need your permission to enable it.</string>
     <!-- String to allow users to dismiss the onboarding panel -->
     <string name="onboarding_fab_action_later">Later</string>
-    <string name="onboarding_fab_action_grant">Ok</string>
+    <string name="onboarding_fab_action_grant">Grant Permission</string>
     <!-- Auto-grant overlay permission prompt. The placeholder %1$s is "GO" from the product name -->
     <string name="onboarding_autogrant_overlay_title">Use the %1$s button to take and organize screenshots anytime, anywhere.</string>
     <string name="onboarding_autogrant_overlay_gotit">Got it</string>

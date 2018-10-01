@@ -41,6 +41,7 @@ class TelemetryWrapper {
         const val HOME_CREATE_NEW_COLLECTION = "home_create_new_collection"
         const val HOME_SETTINGS = "home_settings"
         const val CAPTURE_BUTTON = "capture_button"
+        const val TEXT_MODE_BUTTON = "text_mode_button"
         const val SEARCH_INTERESTED = "search_interested"
         const val SEARCH_NOT_INTERESTED = "search_not_interested"
     }
@@ -155,6 +156,10 @@ class TelemetryWrapper {
 
         fun clickCaptureButton() {
             EventBuilder(Category.ACTION, Method.CLICK, Object.CAPTURE_BUTTON).queue()
+        }
+
+        fun clickTextModeButton() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.TEXT_MODE_BUTTON).queue()
         }
 
         fun clickSearchInterested() {

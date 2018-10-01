@@ -16,7 +16,6 @@
 
     <!-- Sorting panel: strings displayed on the sorting panel to help users categorize screenshots, 
     Refer to UX spec 1.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133909_1-1_Key_Flow_Add_To_Collection -->
-    <string name="sorting_title_addto">Add to</string>
     <!-- String displayed to skip the current screenshot and move on to the next one -->
     <string name="multisorting_action_next">Next</string>
     <!-- String displayed on the title of sorting panel and the screenshot will be categorized to a collection -->
@@ -155,7 +154,6 @@
     <string name="onboarding_fab_content_permission">The %1$s button lets you take and organize your screenshots anytime, anywhere. We’ll need your permission to enable it.</string>
     <!-- String to allow users to dismiss the onboarding panel -->
     <string name="onboarding_fab_action_later">Later</string>
-    <string name="onboarding_fab_action_grant">Grant Permission</string>
     <!-- Auto-grant overlay permission prompt. The placeholder %1$s is "GO" from the product name -->
     <string name="onboarding_autogrant_overlay_title">Use the %1$s button to take and organize screenshots anytime, anywhere.</string>
     <string name="onboarding_autogrant_overlay_gotit">Got it</string>

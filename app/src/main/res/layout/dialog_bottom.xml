@@ -136,8 +136,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_max="180dp"
-            tools:text="grant permission" />
+            app:layout_constraintWidth_max="180dp" />
 
     </android.support.constraint.ConstraintLayout>
 

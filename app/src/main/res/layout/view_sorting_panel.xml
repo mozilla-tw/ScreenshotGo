@@ -125,7 +125,7 @@
                 android:singleLine="true"
                 style="@style/H2"
                 android:textColor="@color/grey90"
-                android:text="@string/sorting_title_addto" />
+                android:text="@string/sorting_title_move" />
 
             <TextView
                 android:id="@+id/panel_title_action_button"

@@ -66,6 +66,7 @@
     <string name="dialogue_deletecollection_title_delete">Delete collection?</string>
     <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
     <string name="dialogue_delete_content_cantundo">Are you sure? This action will permanently delete all of its screenshots from the phone.</string>
+    <string name="dialogue_deleteshot_content_delete">Are you sure? This action will permanently delete this screenshot from the phone.</string>
     <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 screenshots -->
     <string name="dialogue_deletecollection_content_shots">%1$d screenshots</string>
     <string name="dialogue_rename_title_rename">Rename collection</string>

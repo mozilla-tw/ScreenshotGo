@@ -418,7 +418,7 @@ fun getFileDateText(timestamp: Long): String {
 
 fun showDeleteScreenshotDialog(context: Context, screenshotModel: ScreenshotModel, listener: OnDeleteScreenshotListener? = null) {
     val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_confirmation, null as ViewGroup?)
-    dialogView.findViewById<TextView>(R.id.confirmation_message).text = context.getString(R.string.dialogue_delete_content_cantundo)
+    dialogView.findViewById<TextView>(R.id.confirmation_message).text = context.getString(R.string.dialogue_deleteshot_content_delete)
     dialogView.findViewById<TextView>(R.id.confirmation_message_content_first_line).text = getFileSizeText(File(screenshotModel.absolutePath).length())
     dialogView.findViewById<TextView>(R.id.confirmation_message_content_first_line).visibility = View.VISIBLE
 

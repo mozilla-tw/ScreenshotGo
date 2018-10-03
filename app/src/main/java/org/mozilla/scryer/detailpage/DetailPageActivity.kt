@@ -44,6 +44,7 @@ import org.mozilla.scryer.landingpage.showShareScreenshotDialog
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.sortingpanel.SortingPanelActivity
+import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.ScryerToast
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import kotlin.coroutines.experimental.suspendCoroutine
@@ -227,6 +228,7 @@ class DetailPageActivity : AppCompatActivity() {
                 R.id.text_mode_fab -> {
                     isRecognizing = true
                     startRecognition()
+                    TelemetryWrapper.clickTextModeButton()
                 }
 
                 R.id.cancel_fab -> {

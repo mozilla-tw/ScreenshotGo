@@ -142,7 +142,10 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
                 return START_NOT_STICKY
             }
 
-            ACTION_CAPTURE_SCREEN -> postTakeScreenshot(DELAY_CAPTURE_NOTIFICATION)
+            ACTION_CAPTURE_SCREEN -> {
+                postTakeScreenshot(DELAY_CAPTURE_NOTIFICATION)
+                TelemetryWrapper.clickCaptureViaNotification()
+            }
 
             ACTION_ENABLE_CAPTURE_BUTTON -> initFloatingButton()
             ACTION_DISABLE_CAPTURE_BUTTON -> destroyFloatingButton()
@@ -194,6 +197,8 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
                 launch {
                     ScryerApplication.getScreenshotRepository().addScreenshot(listOf(model))
                 }
+
+                TelemetryWrapper.clickCaptureViaExternal()
             }
         })
     }

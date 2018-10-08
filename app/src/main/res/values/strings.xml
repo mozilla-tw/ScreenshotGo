@@ -65,8 +65,10 @@
     <string name="dialogue_list_edit">Last edit</string>
     <string name="dialogue_deletecollection_title_delete">Delete collection?</string>
     <string name="dialogue_deleteshot_title_delete">Delete screenshot?</string>
+    <!-- String displayed to state that the action will erase "all screenshots in the collection," which is "its screenshots" in the string. -->
     <string name="dialogue_delete_content_cantundo">Are you sure? Deleting this collection will permanently remove all of its screenshots from your phone.</string>
-    <string name="dialogue_deleteshot_content_delete">Are you sure? Deleting screenshot will permanently remove this screenshot from your phone.</string>
+    <!-- String displayed to state that the action will erase all selected screenshots. -->
+    <string name="dialogue_deleteshot_content_delete">Are you sure? Deleting screenshots will permanently remove screenshots from your phone.</string>
     <!-- Parameter %1$d is the quantity of screenshot files, i.e. 100 screenshots -->
     <string name="dialogue_deletecollection_content_shots">%1$d screenshots</string>
     <string name="dialogue_rename_title_rename">Rename collection</string>

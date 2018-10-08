@@ -85,6 +85,7 @@ class CollectionNameDialog(private val context: Context,
             val dialog = CollectionNameDialog(context, object : CollectionNameDialog.Delegate {
                 override fun onPositiveAction(collectionName: String) {
                     collection.name = collectionName
+                    collection.date = System.currentTimeMillis()
                     launch {
                         viewModel.updateCollection(collection)
                     }

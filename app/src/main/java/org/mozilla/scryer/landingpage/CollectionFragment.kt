@@ -468,27 +468,25 @@ fun showCollectionInfo(context: Context, viewModel: ScreenshotViewModel, collect
             val screenshots = withContext(DefaultDispatcher) {
                 viewModel.getScreenshotList(listOf(it.id))
             }
-            showCollectionInfoDialog(context, it, screenshots)
+            val totalFileSize = withContext(DefaultDispatcher) {
+                var totalFileSize = 0L
+                for (screenshot in screenshots) {
+                    val file = File(screenshot.absolutePath)
+                    totalFileSize += file.length()
+                }
+                totalFileSize
+            }
+            showCollectionInfoDialog(context, it, screenshots, totalFileSize)
         }
     }
 }
 
-private fun showCollectionInfoDialog(context: Context, collection: CollectionModel, screenshots: List<ScreenshotModel>) {
-    var totalFileSize = 0L
-    var recentModifiedTime = 0L
-    for (screenshot in screenshots) {
-        val file = File(screenshot.absolutePath)
-        totalFileSize += file.length()
-        if (file.lastModified() > recentModifiedTime) {
-            recentModifiedTime = file.lastModified()
-        }
-    }
-
+private fun showCollectionInfoDialog(context: Context, collection: CollectionModel, screenshots: List<ScreenshotModel>, totalFileSize: Long) {
     val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_collection_info, null as ViewGroup?)
     dialogView.findViewById<TextView>(R.id.collection_info_name_content).text = getFileNameText(collection.name)
     dialogView.findViewById<TextView>(R.id.collection_info_total_screenshots_count).text = screenshots.size.toString()
     dialogView.findViewById<TextView>(R.id.collection_info_storage_used_amount).text = getFileSizeText(totalFileSize)
-    dialogView.findViewById<TextView>(R.id.collection_info_last_edit_time).text = getFileDateText(recentModifiedTime)
+    dialogView.findViewById<TextView>(R.id.collection_info_last_edit_time).text = getFileDateText(collection.date)
 
     AlertDialog.Builder(context)
             .setTitle(context.getString(R.string.dialogue_collecitioninfo_title_info))

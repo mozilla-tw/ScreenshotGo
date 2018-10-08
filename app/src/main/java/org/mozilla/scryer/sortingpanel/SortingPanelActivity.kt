@@ -368,8 +368,10 @@ class SortingPanelActivity : AppCompatActivity() {
                 suggestCollectionCreateTime.add(Pair(collection, System.currentTimeMillis()))
             }
 
+            collection.date = System.currentTimeMillis()
             screenshot.collectionId = collection.id
             withContext(DefaultDispatcher) {
+                screenshotViewModel.updateCollection(collection)
                 screenshotViewModel.addScreenshot(listOf(screenshot))
             }
 

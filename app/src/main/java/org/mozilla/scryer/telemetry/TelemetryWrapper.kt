@@ -35,15 +35,20 @@ class TelemetryWrapper {
         const val WELCOME_PAGE = "welcome_page"
         const val WELCOME_STORAGE_PERMISSION = "welcome_storage_permission"
         const val WELCOME_OVERLAY_PERMISSION = "welcome_overlay_permission"
+        const val HOME_PAGE = "home_page"
         const val HOME_SEARCH_BAR = "home_search_bar"
         const val HOME_QUICK_ACCESS = "home_quick_access"
         const val HOME_COLLECTIONS = "home_collections"
         const val HOME_CREATE_NEW_COLLECTION = "home_create_new_collection"
         const val HOME_SETTINGS = "home_settings"
+        const val COLLECTION_PAGE = "collection_page"
+        const val SORTING_PAGE = "sorting_page"
         const val CAPTURE_BUTTON = "capture_button"
         const val CAPTURE_VIA_NOTIFICATION = "capture_via_notification"
         const val CAPTURE_VIA_EXTERNAL = "capture_via_external"
+        const val DETAIL_PAGE = "detail_page"
         const val TEXT_MODE_BUTTON = "text_mode_button"
+        const val SEARCH_PAGE = "search_page"
         const val SEARCH_INTERESTED = "search_interested"
         const val SEARCH_NOT_INTERESTED = "search_not_interested"
     }
@@ -132,6 +137,10 @@ class TelemetryWrapper {
             EventBuilder(Category.ACTION, Method.CLICK, Object.WELCOME_OVERLAY_PERMISSION, value).queue()
         }
 
+        fun showHomePage() {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.HOME_PAGE).queue()
+        }
+
         fun clickHomeSearchBar() {
             EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_SEARCH_BAR).queue()
         }
@@ -156,6 +165,14 @@ class TelemetryWrapper {
             EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_SETTINGS).queue()
         }
 
+        fun showCollectionPage() {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.COLLECTION_PAGE).queue()
+        }
+
+        fun showSortingPage() {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.SORTING_PAGE).queue()
+        }
+
         fun clickCaptureButton() {
             EventBuilder(Category.ACTION, Method.CLICK, Object.CAPTURE_BUTTON).queue()
         }
@@ -168,8 +185,16 @@ class TelemetryWrapper {
             EventBuilder(Category.ACTION, Method.SHOW, Object.CAPTURE_VIA_EXTERNAL).queue()
         }
 
+        fun showDetailPage() {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.DETAIL_PAGE).queue()
+        }
+
         fun clickTextModeButton() {
             EventBuilder(Category.ACTION, Method.CLICK, Object.TEXT_MODE_BUTTON).queue()
+        }
+
+        fun showSearchPage() {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.SEARCH_PAGE).queue()
         }
 
         fun clickSearchInterested() {

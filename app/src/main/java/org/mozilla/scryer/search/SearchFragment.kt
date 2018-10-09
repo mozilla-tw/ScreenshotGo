@@ -53,6 +53,8 @@ class SearchFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         setHasOptionsMenu(true)
         setupActionBar()
+
+        TelemetryWrapper.showSearchPage()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

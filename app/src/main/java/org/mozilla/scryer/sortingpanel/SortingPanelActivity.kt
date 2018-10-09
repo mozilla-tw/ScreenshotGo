@@ -26,6 +26,7 @@ import org.mozilla.scryer.R
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.persistence.SuggestCollectionHelper
+import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.ui.ConfirmationDialog
 import org.mozilla.scryer.ui.ScryerToast
@@ -113,6 +114,8 @@ class SortingPanelActivity : AppCompatActivity() {
         loadCollectionColorList()
         loadScreenshots(intent, this::onLoadScreenshotsSuccess)
         initSortingPanel()
+
+        TelemetryWrapper.showSortingPage()
     }
 
     override fun onStart() {
@@ -136,6 +139,8 @@ class SortingPanelActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         ViewModelProviders.of(this).get(PersistModel::class.java).reset()
         loadScreenshots(intent, this::onLoadScreenshotsSuccess)
+
+        TelemetryWrapper.showSortingPage()
     }
 
     override fun onBackPressed() {

@@ -34,6 +34,7 @@ import org.mozilla.scryer.extension.getValidPosition
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.sortingpanel.SortingPanelActivity
+import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.ui.ConfirmationDialog
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
@@ -87,6 +88,8 @@ class CollectionFragment : Fragment() {
         setHasOptionsMenu(true)
         setupActionBar()
         initScreenshotList(view.context)
+
+        TelemetryWrapper.showCollectionPage()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

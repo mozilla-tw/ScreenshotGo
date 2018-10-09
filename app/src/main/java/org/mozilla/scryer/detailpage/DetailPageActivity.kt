@@ -134,6 +134,8 @@ class DetailPageActivity : AppCompatActivity() {
         initPanel()
 
         updateUI()
+
+        TelemetryWrapper.showDetailPage()
     }
 
     override fun onBackPressed() {

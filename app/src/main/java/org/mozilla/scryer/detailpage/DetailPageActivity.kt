@@ -279,12 +279,16 @@ class DetailPageActivity : AppCompatActivity() {
                     processTextRecognitionResult(result.value)
                     isTextMode = true
                     updateUI()
+
+                    TelemetryWrapper.showTextModeResult(TelemetryWrapper.Value.SUCCESS)
                 }
 
             } else if (result is Result.Failed) {
                 ScryerToast.makeText(this@DetailPageActivity,
                         getString(R.string.detail_ocr_error_failed),
                         Toast.LENGTH_SHORT).show()
+
+                TelemetryWrapper.showTextModeResult(TelemetryWrapper.Value.FAIL)
             }
 
             isRecognizing = false

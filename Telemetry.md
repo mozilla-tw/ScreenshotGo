@@ -96,6 +96,8 @@ The event ping contains a list of events ([see event format on firefox-source-do
 |-------------------|----------|---------|----------------------------|-------------|------------|
 | Detail page       | action   | show    | detail_page                |             |            |
 | Text mode         | action   | click   | text_mode_button           |             |            |
+| Text mode         | action   | show    | text_mode_result           | success     |            |
+| Text mode         | action   | show    | text_mode_result           | fail        |            |
 
 ### Search
 

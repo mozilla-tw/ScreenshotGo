@@ -48,6 +48,7 @@ class TelemetryWrapper {
         const val CAPTURE_VIA_EXTERNAL = "capture_via_external"
         const val DETAIL_PAGE = "detail_page"
         const val TEXT_MODE_BUTTON = "text_mode_button"
+        const val TEXT_MODE_RESULT = "text_mode_result"
         const val SEARCH_PAGE = "search_page"
         const val SEARCH_INTERESTED = "search_interested"
         const val SEARCH_NOT_INTERESTED = "search_not_interested"
@@ -56,6 +57,8 @@ class TelemetryWrapper {
     object Value {
         const val POSITIVE = "positive"
         const val NEGATIVE = "negative"
+        const val SUCCESS = "success"
+        const val FAIL = "fail"
     }
 
     private object Extra {
@@ -191,6 +194,10 @@ class TelemetryWrapper {
 
         fun clickTextModeButton() {
             EventBuilder(Category.ACTION, Method.CLICK, Object.TEXT_MODE_BUTTON).queue()
+        }
+
+        fun showTextModeResult(value: String) {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.TEXT_MODE_RESULT, value).queue()
         }
 
         fun showSearchPage() {

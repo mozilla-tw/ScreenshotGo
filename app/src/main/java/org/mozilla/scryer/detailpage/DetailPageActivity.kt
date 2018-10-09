@@ -134,6 +134,8 @@ class DetailPageActivity : AppCompatActivity() {
         initPanel()
 
         updateUI()
+
+        TelemetryWrapper.showDetailPage()
     }
 
     override fun onBackPressed() {
@@ -175,6 +177,7 @@ class DetailPageActivity : AppCompatActivity() {
         when (item?.itemId) {
             R.id.action_share -> {
                 showShareScreenshotDialog(this, screenshots[view_pager.currentItem])
+                TelemetryWrapper.clickShareButtonInDetailPage()
             }
             R.id.action_move_to -> {
                 startActivity(SortingPanelActivity.sortOldScreenshot(this, screenshots[view_pager.currentItem].id))
@@ -271,6 +274,9 @@ class DetailPageActivity : AppCompatActivity() {
                     ScryerToast.makeText(this@DetailPageActivity,
                             getString(R.string.detail_ocr_error_edgecase),
                             Toast.LENGTH_SHORT).show()
+                    TelemetryWrapper.showTextModeResult(TelemetryWrapper.Value.WEIRD_SIZE)
+                } else {
+                    TelemetryWrapper.showTextModeResult(TelemetryWrapper.Value.SUCCESS)
                 }
 
                 if (isRecognizing) {
@@ -283,6 +289,8 @@ class DetailPageActivity : AppCompatActivity() {
                 ScryerToast.makeText(this@DetailPageActivity,
                         getString(R.string.detail_ocr_error_failed),
                         Toast.LENGTH_SHORT).show()
+
+                TelemetryWrapper.showTextModeResult(TelemetryWrapper.Value.FAIL)
             }
 
             isRecognizing = false

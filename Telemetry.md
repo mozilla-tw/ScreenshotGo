@@ -62,12 +62,29 @@ The event ping contains a list of events ([see event format on firefox-source-do
 
 | Event             | category | method  |   object                   |    value    |   extra    |
 |-------------------|----------|---------|----------------------------|-------------|------------|
+| Home page         | action   | show    | home_page                  |             |            |
 | Search            | action   | click   | home_search_bar            |             |            |
 | Quick access      | action   | click   | home_quick_access          |             | on:[index] |
 | Quick access      | action   | click   | home_quick_access          |             | on: more   |
 | Collections       | action   | click   | home_collections           |             |            |
 | Create collection | action   | click   | home_create_new_collection |             |            |
 | Settings          | action   | click   | home_settings              |             |            |
+
+### Collection
+
+| Event             | category | method  |   object                   |    value    |   extra    |
+|-------------------|----------|---------|----------------------------|-------------|------------|
+| Collection page   | action   | show    | collection_page            |             |            |
+| Sorting button    | action   | click   | collection_sorting_button  |             |            |
+| Collection item   | action   | click   | collection_item            |             |            |
+
+### Sorting panel
+
+| Event              | category | method  |   object                   |    value    |   extra    |
+|--------------------|----------|---------|----------------------------|-------------|------------|
+| Sorting page       | action   | show    | sorting_page               |             |            |
+| Move to            | action   | click   | sorting_move_to_button     |             |            |
+| Cancel sorting     | action   | click   | sorting_sort_cancel        |             |            |
 
 ### Capture
 
@@ -81,12 +98,17 @@ The event ping contains a list of events ([see event format on firefox-source-do
 
 | Event             | category | method  |   object                   |    value    |   extra    |
 |-------------------|----------|---------|----------------------------|-------------|------------|
+| Detail page       | action   | show    | detail_page                |             |            |
+| Share             | action   | click   | detail_share_button        |             |            |
 | Text mode         | action   | click   | text_mode_button           |             |            |
+| Text mode         | action   | show    | text_mode_result           | success     |            |
+| Text mode         | action   | show    | text_mode_result           | fail        |            |
 
 ### Search
 
 | Event             | category | method  |   object                   |    value    |   extra    |
 |-------------------|----------|---------|----------------------------|-------------|------------|
+| Search page       | action   | show    | search_page                |             |            |
 | Interested        | action   | click   | search_interested          |             |            |
 | Not interested    | action   | click   | search_not_interested      |             |            |
 

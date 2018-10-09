@@ -128,6 +128,8 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         initPermissionFlow()
 
         view!!.findViewById<View>(R.id.root_view).requestFocus()
+
+        TelemetryWrapper.showHomePage()
     }
 
     override fun onResume() {

@@ -5,10 +5,13 @@ import android.preference.PreferenceManager
 import android.support.annotation.Nullable
 import org.mozilla.scryer.BuildConfig
 import org.mozilla.scryer.R
+import org.mozilla.scryer.ScryerApplication
 import org.mozilla.telemetry.Telemetry
 import org.mozilla.telemetry.TelemetryHolder
 import org.mozilla.telemetry.config.TelemetryConfiguration
 import org.mozilla.telemetry.event.TelemetryEvent
+import org.mozilla.telemetry.measurement.SettingsMeasurement
+import org.mozilla.telemetry.measurement.TelemetryMeasurement
 import org.mozilla.telemetry.net.HttpURLConnectionTelemetryClient
 import org.mozilla.telemetry.ping.TelemetryCorePingBuilder
 import org.mozilla.telemetry.ping.TelemetryEventPingBuilder
@@ -92,6 +95,7 @@ class TelemetryWrapper {
                                 resources.getString(R.string.pref_key_enable_capture_service),
                                 resources.getString(R.string.pref_key_enable_floating_screenshot_button),
                                 resources.getString(R.string.pref_key_enable_add_to_collection))
+                        .setSettingsProvider(CustomSettingsProvider())
                         .setCollectionEnabled(telemetryEnabled)
                         .setUploadEnabled(telemetryEnabled)
 
@@ -253,6 +257,55 @@ class TelemetryWrapper {
             if (context != null) {
                 telemetryEvent.queue()
             }
+        }
+    }
+
+    private class CustomSettingsProvider : SettingsMeasurement.SharedPreferenceSettingsProvider() {
+
+        private val custom = HashMap<String, Any>(1)
+
+        override fun update(configuration: TelemetryConfiguration) {
+            super.update(configuration)
+            
+            addCustomPing(configuration, ScreenshotCountMeasurement())
+        }
+
+
+        internal fun addCustomPing(configuration: TelemetryConfiguration, measurement: TelemetryMeasurement) {
+            var preferenceKeys: MutableSet<String>? = configuration.preferencesImportantForTelemetry
+            if (preferenceKeys == null) {
+                configuration.setPreferencesImportantForTelemetry()
+                preferenceKeys = configuration.preferencesImportantForTelemetry
+            }
+            preferenceKeys!!.add(measurement.fieldName)
+            custom[measurement.fieldName] = measurement.flush()
+        }
+
+        override fun containsKey(key: String): Boolean {
+            return super.containsKey(key) or custom.containsKey(key)
+        }
+
+        override fun getValue(key: String): Any {
+            return custom[key] ?: super.getValue(key)
+        }
+    }
+
+    private class ScreenshotCountMeasurement : TelemetryMeasurement(MEASUREMENT_SCREENSHOT_COUNT) {
+
+        override fun flush(): Any {
+            if ("main" == Thread.currentThread().name) {
+                throw RuntimeException("Call from main thread exception")
+            }
+
+            return try {
+                ScryerApplication.getScreenshotRepository().getScreenshotList().size
+            } catch (e: Exception) {
+                -1
+            }
+        }
+
+        companion object {
+            private const val MEASUREMENT_SCREENSHOT_COUNT = "screenshot_count"
         }
     }
 }

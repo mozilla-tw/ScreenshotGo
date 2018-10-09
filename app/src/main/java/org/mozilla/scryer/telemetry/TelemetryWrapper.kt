@@ -42,11 +42,16 @@ class TelemetryWrapper {
         const val HOME_CREATE_NEW_COLLECTION = "home_create_new_collection"
         const val HOME_SETTINGS = "home_settings"
         const val COLLECTION_PAGE = "collection_page"
+        const val COLLECTION_SORTING_BUTTON = "collection_sorting_button"
+        const val COLLECTION_ITEM = "collection_item"
         const val SORTING_PAGE = "sorting_page"
+        const val SORTING_MOVE_TO_BUTTON = "sorting_move_to_button"
+        const val SORTING_SORT_CANCEL = "sorting_sort_cancel"
         const val CAPTURE_BUTTON = "capture_button"
         const val CAPTURE_VIA_NOTIFICATION = "capture_via_notification"
         const val CAPTURE_VIA_EXTERNAL = "capture_via_external"
         const val DETAIL_PAGE = "detail_page"
+        const val DETAIL_SHARE_BUTTON = "detail_share_button"
         const val TEXT_MODE_BUTTON = "text_mode_button"
         const val TEXT_MODE_RESULT = "text_mode_result"
         const val SEARCH_PAGE = "search_page"
@@ -58,6 +63,7 @@ class TelemetryWrapper {
         const val POSITIVE = "positive"
         const val NEGATIVE = "negative"
         const val SUCCESS = "success"
+        const val WEIRD_SIZE = "weird_size"
         const val FAIL = "fail"
     }
 
@@ -172,8 +178,24 @@ class TelemetryWrapper {
             EventBuilder(Category.ACTION, Method.SHOW, Object.COLLECTION_PAGE).queue()
         }
 
+        fun clickCollectionItem() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.COLLECTION_ITEM).queue()
+        }
+
+        fun clickSortingInCollectionPage() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.COLLECTION_SORTING_BUTTON).queue()
+        }
+
         fun showSortingPage() {
             EventBuilder(Category.ACTION, Method.SHOW, Object.SORTING_PAGE).queue()
+        }
+
+        fun clickMoveToInSortingPage() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.SORTING_MOVE_TO_BUTTON).queue()
+        }
+
+        fun clickCancelInSortingPage() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.SORTING_SORT_CANCEL).queue()
         }
 
         fun clickCaptureButton() {
@@ -194,6 +216,10 @@ class TelemetryWrapper {
 
         fun clickTextModeButton() {
             EventBuilder(Category.ACTION, Method.CLICK, Object.TEXT_MODE_BUTTON).queue()
+        }
+
+        fun clickShareButtonInDetailPage() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.DETAIL_SHARE_BUTTON).queue()
         }
 
         fun showTextModeResult(value: String) {

@@ -151,6 +151,7 @@ class SortingPanelActivity : AppCompatActivity() {
                     DialogInterface.OnClickListener { dialog, which ->
                         flushToUnsortedCollection()
                         finishAndRemoveTask()
+                        TelemetryWrapper.clickCancelInSortingPage()
                     },
                     getString(android.R.string.cancel),
                     DialogInterface.OnClickListener { dialog, which ->
@@ -162,6 +163,7 @@ class SortingPanelActivity : AppCompatActivity() {
             dialog.asAlertDialog().show()
         } else {
             super.onBackPressed()
+            TelemetryWrapper.clickCancelInSortingPage()
         }
     }
 
@@ -333,6 +335,10 @@ class SortingPanelActivity : AppCompatActivity() {
             showAddedToast(unsortedCollection, unsortedScreenshots.isNotEmpty())
             onNewModelAvailable()
             panelModel.onNextScreenshot()
+
+            if (screenshots.size == 1) {
+                TelemetryWrapper.clickCancelInSortingPage()
+            }
         }
 
         if (!shouldShowCollectionPanel) {
@@ -371,6 +377,10 @@ class SortingPanelActivity : AppCompatActivity() {
                     screenshotViewModel.updateCollectionId(collection, UUID.randomUUID().toString())
                 }
                 suggestCollectionCreateTime.add(Pair(collection, System.currentTimeMillis()))
+
+                TelemetryWrapper.clickMoveToInSortingPage()
+            } else {
+                TelemetryWrapper.clickMoveToInSortingPage()
             }
 
             collection.date = System.currentTimeMillis()

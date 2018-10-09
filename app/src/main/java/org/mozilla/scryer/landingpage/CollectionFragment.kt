@@ -83,6 +83,8 @@ class CollectionFragment : Fragment() {
         screenshotAdapter = ScreenshotAdapter(context) { item, view ->
             val context = context ?: return@ScreenshotAdapter
             DetailPageActivity.showDetailPage(context, item, view, collectionId)
+
+            TelemetryWrapper.clickCollectionItem()
         }
 
         setHasOptionsMenu(true)
@@ -125,6 +127,7 @@ class CollectionFragment : Fragment() {
                     screenshotAdapter.getScreenshotList().isNotEmpty()
                 }?.let {
                     startSortingActivity(it)
+                    TelemetryWrapper.clickSortingInCollectionPage()
                 }
             }
 

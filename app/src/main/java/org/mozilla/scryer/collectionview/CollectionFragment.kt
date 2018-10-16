@@ -228,7 +228,7 @@ class CollectionFragment : Fragment() {
     }
 
     private fun updateActionBarTitle(actionBar: ActionBar) {
-        actionBar.title = collectionName?.let { it } ?: "All"
+        actionBar.title = collectionName?.let { it } ?: getString(R.string.collection_header_viewall_all)
     }
 
     private fun updateSortMenuItem(item: MenuItem?) {

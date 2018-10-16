@@ -12,7 +12,9 @@
     <string name="notification_action_capture">Tap to take screenshot</string>
     <string name="notification_action_open">Open app</string>
     <string name="notification_action_stop">Stop</string>
-    <string name="notification_action_collect">Tap to sort screenshots</string>
+    <!-- String displayed to inform users new screenshots captured -->
+    <string name="notification_action_collect_title">New screenshots captured</string>
+    <string name="notification_action_collect">Tap to sort your screenshots</string>
 
     <!-- Sorting panel: strings displayed on the sorting panel to help users categorize screenshots, 
     Refer to UX spec 1.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133909_1-1_Key_Flow_Add_To_Collection -->
@@ -45,6 +47,11 @@
 
     <!-- Collection view: string displayed on the collection view. Parameter %1$d is the quantity of screenshot files, i.e. 100 shots -->
     <string name="collection_separator_shots">%1$d shots</string>
+    <!-- String displayed to inform users all screenshots are selected -->
+    <string name="collection_header_select_all">All selected</string>
+    <!-- String displayed to inform users to select screenshot -->
+    <string name="collection_header_select_none">Select screenshots</string>
+    <string name="collection_header_viewall_all">All screenshots</string>
     <!-- String displayed when text recognition has an unknown error -->
     <string name="detail_ocr_error_failed">Text recognition failed</string>
     <!-- String displayed when text recognition fails because the image is too big or has unacceptable proportion -->
@@ -84,7 +91,6 @@
     <string name="dialogue_skipsorting_action_skip">Skip all</string>
 
     <!-- Menu: strings displayed when triggering the overflow menu in the top-right corner of each view -->
-    <string name="menu_title_action">Actions</string>
     <string name="menu_shot_action_move">Move to&#8230;</string>
     <string name="menu_action_rename">Rename</string>
     <!-- Strings displayed to perform actions when selecting text on the screenshot,
@@ -116,11 +122,11 @@
     <!-- Settings: strings displayed in the settings page,
     Refer to UX spec 6.1: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133927_6-1_Settings -->
     <!-- the string displayed to inform users this switch needs to be enabled to take screenshots. If enabled, the system reveals two more options for users to customize -->
-    <string name="settings_list_capture">Enable to take screenshots</string>
+    <string name="settings_list_capture">Enable screenshot feature</string>
     <!-- The string changes to serve as description of settings_list_fab -->
     <string name="settings_detail_capture">Allows you to take a screenshot with one tap. Works with whatever is on your screen.</string>
     <!-- The string displayed to enable a floating button to take screenshot, and the placeholder %1$s is "GO" from the product name -->
-    <string name="settings_list_fab">Enable %1$s button</string>
+    <string name="settings_list_fab">%1$s button</string>
     <string name="settings_list_sorting">Prompt to sort</string>
     <string name="settings_detail_sorting">Always prompt to add screenshot to a collection</string>
     <string name="settings_list_usagedata">Send usage data</string>
@@ -172,7 +178,7 @@
     Refer to UX spec 7.3: https://mozilla.invisionapp.com/share/24N3MMQB986#/310133930_7-3_Other_Oborading -->
     <string name="onboarding_search_title_soon">Search is coming soon!</string>
     <!-- The string displayed to describe the survey -->
-    <string name="onboarding_search_content_survey">We’re working on a search feature to help you find your screenshots even faster. Interested?</string>
+    <string name="onboarding_search_content_survey">We’re working on a magic feature to help you search screenshots with text. Interested?</string>
     <string name="onboarding_search_action_agree">Yes please</string>
     <!-- The string should represent an informal variant of no -->
     <string name="onboarding_search_action_disagree">Nope</string>

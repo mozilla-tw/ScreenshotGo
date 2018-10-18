@@ -112,7 +112,7 @@ dependencies {
 
     implementation "com.crashlytics.sdk.android:crashlytics:${Versions.crashlytics}"
 
-    implementation "org.mozilla.components:telemetry:${Versions.telemetry}"
+    implementation "org.mozilla.components:service-telemetry:${Versions.android_components}"
 
     testImplementation "org.mockito:mockito-core:${Versions.mockito}"
 

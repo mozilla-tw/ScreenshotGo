@@ -30,7 +30,7 @@ object Versions {
     val glide = "4.7.1"
 
     // Mozilla
-    val telemetry = "0.5.1"
+    val android_components = "0.27.0"
 
     // Adjust
     val adjust = "4.15.1"

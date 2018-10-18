@@ -34,6 +34,7 @@ import org.mozilla.scryer.Observer
 import org.mozilla.scryer.detailpage.DetailPageActivity
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.persistence.SuggestCollectionHelper
 import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.CollectionNameDialog
@@ -133,6 +134,14 @@ class CollectionFragment : Fragment() {
         arguments?.getString(ARG_COLLECTION_NAME)
     }
 
+    private val collectionNameForTelemetry: String? by lazy {
+        if (SuggestCollectionHelper.isSuggestCollectionName(context, collectionName)) {
+            collectionName
+        } else {
+            "user-defined"
+        }
+    }
+
     private var sortMenuItem: MenuItem? = null
 
     override fun onCreateView(
@@ -156,14 +165,14 @@ class CollectionFragment : Fragment() {
             val context = context ?: return@ScreenshotAdapter
             DetailPageActivity.showDetailPage(context, item, view, collectionId)
 
-            TelemetryWrapper.clickCollectionItem()
+            collectionNameForTelemetry?.let { TelemetryWrapper.clickCollectionItem(it) }
         }
 
         setHasOptionsMenu(true)
         setupActionBar()
         initScreenshotList(view.context)
 
-        TelemetryWrapper.showCollectionPage()
+        collectionNameForTelemetry?.let { TelemetryWrapper.showCollectionPage(it) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

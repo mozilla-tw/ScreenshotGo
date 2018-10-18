@@ -38,9 +38,11 @@ class TelemetryWrapper {
         const val WELCOME_PAGE = "welcome_page"
         const val WELCOME_STORAGE_PERMISSION = "welcome_storage_permission"
         const val WELCOME_OVERLAY_PERMISSION = "welcome_overlay_permission"
+        const val WELCOME_PERMISSION_ERROR = "welcome_permission_error"
         const val HOME_PAGE = "home_page"
         const val HOME_SEARCH_BAR = "home_search_bar"
         const val HOME_QUICK_ACCESS = "home_quick_access"
+        const val HOME_QUICK_ACCESS_MORE = "home_quick_access_more"
         const val HOME_COLLECTIONS = "home_collections"
         const val HOME_CREATE_NEW_COLLECTION = "home_create_new_collection"
         const val HOME_SETTINGS = "home_settings"
@@ -50,6 +52,7 @@ class TelemetryWrapper {
         const val SORTING_PAGE = "sorting_page"
         const val SORTING_MOVE_TO_BUTTON = "sorting_move_to_button"
         const val SORTING_SORT_CANCEL = "sorting_sort_cancel"
+        const val SORTING_CREATE_NEW_COLLECTION = "sorting_create_new_collection"
         const val CAPTURE_BUTTON = "capture_button"
         const val CAPTURE_VIA_NOTIFICATION = "capture_via_notification"
         const val CAPTURE_VIA_EXTERNAL = "capture_via_external"
@@ -72,10 +75,12 @@ class TelemetryWrapper {
 
     private object Extra {
         const val ON = "on"
+        const val MODE = "mode"
     }
 
     private object ExtraValue {
-        const val MORE = "more"
+        const val SINGLE = "single"
+        const val MULTIPLE = "multiple"
     }
 
     companion object {
@@ -150,6 +155,10 @@ class TelemetryWrapper {
             EventBuilder(Category.ACTION, Method.CLICK, Object.WELCOME_OVERLAY_PERMISSION, value).queue()
         }
 
+        fun showWelcomePermissionError() {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.WELCOME_PERMISSION_ERROR).queue()
+        }
+
         fun showHomePage() {
             EventBuilder(Category.ACTION, Method.SHOW, Object.HOME_PAGE).queue()
         }
@@ -163,11 +172,11 @@ class TelemetryWrapper {
         }
 
         fun clickHomeQuickAccessMoreItem() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_QUICK_ACCESS).extra(Extra.ON, ExtraValue.MORE).queue()
+            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_QUICK_ACCESS_MORE).queue()
         }
 
-        fun clickHomeCollectionItem(index: Int) {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_COLLECTIONS).extra(Extra.ON, index.toString()).queue()
+        fun clickHomeCollectionItem() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_COLLECTIONS).queue()
         }
 
         fun clickHomeCreateNewCollectionItem() {
@@ -178,20 +187,24 @@ class TelemetryWrapper {
             EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_SETTINGS).queue()
         }
 
-        fun showCollectionPage() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.COLLECTION_PAGE).queue()
+        fun showCollectionPage(name: String) {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.COLLECTION_PAGE).extra(Extra.ON, name).queue()
         }
 
-        fun clickCollectionItem() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.COLLECTION_ITEM).queue()
+        fun clickCollectionItem(name: String) {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.COLLECTION_ITEM).extra(Extra.ON, name).queue()
         }
 
         fun clickSortingInCollectionPage() {
             EventBuilder(Category.ACTION, Method.CLICK, Object.COLLECTION_SORTING_BUTTON).queue()
         }
 
-        fun showSortingPage() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.SORTING_PAGE).queue()
+        fun showSingleSortingPage() {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.SORTING_PAGE).extra(Extra.MODE, ExtraValue.SINGLE).queue()
+        }
+
+        fun showMultipleSortingPage() {
+            EventBuilder(Category.ACTION, Method.SHOW, Object.SORTING_PAGE).extra(Extra.MODE, ExtraValue.MULTIPLE).queue()
         }
 
         fun clickMoveToInSortingPage() {
@@ -200,6 +213,10 @@ class TelemetryWrapper {
 
         fun clickCancelInSortingPage() {
             EventBuilder(Category.ACTION, Method.CLICK, Object.SORTING_SORT_CANCEL).queue()
+        }
+
+        fun clickCreateNewCollectionItemInSortingPage() {
+            EventBuilder(Category.ACTION, Method.CLICK, Object.SORTING_CREATE_NEW_COLLECTION).queue()
         }
 
         fun clickCaptureButton() {

@@ -114,8 +114,6 @@ class SortingPanelActivity : AppCompatActivity() {
         loadCollectionColorList()
         loadScreenshots(intent, this::onLoadScreenshotsSuccess)
         initSortingPanel()
-
-        TelemetryWrapper.showSortingPage()
     }
 
     override fun onStart() {
@@ -139,8 +137,6 @@ class SortingPanelActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         ViewModelProviders.of(this).get(PersistModel::class.java).reset()
         loadScreenshots(intent, this::onLoadScreenshotsSuccess)
-
-        TelemetryWrapper.showSortingPage()
     }
 
     override fun onBackPressed() {
@@ -250,14 +246,17 @@ class SortingPanelActivity : AppCompatActivity() {
         launch (UI) {
             when {
                 intent.hasExtra(EXTRA_PATH) -> {
+                    TelemetryWrapper.showSingleSortingPage()
                     loadNewScreenshot(getFilePath(intent))
                 }
 
                 intent.hasExtra(EXTRA_SCREENSHOT_ID) -> {
+                    TelemetryWrapper.showSingleSortingPage()
                     loadOldScreenshot(intent.getStringExtra(EXTRA_SCREENSHOT_ID))
                 }
 
                 intent.hasExtra(EXTRA_COLLECTION_ID) -> {
+                    TelemetryWrapper.showMultipleSortingPage()
                     collectionId = intent.getStringExtra(EXTRA_COLLECTION_ID)
                     collectionId?.let {
                         loadCollection(it)
@@ -377,10 +376,6 @@ class SortingPanelActivity : AppCompatActivity() {
                     screenshotViewModel.updateCollectionId(collection, UUID.randomUUID().toString())
                 }
                 suggestCollectionCreateTime.add(Pair(collection, System.currentTimeMillis()))
-
-                TelemetryWrapper.clickMoveToInSortingPage()
-            } else {
-                TelemetryWrapper.clickMoveToInSortingPage()
             }
 
             screenshot.collectionId = collection.id
@@ -391,6 +386,8 @@ class SortingPanelActivity : AppCompatActivity() {
             if (isSortingSingleScreenshot) {
                 showAddedToast(collection, false)
             }
+
+            TelemetryWrapper.clickMoveToInSortingPage()
         }
     }
 
@@ -409,6 +406,8 @@ class SortingPanelActivity : AppCompatActivity() {
             onCollectionClickStart(it)
             onCollectionClickFinish(it)
         }
+
+        TelemetryWrapper.clickCreateNewCollectionItemInSortingPage()
     }
 
     private fun createNewScreenshot(path: String): ScreenshotModel? {

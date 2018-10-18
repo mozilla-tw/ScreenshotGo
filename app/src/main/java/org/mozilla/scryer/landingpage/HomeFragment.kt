@@ -128,8 +128,6 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         initPermissionFlow()
 
         view!!.findViewById<View>(R.id.root_view).requestFocus()
-
-        TelemetryWrapper.showHomePage()
     }
 
     override fun onResume() {
@@ -209,6 +207,8 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             }
             showStoragePermissionView(this, action)
         }
+
+        TelemetryWrapper.showWelcomePermissionError()
     }
 
     private fun showStoragePermissionView(view: View, action: Runnable) {
@@ -336,6 +336,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         if (ScryerApplication.getSettingsRepository().serviceEnabled) {
             context?.startService(Intent(context, ScryerService::class.java))
         }
+        TelemetryWrapper.showHomePage()
     }
 
     override fun requestStoragePermission() {

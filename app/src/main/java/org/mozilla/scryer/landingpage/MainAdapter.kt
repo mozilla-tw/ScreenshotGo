@@ -143,7 +143,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
                 navController.navigateSafely(R.id.MainFragment,
                         R.id.action_navigate_to_collection,
                         bundle)
-                TelemetryWrapper.clickHomeCollectionItem(position)
+                TelemetryWrapper.clickHomeCollectionItem()
             }
         }
         return itemHolder

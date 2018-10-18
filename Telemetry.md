@@ -57,6 +57,7 @@ The event ping contains a list of events ([see event format on firefox-source-do
 | Overlay permission| action   | show    | welcome_overlay_permission |             |            |
 | Overlay permission| action   | click   | welcome_overlay_permission | positive    |            |
 | Overlay permission| action   | click   | welcome_overlay_permission | negative    |            |
+| Permission error  | action   | show    | welcome_permission_error   |             |            |
 
 ### Home
 
@@ -65,7 +66,7 @@ The event ping contains a list of events ([see event format on firefox-source-do
 | Home page         | action   | show    | home_page                  |             |            |
 | Search            | action   | click   | home_search_bar            |             |            |
 | Quick access      | action   | click   | home_quick_access          |             | on:[index] |
-| Quick access      | action   | click   | home_quick_access          |             | on: more   |
+| Quick access more | action   | click   | home_quick_access_more     |             |            |
 | Collections       | action   | click   | home_collections           |             |            |
 | Create collection | action   | click   | home_create_new_collection |             |            |
 | Settings          | action   | click   | home_settings              |             |            |
@@ -74,17 +75,18 @@ The event ping contains a list of events ([see event format on firefox-source-do
 
 | Event             | category | method  |   object                   |    value    |   extra    |
 |-------------------|----------|---------|----------------------------|-------------|------------|
-| Collection page   | action   | show    | collection_page            |             |            |
+| Collection page   | action   | show    | collection_page            |             | on:[name]  |
 | Sorting button    | action   | click   | collection_sorting_button  |             |            |
-| Collection item   | action   | click   | collection_item            |             |            |
+| Collection item   | action   | click   | collection_item            |             | on:[name]  |
 
 ### Sorting panel
 
-| Event              | category | method  |   object                   |    value    |   extra    |
-|--------------------|----------|---------|----------------------------|-------------|------------|
-| Sorting page       | action   | show    | sorting_page               |             |            |
-| Move to            | action   | click   | sorting_move_to_button     |             |            |
-| Cancel sorting     | action   | click   | sorting_sort_cancel        |             |            |
+| Event              | category | method  |   object                      |    value    |   extra                |
+|--------------------|----------|---------|-------------------------------|-------------|------------------------|
+| Create collection  | action   | click   | sorting_create_new_collection |             |                        |
+| Sorting page       | action   | show    | sorting_page                  |             | mode:[single/multiple] |
+| Move to            | action   | click   | sorting_move_to_button        |             |                        |
+| Cancel sorting     | action   | click   | sorting_sort_cancel           |             |                        |
 
 ### Capture
 

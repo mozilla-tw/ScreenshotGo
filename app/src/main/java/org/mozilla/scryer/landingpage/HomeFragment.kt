@@ -182,7 +182,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             showStoragePermissionView(this, action)
         }
 
-        TelemetryWrapper.showWelcomePage()
+        TelemetryWrapper.visitWelcomePage()
     }
 
     override fun showStoragePermissionView(isRational: Boolean, action: Runnable) {
@@ -208,7 +208,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             showStoragePermissionView(this, action)
         }
 
-        TelemetryWrapper.showWelcomePermissionError()
+        TelemetryWrapper.visitPermissionErrorPage()
     }
 
     private fun showStoragePermissionView(view: View, action: Runnable) {
@@ -221,7 +221,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         view.findViewById<View>(R.id.action_button)?.setOnClickListener {
             action.run()
-            TelemetryWrapper.clickWelcomeStoragePermission()
+            TelemetryWrapper.grantStoragePermission()
         }
     }
 
@@ -260,7 +260,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         permissionDialog = dialog
         dialogQueue.show(dialog, null)
 
-        TelemetryWrapper.showWelcomeOverlayPermission()
+        TelemetryWrapper.promptOverlayPermission()
     }
 
     override fun showCapturePermissionView(action: Runnable, negativeAction: Runnable) {
@@ -274,12 +274,12 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         dialog.findViewById<View>(R.id.positive_button)?.setOnClickListener {
             action.run()
             dialog.dismiss()
-            TelemetryWrapper.clickWelcomeOverlayPermission(TelemetryWrapper.Value.POSITIVE)
+            TelemetryWrapper.grantOverlayPermission()
         }
         dialog.findViewById<View>(R.id.negative_button)?.visibility = View.GONE
         dialog.setOnCancelListener {
             negativeAction.run()
-            TelemetryWrapper.clickWelcomeOverlayPermission(TelemetryWrapper.Value.NEGATIVE)
+            TelemetryWrapper.notGrantOverlayPermission()
         }
 
         val receiver = object : BroadcastReceiver() {

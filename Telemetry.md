@@ -43,76 +43,77 @@ The event ping contains a list of events ([see event format on firefox-source-do
 
 ### Sessions
 
-| Event                                    | category | method     | object | value  |
-|------------------------------------------|----------|------------|--------|--------|
-| Start session (App is in the foreground) | action   | foreground | app    |        |
-| Stop session (App is in the background)  | action   | background | app    |        |
+| category      | method | object | value  |
+|---------------|--------|--------|--------|
+| Start session | 1      | go     | app    |
+| Stop session  | 1      | go     | app    |
 
 ### Welcome
 
-| Event             | category | method  |   object                   |    value    |   extra    |
-|-------------------|----------|---------|----------------------------|-------------|------------|
-| Welcome           | action   | show    | welcome_page               |             |            |
-| Let's go          | action   | click   | welcome_storage_permission |             |            |
-| Overlay permission| action   | show    | welcome_overlay_permission |             |            |
-| Overlay permission| action   | click   | welcome_overlay_permission | positive    |            |
-| Overlay permission| action   | click   | welcome_overlay_permission | negative    |            |
-| Permission error  | action   | show    | welcome_permission_error   |             |            |
+| category                     | method | object | value    | extra    |
+|------------------------------|--------|--------|----------|----------|
+| Visit welcome page           | 1      | go     |          |          |
+| Grant storage permission     | 1      | go     |          |          |
+| Prompt overlay permission    | 1      | go     |          |          |
+| Grant overlay permission     | 1      | go     |          |          |
+| Not grant overlay permission | 1      | go     |          |          |
+| Visit permission error page  | 1      | go     |          |          |
 
 ### Home
 
-| Event             | category | method  |   object                   |    value    |   extra    |
-|-------------------|----------|---------|----------------------------|-------------|------------|
-| Home page         | action   | show    | home_page                  |             |            |
-| Search            | action   | click   | home_search_bar            |             |            |
-| Quick access      | action   | click   | home_quick_access          |             | on:[index] |
-| Quick access more | action   | click   | home_quick_access_more     |             |            |
-| Collections       | action   | click   | home_collections           |             |            |
-| Create collection | action   | click   | home_create_new_collection |             |            |
-| Settings          | action   | click   | home_settings              |             |            |
+| category                    | method  | object  | value     | extra      |
+|-----------------------------|---------|---------|-----------|------------|
+| Visit home page             | 1       | go      |           |            |
+| Start search                | 1       | go      |           |            |
+| Click on quick access       | 1       | go      |           | on:[index] |
+| Click more on quick access  | 1       | go      |           |            |
+| Click on collection         | 1       | go      |           |            |
+| Create collection from home | 1       | go      |           |            |
+| Enter settings              | 1       | go      |           |            |
 
 ### Collection
 
-| Event             | category | method  |   object                   |    value    |   extra    |
-|-------------------|----------|---------|----------------------------|-------------|------------|
-| Collection page   | action   | show    | collection_page            |             | on:[name]  |
-| Sorting button    | action   | click   | collection_sorting_button  |             |            |
-| Collection item   | action   | click   | collection_item            |             | on:[name]  |
+| category                | method  | object | value       | extra      |
+|-------------------------|---------|--------|-------------|------------|
+| Visit collection page   | 1       | go     |             | on:[name]  |
+| Click on sorting button | 1       | go     |             |            |
+| Collection item         | 1       | go     |             | on:[name]  |
 
 ### Sorting panel
 
-| Event              | category | method  |   object                      |    value    |   extra                |
-|--------------------|----------|---------|-------------------------------|-------------|------------------------|
-| Create collection  | action   | click   | sorting_create_new_collection |             |                        |
-| Sorting page       | action   | show    | sorting_page                  |             | mode:[single/multiple] |
-| Move to            | action   | click   | sorting_move_to_button        |             |                        |
-| Cancel sorting     | action   | click   | sorting_sort_cancel           |             |                        |
+| category                       | method  | object | value       | extra                  |
+|--------------------------------|---------|--------|-------------|------------------------|
+| Create collection when sorting | 1       | go     |             |                        |
+| Prompt sorting page            | 1       | go     |             | mode:[single/multiple] |
+| Sort screenshot                | 1       | go     |             |                        |
+| Cancel sorting                 | 1       | go     |             |                        |
 
 ### Capture
 
-| Event                    | category | method  |   object                   |    value    |   extra    |
-|--------------------------|----------|---------|----------------------------|-------------|------------|
-| Capture                  | action   | click   | capture_button             |             |            |
-| Capture via notification | action   | click   | capture_via_notification   |             |            |
-| Capture via external     | action   | show    | capture_via_external       |             |            |
+| category                 | method | object  | value       | extra      |
+|--------------------------|--------|---------|-------------|------------|
+| Capture via FAB          | 1      | go      |             |            |
+| Capture via notification | 1      | go      |             |            |
+| Capture via external     | 1      | go      |             |            |
 
 ### Detail
 
-| Event             | category | method  |   object                   |    value    |   extra    |
-|-------------------|----------|---------|----------------------------|-------------|------------|
-| Detail page       | action   | show    | detail_page                |             |            |
-| Share             | action   | click   | detail_share_button        |             |            |
-| Text mode         | action   | click   | text_mode_button           |             |            |
-| Text mode         | action   | show    | text_mode_result           | success     |            |
-| Text mode         | action   | show    | text_mode_result           | fail        |            |
+| category                     | method | object | value       | extra      |
+|------------------------------|--------|--------|-------------|------------|
+| View screenshot              | 1      | go     |             |            |
+| Share screenshot             | 1      | go     |             |            |
+| Extract text from screenshot | 1      | go     |             |            |
+| View text in screenshot      | 1      | go     | success     |            |
+| View text in screenshot      | 1      | go     | weird_size  |            |
+| View text in screenshot      | 1      | go     | fail        |            |
 
 ### Search
 
-| Event             | category | method  |   object                   |    value    |   extra    |
-|-------------------|----------|---------|----------------------------|-------------|------------|
-| Search page       | action   | show    | search_page                |             |            |
-| Interested        | action   | click   | search_interested          |             |            |
-| Not interested    | action   | click   | search_not_interested      |             |            |
+| category                 | method | object | value    | extra      |
+|--------------------------|--------|--------|----------|------------|
+| Visit search page        | 1      | go     |          |            |
+| Interested in search     | 1      | go     |          |            |
+| Not interested in search | 1      | go     |          |            |
 
 ## Limits
 

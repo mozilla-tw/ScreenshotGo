@@ -23,25 +23,17 @@ import org.mozilla.telemetry.storage.FileTelemetryStorage
 class TelemetryWrapper {
 
     private object Category {
-        const val ACTION = "action"
-    }
-
-    private object Method {
-        const val FOREGROUND = "foreground"
-        const val BACKGROUND = "background"
-        const val CLICK = "click"
-        const val SHOW = "show"
-    }
-
-    private object Object {
-        const val APP = "app"
-        const val WELCOME_PAGE = "welcome_page"
-        const val WELCOME_STORAGE_PERMISSION = "welcome_storage_permission"
-        const val WELCOME_OVERLAY_PERMISSION = "welcome_overlay_permission"
-        const val WELCOME_PERMISSION_ERROR = "welcome_permission_error"
-        const val HOME_PAGE = "home_page"
-        const val HOME_SEARCH_BAR = "home_search_bar"
-        const val HOME_QUICK_ACCESS = "home_quick_access"
+        const val START_SESSION = "Start session"
+        const val STOP_SESSION = "Stop session"
+        const val VISIT_WELCOME_PAGE = "Visit welcome page"
+        const val GRANT_STORAGE_PERMISSION = "Grant storage permission"
+        const val PROMPT_OVERLAY_PERMISSION = "Prompt overlay permission"
+        const val GRANT_OVERLAY_PERMISSION = "Grant overlay permission"
+        const val NOT_GRANT_OVERLAY_PERMISSION = "Not grant overlay permission"
+        const val VISIT_PERMISSION_ERROR_PAGE = "Visit permission error page"
+        const val VISIT_HOME_PAGE = "Visit home page"
+        const val START_SEARCH = "Start search"
+        const val CLICK_ON_QUICK_ACCESS = "Click on quick access"
         const val HOME_QUICK_ACCESS_MORE = "home_quick_access_more"
         const val HOME_COLLECTIONS = "home_collections"
         const val HOME_CREATE_NEW_COLLECTION = "home_create_new_collection"
@@ -65,9 +57,16 @@ class TelemetryWrapper {
         const val SEARCH_NOT_INTERESTED = "search_not_interested"
     }
 
+    private object Method {
+        const val V1 = "1"
+    }
+
+    private object Object {
+        const val GO = "go"
+    }
+
     object Value {
-        const val POSITIVE = "positive"
-        const val NEGATIVE = "negative"
+        const val APP = "app"
         const val SUCCESS = "success"
         const val WEIRD_SIZE = "weird_size"
         const val FAIL = "fail"
@@ -124,12 +123,12 @@ class TelemetryWrapper {
 
         fun startSession() {
             TelemetryHolder.get().recordSessionStart()
-            EventBuilder(Category.ACTION, Method.FOREGROUND, Object.APP).queue()
+            EventBuilder(Category.START_SESSION, Method.V1, Object.GO, Value.APP).queue()
         }
 
         fun stopSession() {
             TelemetryHolder.get().recordSessionEnd()
-            EventBuilder(Category.ACTION, Method.BACKGROUND, Object.APP).queue()
+            EventBuilder(Category.STOP_SESSION, Method.V1, Object.GO, Value.APP).queue()
         }
 
         fun stopMainActivity() {
@@ -139,124 +138,128 @@ class TelemetryWrapper {
                     .scheduleUpload()
         }
 
-        fun showWelcomePage() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.WELCOME_PAGE).queue()
+        fun visitWelcomePage() {
+            EventBuilder(Category.VISIT_WELCOME_PAGE, Method.V1, Object.GO).queue()
         }
 
-        fun clickWelcomeStoragePermission() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.WELCOME_STORAGE_PERMISSION).queue()
+        fun grantStoragePermission() {
+            EventBuilder(Category.GRANT_STORAGE_PERMISSION, Method.V1, Object.GO).queue()
         }
 
-        fun showWelcomeOverlayPermission() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.WELCOME_OVERLAY_PERMISSION).queue()
+        fun promptOverlayPermission() {
+            EventBuilder(Category.PROMPT_OVERLAY_PERMISSION, Method.V1, Object.GO).queue()
         }
 
-        fun clickWelcomeOverlayPermission(value: String) {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.WELCOME_OVERLAY_PERMISSION, value).queue()
+        fun grantOverlayPermission() {
+            EventBuilder(Category.GRANT_OVERLAY_PERMISSION, Method.V1, Object.GO).queue()
         }
 
-        fun showWelcomePermissionError() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.WELCOME_PERMISSION_ERROR).queue()
+        fun notGrantOverlayPermission() {
+            EventBuilder(Category.NOT_GRANT_OVERLAY_PERMISSION, Method.V1, Object.GO).queue()
+        }
+
+        fun visitPermissionErrorPage() {
+            EventBuilder(Category.VISIT_PERMISSION_ERROR_PAGE, Method.V1, Object.GO).queue()
         }
 
         fun showHomePage() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.HOME_PAGE).queue()
+            EventBuilder(Category.VISIT_HOME_PAGE, Method.V1, Object.GO).queue()
         }
 
         fun clickHomeSearchBar() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_SEARCH_BAR).queue()
+            EventBuilder(Category.START_SEARCH, Method.V1, Object.GO).queue()
         }
 
         fun clickHomeQuickAccessItem(index: Int) {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_QUICK_ACCESS).extra(Extra.ON, index.toString()).queue()
+            EventBuilder(Category.CLICK_ON_QUICK_ACCESS, Method.V1, Object.GO).extra(Extra.ON, index.toString()).queue()
         }
 
         fun clickHomeQuickAccessMoreItem() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_QUICK_ACCESS_MORE).queue()
+            EventBuilder(Category.HOME_QUICK_ACCESS_MORE, Method.V1, Object.GO).queue()
         }
 
         fun clickHomeCollectionItem() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_COLLECTIONS).queue()
+            EventBuilder(Category.HOME_COLLECTIONS, Method.V1, Object.GO).queue()
         }
 
         fun clickHomeCreateNewCollectionItem() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_CREATE_NEW_COLLECTION).queue()
+            EventBuilder(Category.HOME_CREATE_NEW_COLLECTION, Method.V1, Object.GO).queue()
         }
 
         fun clickHomeSettings() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.HOME_SETTINGS).queue()
+            EventBuilder(Category.HOME_SETTINGS, Method.V1, Object.GO).queue()
         }
 
         fun showCollectionPage(name: String) {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.COLLECTION_PAGE).extra(Extra.ON, name).queue()
+            EventBuilder(Category.COLLECTION_PAGE, Method.V1, Object.GO).extra(Extra.ON, name).queue()
         }
 
         fun clickCollectionItem(name: String) {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.COLLECTION_ITEM).extra(Extra.ON, name).queue()
+            EventBuilder(Category.COLLECTION_ITEM, Method.V1, Object.GO).extra(Extra.ON, name).queue()
         }
 
         fun clickSortingInCollectionPage() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.COLLECTION_SORTING_BUTTON).queue()
+            EventBuilder(Category.COLLECTION_SORTING_BUTTON, Method.V1, Object.GO).queue()
         }
 
         fun showSingleSortingPage() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.SORTING_PAGE).extra(Extra.MODE, ExtraValue.SINGLE).queue()
+            EventBuilder(Category.SORTING_PAGE, Method.V1, Object.GO).extra(Extra.MODE, ExtraValue.SINGLE).queue()
         }
 
         fun showMultipleSortingPage() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.SORTING_PAGE).extra(Extra.MODE, ExtraValue.MULTIPLE).queue()
+            EventBuilder(Category.SORTING_PAGE, Method.V1, Object.GO).extra(Extra.MODE, ExtraValue.MULTIPLE).queue()
         }
 
         fun clickMoveToInSortingPage() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.SORTING_MOVE_TO_BUTTON).queue()
+            EventBuilder(Category.SORTING_MOVE_TO_BUTTON, Method.V1, Object.GO).queue()
         }
 
         fun clickCancelInSortingPage() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.SORTING_SORT_CANCEL).queue()
+            EventBuilder(Category.SORTING_SORT_CANCEL, Method.V1, Object.GO).queue()
         }
 
         fun clickCreateNewCollectionItemInSortingPage() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.SORTING_CREATE_NEW_COLLECTION).queue()
+            EventBuilder(Category.SORTING_CREATE_NEW_COLLECTION, Method.V1, Object.GO).queue()
         }
 
         fun clickCaptureButton() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.CAPTURE_BUTTON).queue()
+            EventBuilder(Category.CAPTURE_BUTTON, Method.V1, Object.GO).queue()
         }
 
         fun clickCaptureViaNotification() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.CAPTURE_VIA_NOTIFICATION).queue()
+            EventBuilder(Category.CAPTURE_VIA_NOTIFICATION, Method.V1, Object.GO).queue()
         }
 
         fun clickCaptureViaExternal() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.CAPTURE_VIA_EXTERNAL).queue()
+            EventBuilder(Category.CAPTURE_VIA_EXTERNAL, Method.V1, Object.GO).queue()
         }
 
         fun showDetailPage() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.DETAIL_PAGE).queue()
+            EventBuilder(Category.DETAIL_PAGE, Method.V1, Object.GO).queue()
         }
 
         fun clickTextModeButton() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.TEXT_MODE_BUTTON).queue()
+            EventBuilder(Category.TEXT_MODE_BUTTON, Method.V1, Object.GO).queue()
         }
 
         fun clickShareButtonInDetailPage() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.DETAIL_SHARE_BUTTON).queue()
+            EventBuilder(Category.DETAIL_SHARE_BUTTON, Method.V1, Object.GO).queue()
         }
 
         fun showTextModeResult(value: String) {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.TEXT_MODE_RESULT, value).queue()
+            EventBuilder(Category.TEXT_MODE_RESULT, Method.V1, Object.GO, value).queue()
         }
 
         fun showSearchPage() {
-            EventBuilder(Category.ACTION, Method.SHOW, Object.SEARCH_PAGE).queue()
+            EventBuilder(Category.SEARCH_PAGE, Method.V1, Object.GO).queue()
         }
 
         fun clickSearchInterested() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.SEARCH_INTERESTED).queue()
+            EventBuilder(Category.SEARCH_INTERESTED, Method.V1, Object.GO).queue()
         }
 
         fun clickSearchNotInterested() {
-            EventBuilder(Category.ACTION, Method.CLICK, Object.SEARCH_NOT_INTERESTED).queue()
+            EventBuilder(Category.SEARCH_NOT_INTERESTED, Method.V1, Object.GO).queue()
         }
     }
 

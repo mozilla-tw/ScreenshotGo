@@ -147,7 +147,7 @@ class SortingPanelActivity : AppCompatActivity() {
                     DialogInterface.OnClickListener { dialog, which ->
                         flushToUnsortedCollection()
                         finishAndRemoveTask()
-                        TelemetryWrapper.clickCancelInSortingPage()
+                        TelemetryWrapper.cancelSorting()
                     },
                     getString(android.R.string.cancel),
                     DialogInterface.OnClickListener { dialog, which ->
@@ -159,7 +159,7 @@ class SortingPanelActivity : AppCompatActivity() {
             dialog.asAlertDialog().show()
         } else {
             super.onBackPressed()
-            TelemetryWrapper.clickCancelInSortingPage()
+            TelemetryWrapper.cancelSorting()
         }
     }
 
@@ -246,17 +246,17 @@ class SortingPanelActivity : AppCompatActivity() {
         launch (UI) {
             when {
                 intent.hasExtra(EXTRA_PATH) -> {
-                    TelemetryWrapper.showSingleSortingPage()
+                    TelemetryWrapper.promptSingleSortingPage()
                     loadNewScreenshot(getFilePath(intent))
                 }
 
                 intent.hasExtra(EXTRA_SCREENSHOT_ID) -> {
-                    TelemetryWrapper.showSingleSortingPage()
+                    TelemetryWrapper.promptSingleSortingPage()
                     loadOldScreenshot(intent.getStringExtra(EXTRA_SCREENSHOT_ID))
                 }
 
                 intent.hasExtra(EXTRA_COLLECTION_ID) -> {
-                    TelemetryWrapper.showMultipleSortingPage()
+                    TelemetryWrapper.promptMultipleSortingPage()
                     collectionId = intent.getStringExtra(EXTRA_COLLECTION_ID)
                     collectionId?.let {
                         loadCollection(it)
@@ -336,7 +336,7 @@ class SortingPanelActivity : AppCompatActivity() {
             panelModel.onNextScreenshot()
 
             if (screenshots.size == 1) {
-                TelemetryWrapper.clickCancelInSortingPage()
+                TelemetryWrapper.cancelSorting()
             }
         }
 
@@ -387,7 +387,7 @@ class SortingPanelActivity : AppCompatActivity() {
                 showAddedToast(collection, false)
             }
 
-            TelemetryWrapper.clickMoveToInSortingPage()
+            TelemetryWrapper.sortScreenshot()
         }
     }
 
@@ -407,7 +407,7 @@ class SortingPanelActivity : AppCompatActivity() {
             onCollectionClickFinish(it)
         }
 
-        TelemetryWrapper.clickCreateNewCollectionItemInSortingPage()
+        TelemetryWrapper.createCollectionWhenSorting()
     }
 
     private fun createNewScreenshot(path: String): ScreenshotModel? {

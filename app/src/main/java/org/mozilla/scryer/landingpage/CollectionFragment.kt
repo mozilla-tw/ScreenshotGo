@@ -99,14 +99,14 @@ class CollectionFragment : Fragment() {
             val context = context ?: return@ScreenshotAdapter
             DetailPageActivity.showDetailPage(context, item, view, collectionId)
 
-            collectionNameForTelemetry?.let { TelemetryWrapper.clickCollectionItem(it) }
+            collectionNameForTelemetry?.let { TelemetryWrapper.collectionItem(it) }
         }
 
         setHasOptionsMenu(true)
         setupActionBar()
         initScreenshotList(view.context)
 
-        collectionNameForTelemetry?.let { TelemetryWrapper.showCollectionPage(it) }
+        collectionNameForTelemetry?.let { TelemetryWrapper.visitCollectionPage(it) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -142,7 +142,7 @@ class CollectionFragment : Fragment() {
                     screenshotAdapter.getScreenshotList().isNotEmpty()
                 }?.let {
                     startSortingActivity(it)
-                    TelemetryWrapper.clickSortingInCollectionPage()
+                    TelemetryWrapper.clickOnSortingButton()
                 }
             }
 

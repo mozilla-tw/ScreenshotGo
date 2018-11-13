@@ -37,10 +37,10 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import org.mozilla.scryer.BuildConfig
 import org.mozilla.scryer.R
-import org.mozilla.scryer.landingpage.OnDeleteScreenshotListener
-import org.mozilla.scryer.landingpage.showDeleteScreenshotDialog
-import org.mozilla.scryer.landingpage.showScreenshotInfoDialog
-import org.mozilla.scryer.landingpage.showShareScreenshotDialog
+import org.mozilla.scryer.collectionview.OnDeleteScreenshotListener
+import org.mozilla.scryer.collectionview.showDeleteScreenshotDialog
+import org.mozilla.scryer.collectionview.showScreenshotInfoDialog
+import org.mozilla.scryer.collectionview.showShareScreenshotDialog
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.sortingpanel.SortingPanelActivity
@@ -161,7 +161,7 @@ class DetailPageActivity : AppCompatActivity() {
         if (menu != null) {
             shareMenu = menu.findItem(R.id.action_share)
             shareMenu?.let {
-                val wrapped = DrawableCompat.wrap(it.icon)
+                val wrapped = DrawableCompat.wrap(it.icon).mutate()
                 DrawableCompat.setTint(wrapped, ContextCompat.getColor(this, R.color.white))
             }
 
@@ -180,7 +180,7 @@ class DetailPageActivity : AppCompatActivity() {
                 TelemetryWrapper.shareScreenshot()
             }
             R.id.action_move_to -> {
-                startActivity(SortingPanelActivity.sortOldScreenshot(this, screenshots[view_pager.currentItem].id))
+                startActivity(SortingPanelActivity.sortOldScreenshot(this, screenshots[view_pager.currentItem]))
             }
             R.id.action_screenshot_info -> {
                 showScreenshotInfoDialog(this, screenshots[view_pager.currentItem])
@@ -290,7 +290,7 @@ class DetailPageActivity : AppCompatActivity() {
                         getString(R.string.detail_ocr_error_failed),
                         Toast.LENGTH_SHORT).show()
 
-                TelemetryWrapper.viewTextInScreenshot(TelemetryWrapper.Value.FAIL)
+                TelemetryWrapper.viewTextInScreenshot(TelemetryWrapper.Value.FAIL, result.msg)
             }
 
             isRecognizing = false
@@ -301,15 +301,18 @@ class DetailPageActivity : AppCompatActivity() {
     private suspend fun runTextRecognition(screenshot: ScreenshotModel): Result {
         val decoded = BitmapFactory.decodeFile(screenshot.absolutePath)
         return decoded?.let { bitmap ->
-            runTextRecognition(bitmap)?.let { result ->
-                if (isValidSize(bitmap)) {
-                    Result.Success(result)
-                } else {
-                    Result.WeiredImageSize(result,
-                            "weird image size: ${bitmap.width}x${bitmap.height}")
+            try {
+                runTextRecognition(bitmap)?.let { result ->
+                    if (isValidSize(bitmap)) {
+                        Result.Success(result)
+                    } else {
+                        Result.WeiredImageSize(result,
+                                "weird image size: ${bitmap.width}x${bitmap.height}")
+                    }
                 }
-
-            } ?: Result.Failed("recognize failed")
+            } catch (e: Exception) {
+                Result.Failed("recognize failed: " + e.message)
+            }
 
         } ?: Result.Failed("invalid bitmap")
     }
@@ -447,8 +450,8 @@ class DetailPageActivity : AppCompatActivity() {
                         .addOnSuccessListener { texts ->
                             cont.resume(texts)
                         }
-                        .addOnFailureListener { _ ->
-                            cont.resume(null)
+                        .addOnFailureListener { exception ->
+                            cont.resumeWithException(exception)
                         }
             }
 

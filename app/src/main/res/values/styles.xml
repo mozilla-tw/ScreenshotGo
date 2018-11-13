@@ -7,9 +7,13 @@
         <item name="colorAccent">@color/primaryTeal</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
         <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowBackground">@color/home_background</item>
+        <item name="android:windowBackground">@color/statusBarColor</item>
         <item name="actionOverflowButtonStyle">@style/OverflowButtonStyle</item>
         <item name="alertDialogTheme">@style/DialogTheme</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/ActionModeStyle</item>
+        <item name="actionModeCloseButtonStyle">@style/ActionModeCloseButtonStyle</item>
+        <item name="actionModeCloseDrawable">@drawable/close_large</item>
     </style>
 
     <style name="AppTheme" parent="AppTheme.Base">
@@ -18,6 +22,28 @@
 
     <style name="ToolbarNavigationButtonStyle" parent="Widget.AppCompat.Toolbar.Button.Navigation">
         <item name="android:tint">@color/white</item>
+    </style>
+
+    <style name="ActionModeStyle" parent="@style/Widget.AppCompat.ActionMode">
+        <item name="background">@color/primaryTeal</item>
+        <item name="titleTextStyle">@style/ActionModeTextStyle</item>
+        <item name="android:statusBarColor">@color/errorRed</item>
+    </style>
+
+    <style name="ActionModeTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionMode.Title">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="sorting_dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@color/dialogScrim</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
+
+    <style name="ActionModeCloseButtonStyle" parent="Widget.AppCompat.ActionButton.CloseMode">
+        <item name="android:tint">@color/white</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
     </style>
 
     <style name="DetailPageTheme.Base" parent="AppTheme">
@@ -97,5 +123,10 @@
 
     <style name="ScryerBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/bottom_dialog_bkg</item>
+    </style>
+
+    <style name="ScreenshotItemCheckboxTheme" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">@color/disableGrey</item>
+        <item name="colorControlActivated">@color/primaryTeal</item>
     </style>
 </resources>

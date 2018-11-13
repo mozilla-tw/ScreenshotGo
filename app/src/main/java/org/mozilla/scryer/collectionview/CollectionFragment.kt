@@ -3,25 +3,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-package org.mozilla.scryer.landingpage
+package org.mozilla.scryer.collectionview
 
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Rect
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
+import android.support.v4.graphics.drawable.DrawableCompat
+import android.support.v4.view.ViewCompat
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AlertDialog
+import android.support.v7.app.AppCompatActivity
+import android.support.v7.view.ActionMode
+import android.support.v7.widget.AppCompatCheckBox
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.navigation.Navigation
-import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.dialog_collection_info.view.*
 import kotlinx.android.synthetic.main.dialog_screenshot_info.view.*
 import kotlinx.android.synthetic.main.fragment_collection.*
@@ -32,7 +37,6 @@ import kotlinx.coroutines.experimental.withContext
 import org.mozilla.scryer.*
 import org.mozilla.scryer.Observer
 import org.mozilla.scryer.detailpage.DetailPageActivity
-import org.mozilla.scryer.extension.getValidPosition
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.persistence.SuggestCollectionHelper
@@ -40,6 +44,7 @@ import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.ui.ConfirmationDialog
+import org.mozilla.scryer.ui.InnerSpaceDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.text.DecimalFormat
@@ -56,9 +61,126 @@ class CollectionFragment : Fragment() {
 
     private lateinit var screenshotListView: RecyclerView
     private lateinit var subtitleView: TextView
+    private lateinit var selectAllCheckbox: AppCompatCheckBox
 
     private lateinit var screenshotAdapter: ScreenshotAdapter
-    private var screenshotList = listOf<ScreenshotModel>()
+
+    private val selectActionModeCallback: ActionMode.Callback = object : ActionMode.Callback {
+        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+            val activity = activity ?: run {
+                mode.finish()
+                return false
+            }
+
+            when (item.itemId) {
+                R.id.action_move -> {
+                    val dialog = SortingPanelDialog(activity, selector.selected.toList())
+                    dialog.setOnDismissListener {
+                        mode.finish()
+                    }
+                    dialog.show()
+                }
+
+                R.id.action_delete -> {
+                    showDeleteScreenshotDialog(activity, selector.selected.toList(), object : OnDeleteScreenshotListener {
+                        override fun onDeleteScreenshot() {
+                            mode.finish()
+                        }
+                    })
+                }
+
+                R.id.action_share -> {
+                    showShareScreenshotDialog(activity, selector.selected.toList())
+                }
+            }
+
+            return true
+        }
+
+        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+            val activity = activity ?: return false
+            activity.menuInflater.inflate(R.menu.menu_collection_view_select_action_mode, menu)
+            actionModeMenu = menu
+
+            (0 until menu.size()).map {
+                menu.getItem(it)
+            }.forEach { item ->
+                item.icon = DrawableCompat.wrap(item.icon).mutate().apply {
+                    DrawableCompat.setTint(this, Color.WHITE)
+                }
+                if (selector.selected.isEmpty()) {
+                    item.isVisible = false
+                }
+            }
+
+            activity.window?.let {
+                it.statusBarColor = ContextCompat.getColor(activity, R.color.primaryTeal)
+            }
+
+            return true
+        }
+
+        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            return true
+        }
+
+        override fun onDestroyActionMode(mode: ActionMode) {
+            screenshotAdapter.exitSelectionMode()
+            val activity = activity ?: return
+
+            activity.findViewById<View>(R.id.action_mode_bar).visibility = View.INVISIBLE
+            activity.window?.let {
+                it.statusBarColor = ContextCompat.getColor(activity, R.color.statusBarColor)
+            }
+        }
+    }
+
+    private var actionModeMenu: Menu? = null
+
+    private var selector = object : ListSelector<ScreenshotModel>() {
+        private var actionMode: ActionMode? = null
+
+        override fun onSelectChanged() {
+            if (selected.isEmpty()) {
+                screenshotAdapter.exitSelectionMode()
+                return
+            }
+
+            actionMode?.title = if (selected.size == screenshotAdapter.itemCount) {
+                getString(R.string.collection_header_select_all)
+            } else {
+                "${selected.size}"
+            }
+
+            selectAllCheckbox.isChecked = screenshotAdapter.getScreenshotList().all {
+                isSelected(it)
+            }
+            selectAllCheckbox.invalidate()
+
+            actionModeMenu?.let { menu ->
+                (0 until menu.size()).map {
+                    menu.getItem(it)
+                }.forEach { item ->
+                    if (selected.isNotEmpty()) {
+                        item.isVisible = true
+                    }
+                }
+            }
+        }
+
+        override fun onEnterSelectMode() {
+            val activity = (activity as? AppCompatActivity) ?: return
+            actionMode = activity.startSupportActionMode(selectActionModeCallback)
+            selectAllCheckbox.visibility = View.VISIBLE
+            actionMode?.title = getString(R.string.collection_header_select_none)
+            selectAllCheckbox.isChecked = false
+        }
+
+        override fun onExitSelectMode() {
+            actionMode?.finish()
+            selectAllCheckbox.visibility = View.GONE
+        }
+    }
 
     private val collectionId: String? by lazy {
         arguments?.getString(ARG_COLLECTION_ID)
@@ -77,6 +199,7 @@ class CollectionFragment : Fragment() {
     }
 
     private var sortMenuItem: MenuItem? = null
+    private var selectMenuItem: MenuItem? = null
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -86,6 +209,17 @@ class CollectionFragment : Fragment() {
         val layout = inflater.inflate(R.layout.fragment_collection, container, false)
         screenshotListView = layout.findViewById(R.id.screenshot_list)
         subtitleView = layout.findViewById(R.id.subtitle)
+        selectAllCheckbox = layout.findViewById(R.id.select_all_checkbox)
+        selectAllCheckbox.setOnClickListener { _ ->
+            val isChecked = selectAllCheckbox.isChecked
+            selectAllCheckbox.invalidate()
+            screenshotAdapter.getScreenshotList().forEach {
+                if (isChecked != selector.isSelected(it)) {
+                    selector.toggleSelection(it)
+                }
+            }
+            screenshotAdapter.notifyDataSetChanged()
+        }
         return layout
     }
 
@@ -95,7 +229,7 @@ class CollectionFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        screenshotAdapter = ScreenshotAdapter(context) { item, view ->
+        screenshotAdapter = ScreenshotAdapter(context, selector) { item, view ->
             val context = context ?: return@ScreenshotAdapter
             DetailPageActivity.showDetailPage(context, item, view, collectionId)
 
@@ -107,6 +241,15 @@ class CollectionFragment : Fragment() {
         initScreenshotList(view.context)
 
         collectionNameForTelemetry?.let { TelemetryWrapper.visitCollectionPage(it) }
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+            toolbar_holder.setPadding(toolbar_holder.paddingLeft,
+                    insets.systemWindowInsetTop,
+                    toolbar_holder.paddingRight,
+                    toolbar_holder.paddingBottom)
+            view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, insets.systemWindowInsetBottom)
+            insets
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -116,6 +259,8 @@ class CollectionFragment : Fragment() {
         } else {
             null
         }
+
+        selectMenuItem = menu.findItem(R.id.action_select).apply { updateSortMenuItem(this) }
 
         val renameItem = menu.findItem(R.id.action_collection_rename)
         if (collectionId == null || collectionId == CollectionModel.CATEGORY_NONE) {
@@ -136,7 +281,14 @@ class CollectionFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> Navigation.findNavController(view).navigateUp()
+            android.R.id.home -> {
+                Navigation.findNavController(view).navigateUp()
+            }
+
+            R.id.action_select -> {
+                screenshotAdapter.enterSelectionMode()
+            }
+
             R.id.action_sort -> {
                 collectionId?.takeIf {
                     screenshotAdapter.getScreenshotList().isNotEmpty()
@@ -199,17 +351,20 @@ class CollectionFragment : Fragment() {
     }
 
     private fun updateSortMenuItem(item: MenuItem?) {
-        item?.isVisible = screenshotList.isNotEmpty()
+        item?.isVisible = screenshotAdapter.getScreenshotList().isNotEmpty()
     }
 
     private fun initScreenshotList(context: Context) {
         val manager = GridLayoutManager(context, SPAN_COUNT, GridLayoutManager.VERTICAL, false)
+        screenshotListView.itemAnimator = null
         screenshotListView.layoutManager = manager
         screenshotListView.adapter = screenshotAdapter
 
         val itemSpace = context.resources.getDimensionPixelSize(R.dimen.collection_item_space)
 
-        screenshotListView.addItemDecoration(InnerItemDecoration(SPAN_COUNT, itemSpace))
+        screenshotListView.addItemDecoration(InnerSpaceDecoration(itemSpace) {
+            SPAN_COUNT
+        })
 
         val viewModel = ScreenshotViewModel.get(this)
         val liveData = collectionId?.let {
@@ -223,9 +378,6 @@ class CollectionFragment : Fragment() {
         } ?: viewModel.getScreenshots()
 
         liveData.observe(this, Observer { screenshots ->
-            screenshotList = screenshots
-            updateSortMenuItem(sortMenuItem)
-
             if (screenshots.isNotEmpty()) {
                 subtitleView.visibility = View.VISIBLE
                 subtitleView.text = getString(R.string.collection_separator_shots, screenshots.size)
@@ -239,6 +391,9 @@ class CollectionFragment : Fragment() {
                 screenshotAdapter.setScreenshotList(sorted)
                 screenshotAdapter.notifyDataSetChanged()
             }
+
+            updateSortMenuItem(sortMenuItem)
+            updateSortMenuItem(selectMenuItem)
         })
 
         viewModel.getCollections().observe(this, Observer { collections ->
@@ -256,146 +411,6 @@ const val CONTEXT_MENU_ID_MOVE_TO = 0
 const val CONTEXT_MENU_ID_INFO = 1
 const val CONTEXT_MENU_ID_SHARE = 2
 const val CONTEXT_MENU_ID_DELETE = 3
-
-open class ScreenshotAdapter(
-        val context: Context?,
-        private val onItemClickListener: ((item: ScreenshotModel, view: View?) -> Unit)? = null
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), OnContextMenuActionListener {
-
-    private var screenshotList: List<ScreenshotModel> = emptyList()
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
-
-        val holder = ScreenshotItemHolder(view, this)
-        holder.title = view.findViewById(R.id.title)
-        holder.image = view.findViewById(R.id.image_view)
-        holder.itemView.setOnClickListener { _ ->
-            holder.getValidPosition { position: Int ->
-                onItemClickListener?.invoke(screenshotList[position], holder.image)
-            }
-        }
-        return holder
-    }
-
-    override fun getItemCount(): Int {
-        return screenshotList.size
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as? ScreenshotItemHolder)?.apply {
-            title?.text = screenshotList[position].collectionId
-            image?.let {
-                Glide.with(holder.itemView.context)
-                        .load(File(screenshotList[position].absolutePath))
-                        .into(it)
-            }
-        }
-    }
-
-    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
-        (holder as? ScreenshotItemHolder)?.apply {
-            image?.let {
-                Glide.with(holder.itemView.context)
-                        .clear(it)
-            }
-        }
-    }
-
-    override fun onContextMenuAction(item: MenuItem?, itemPosition: Int) {
-        val screenshotModel = getItem(itemPosition)
-        when (item?.itemId) {
-            CONTEXT_MENU_ID_MOVE_TO -> context?.let {
-                it.startActivity(SortingPanelActivity.sortOldScreenshot(it, screenshotModel.id))
-            }
-
-            CONTEXT_MENU_ID_INFO -> context?.let {
-                showScreenshotInfoDialog(it, screenshotModel)
-            }
-
-            CONTEXT_MENU_ID_SHARE -> context?.let {
-                showShareScreenshotDialog(it, screenshotModel)
-            }
-
-            CONTEXT_MENU_ID_DELETE -> context?.let {
-                showDeleteScreenshotDialog(it, screenshotModel)
-            }
-        }
-    }
-
-    fun getItemFileName(position: Int): String {
-        val item = screenshotList[position]
-        return item.absolutePath.substring(item.absolutePath.lastIndexOf(File.separator) + 1)
-    }
-
-    fun getItem(position: Int): ScreenshotModel {
-        return screenshotList[position]
-    }
-
-    open fun setScreenshotList(list: List<ScreenshotModel>) {
-        screenshotList = list
-    }
-
-    fun getScreenshotList(): List<ScreenshotModel> {
-        return screenshotList
-    }
-}
-
-class ScreenshotItemHolder(
-        itemView: View,
-        private val onContextMenuActionListener: OnContextMenuActionListener
-) : RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener,
-        MenuItem.OnMenuItemClickListener {
-    var title: TextView? = null
-    var image: ImageView? = null
-
-    init {
-        itemView.setOnCreateContextMenuListener(this)
-    }
-
-    override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
-        v?.context?.let {
-            menu?.add(0, CONTEXT_MENU_ID_MOVE_TO, 0, it.getString(R.string.menu_shot_action_move))?.setOnMenuItemClickListener(this)
-            menu?.add(0, CONTEXT_MENU_ID_INFO, 0, it.getString(R.string.info_info))?.setOnMenuItemClickListener(this)
-            menu?.add(0, CONTEXT_MENU_ID_SHARE, 0, it.getString(R.string.menu_action_share))?.setOnMenuItemClickListener(this)
-            menu?.add(0, CONTEXT_MENU_ID_DELETE, 0, it.getString(R.string.action_delete))?.setOnMenuItemClickListener(this)
-        }
-    }
-
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
-        onContextMenuActionListener.onContextMenuAction(item, adapterPosition)
-        return false
-    }
-}
-
-class InnerItemDecoration(private val span: Int, private val innerSpace: Int) : RecyclerView.ItemDecoration() {
-    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-        val position = parent.getChildViewHolder(view).adapterPosition
-        if (position < 0) {
-            return
-        }
-
-        val spaceUnit = innerSpace / 3
-
-        when {
-            position % span == 0 -> {
-                outRect.left = 0
-                outRect.right = spaceUnit * 2
-            }
-
-            position % span == 2 -> {
-                outRect.left = spaceUnit * 2
-                outRect.right = 0
-            }
-
-            else -> {
-                outRect.left = spaceUnit
-                outRect.right = spaceUnit
-            }
-        }
-        outRect.bottom = innerSpace
-    }
-}
 
 interface OnContextMenuActionListener {
     fun onContextMenuAction(item: MenuItem?, itemPosition: Int)
@@ -461,13 +476,23 @@ fun showDeleteScreenshotDialog(
         screenshotModel: ScreenshotModel,
         listener: OnDeleteScreenshotListener? = null
 ) {
+    showDeleteScreenshotDialog(context, listOf(screenshotModel), listener)
+}
+
+fun showDeleteScreenshotDialog(
+        context: Context,
+        screenshotModels: List<ScreenshotModel>,
+        listener: OnDeleteScreenshotListener? = null
+) {
     val dialog = ConfirmationDialog.build(context,
             context.getString(R.string.dialogue_deleteshot_title_delete),
             context.getString(R.string.action_delete),
             DialogInterface.OnClickListener { dialog, _ ->
                 launch {
-                    ScryerApplication.getScreenshotRepository().deleteScreenshot(screenshotModel)
-                    File(screenshotModel.absolutePath).delete()
+                    screenshotModels.forEach {
+                        ScryerApplication.getScreenshotRepository().deleteScreenshot(it)
+                        File(it.absolutePath).delete()
+                    }
                 }
                 dialog?.dismiss()
                 listener?.onDeleteScreenshot()
@@ -477,20 +502,48 @@ fun showDeleteScreenshotDialog(
                 dialog.dismiss()
             })
     dialog.viewHolder.message?.text = context.getString(R.string.dialogue_deleteshot_content_delete)
-    dialog.viewHolder.subMessage?.apply {
-        visibility = View.VISIBLE
-        text = getFileSizeText(File(screenshotModel.absolutePath).length())
+    dialog.viewHolder.subMessage?.visibility = View.VISIBLE
+
+    launch(UI) {
+        val size = withContext(DefaultDispatcher) {
+            var totalSize = 0L
+            screenshotModels.forEach {
+                totalSize += File(it.absolutePath).length()
+            }
+            totalSize
+        }
+
+        dialog.viewHolder.subMessage?.text = getFileSizeText(size)
     }
     dialog.asAlertDialog().show()
 }
 
 fun showShareScreenshotDialog(context: Context, screenshotModel: ScreenshotModel) {
+    showShareScreenshotDialog(context, listOf(screenshotModel))
+}
+
+fun showShareScreenshotDialog(context: Context, screenshotModels: List<ScreenshotModel>) {
+    if (screenshotModels.isEmpty()) {
+        return
+    }
+
     launch {
         val authorities = BuildConfig.APPLICATION_ID + ".provider.fileprovider"
-        val file = File(screenshotModel.absolutePath)
-        val fileUri = FileProvider.getUriForFile(context, authorities, file)
-        val share = Intent(Intent.ACTION_SEND)
-        share.putExtra(Intent.EXTRA_STREAM, fileUri)
+        val share = Intent()
+        if (screenshotModels.size == 1) {
+            val file = File(screenshotModels[0].absolutePath)
+            val fileUri = FileProvider.getUriForFile(context, authorities, file)
+            share.action = Intent.ACTION_SEND
+            share.putExtra(Intent.EXTRA_STREAM, fileUri)
+        } else {
+            val uriList = ArrayList<Uri>()
+            screenshotModels.forEach {
+                val file = File(it.absolutePath)
+                uriList.add(FileProvider.getUriForFile(context, authorities, file))
+            }
+            share.action = Intent.ACTION_SEND_MULTIPLE
+            share.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uriList)
+        }
         share.type = "image/*"
         share.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
         try {
@@ -604,3 +657,4 @@ fun showDeleteCollectionDialog(
         }
     }
 }
+

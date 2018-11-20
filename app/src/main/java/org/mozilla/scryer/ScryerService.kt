@@ -140,6 +140,7 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
             ACTION_DISABLE_SERVICE_SOFTLY -> {
                 PreferenceWrapper(this).setShouldPromptEnableService(true)
                 disableScryerService(false)
+                TelemetryWrapper.stopCaptureService(TelemetryWrapper.Value.NOTIFICATION)
                 return START_NOT_STICKY
             }
 
@@ -213,6 +214,7 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
     override fun onScreenshotButtonDismissed() {
         destroyFloatingButton()
         ScryerApplication.getSettingsRepository().floatingEnable = false
+        TelemetryWrapper.closeFAB()
     }
 
     private fun postTakeScreenshot(delayed: Long) {

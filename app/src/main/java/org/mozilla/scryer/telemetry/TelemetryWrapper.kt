@@ -3,7 +3,6 @@ package org.mozilla.scryer.telemetry
 import android.content.Context
 import android.preference.PreferenceManager
 import android.support.annotation.Nullable
-import com.google.firebase.analytics.FirebaseAnalytics
 import org.mozilla.scryer.BuildConfig
 import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
@@ -56,6 +55,8 @@ class TelemetryWrapper {
         const val VISIT_SEARCH_PAGE = "Visit search page"
         const val INTERESTED_IN_SEARCH = "Interested in search"
         const val NOT_INTERESTED_IN_SEARCH = "Not interested in search"
+        const val CLOSE_FAB = "Close FAB"
+        const val STOP_CAPTURE_SERVICE = "Stop capture service"
     }
 
     private object Method {
@@ -71,6 +72,8 @@ class TelemetryWrapper {
         const val SUCCESS = "success"
         const val WEIRD_SIZE = "weird_size"
         const val FAIL = "fail"
+        const val NOTIFICATION = "notification"
+        const val SETTINGS = "settings"
     }
 
     private object Extra {
@@ -217,12 +220,24 @@ class TelemetryWrapper {
             EventBuilder(Category.PROMPT_SORTING_PAGE, Method.V1, Object.GO).extra(Extra.MODE, ExtraValue.MULTIPLE).queue()
         }
 
-        fun sortScreenshot() {
-            EventBuilder(Category.SORT_SCREENSHOT, Method.V1, Object.GO).queue()
+        fun sortSingleScreenshot(name: String) {
+            EventBuilder(Category.SORT_SCREENSHOT, Method.V1, Object.GO)
+                    .extra(Extra.ON, name)
+                    .extra(Extra.MODE, ExtraValue.SINGLE).queue()
         }
 
-        fun cancelSorting() {
-            EventBuilder(Category.CANCEL_SORTING, Method.V1, Object.GO).queue()
+        fun sortMultipleScreenshot(name: String) {
+            EventBuilder(Category.SORT_SCREENSHOT, Method.V1, Object.GO)
+                    .extra(Extra.ON, name)
+                    .extra(Extra.MODE, ExtraValue.MULTIPLE).queue()
+        }
+
+        fun cancelSingleSorting() {
+            EventBuilder(Category.CANCEL_SORTING, Method.V1, Object.GO).extra(Extra.MODE, ExtraValue.SINGLE).queue()
+        }
+
+        fun cancelMultipleSorting() {
+            EventBuilder(Category.CANCEL_SORTING, Method.V1, Object.GO).extra(Extra.MODE, ExtraValue.MULTIPLE).queue()
         }
 
         fun captureViaFab() {
@@ -263,6 +278,14 @@ class TelemetryWrapper {
 
         fun notInterestedInSearch() {
             EventBuilder(Category.NOT_INTERESTED_IN_SEARCH, Method.V1, Object.GO).queue()
+        }
+
+        fun closeFAB() {
+            EventBuilder(Category.CLOSE_FAB, Method.V1, Object.GO).queue()
+        }
+
+        fun stopCaptureService(value: String) {
+            EventBuilder(Category.STOP_CAPTURE_SERVICE, Method.V1, Object.GO, value).queue()
         }
     }
 

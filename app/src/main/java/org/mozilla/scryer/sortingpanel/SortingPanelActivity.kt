@@ -435,9 +435,9 @@ class SortingPanelActivity : AppCompatActivity() {
             }
 
             if (isSortingSingleScreenshot) {
-                TelemetryWrapper.sortScreenshot(collection.name, SINGLE)
+                TelemetryWrapper.sortScreenshot(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(this@SortingPanelActivity, collection.name), SINGLE)
             } else {
-                TelemetryWrapper.sortScreenshot(collection.name, MULTIPLE)
+                TelemetryWrapper.sortScreenshot(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(this@SortingPanelActivity, collection.name), MULTIPLE)
             }
         }
     }

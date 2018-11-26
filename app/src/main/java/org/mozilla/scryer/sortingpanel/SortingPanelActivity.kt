@@ -412,9 +412,9 @@ class SortingPanelActivity : AppCompatActivity() {
             }
 
             if (isSortingSingleScreenshot) {
-                TelemetryWrapper.sortSingleScreenshot(collection.name)
+                TelemetryWrapper.sortSingleScreenshot(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(this@SortingPanelActivity, collection.name))
             } else {
-                TelemetryWrapper.sortMultipleScreenshot(collection.name)
+                TelemetryWrapper.sortMultipleScreenshot(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(this@SortingPanelActivity, collection.name))
             }
         }
     }

@@ -24,6 +24,7 @@ import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.persistence.SuggestCollectionHelper
 import org.mozilla.scryer.sortingpanel.SortingPanel
 import org.mozilla.scryer.sortingpanel.SortingPanelAdapter
+import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.util.CollectionListHelper
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
@@ -54,6 +55,12 @@ class SortingPanelDialog(
                 screenshots.forEach { it.collectionId = collection.id }
                 withContext(DefaultDispatcher) {
                     model.addScreenshot(screenshots)
+                }
+
+                if (screenshots.size > 1) {
+                    TelemetryWrapper.sortMultipleScreenshot(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(activity, collection.name))
+                } else {
+                    TelemetryWrapper.sortSingleScreenshot(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(activity, collection.name))
                 }
             }
         }

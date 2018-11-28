@@ -27,6 +27,8 @@ import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.persistence.SuggestCollectionHelper
 import org.mozilla.scryer.telemetry.TelemetryWrapper
+import org.mozilla.scryer.telemetry.TelemetryWrapper.ExtraValue.MULTIPLE
+import org.mozilla.scryer.telemetry.TelemetryWrapper.ExtraValue.SINGLE
 import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.ui.ConfirmationDialog
 import org.mozilla.scryer.ui.ScryerToast
@@ -68,6 +70,12 @@ class SortingPanelActivity : AppCompatActivity() {
             list.addAll(screenshots.map { it.id })
             intent.putStringArrayListExtra(EXTRA_SCREENSHOT_IDS, list)
             return intent
+        }
+
+        private fun isSortingNewScreenshot(intent: Intent?): Boolean {
+            return intent?.getStringExtra(EXTRA_PATH)?.let {
+                true
+            } ?: false
         }
     }
 
@@ -156,7 +164,7 @@ class SortingPanelActivity : AppCompatActivity() {
                     DialogInterface.OnClickListener { _, _ ->
                         flushToUnsortedCollection()
                         finishAndRemoveTask()
-                        TelemetryWrapper.cancelMultipleSorting()
+                        TelemetryWrapper.cancelSorting(MULTIPLE)
                     },
                     getString(android.R.string.cancel),
                     DialogInterface.OnClickListener { _, _ ->
@@ -168,7 +176,12 @@ class SortingPanelActivity : AppCompatActivity() {
             dialog.asAlertDialog().show()
         } else {
             super.onBackPressed()
-            TelemetryWrapper.cancelSingleSorting()
+
+            if (isSortingSingleScreenshot) {
+                TelemetryWrapper.cancelSorting(SINGLE)
+            } else {
+                TelemetryWrapper.cancelSorting(MULTIPLE)
+            }
         }
     }
 
@@ -224,6 +237,10 @@ class SortingPanelActivity : AppCompatActivity() {
 
             sortingPanel.screenshot = this
             sortingPanel.setProgress(sortedScreenshots.size, sortedScreenshots.size + unsortedScreenshots.size)
+
+            if (!isSortingNewScreenshot(intent) && unsortedScreenshots.isEmpty()) {
+                sortingPanel.setActionText(getString(android.R.string.cancel))
+            }
         }
     }
 
@@ -252,20 +269,20 @@ class SortingPanelActivity : AppCompatActivity() {
         }
         collectionId = null
 
-        launch (UI) {
+        launch(UI) {
             when {
                 intent.hasExtra(EXTRA_PATH) -> {
-                    TelemetryWrapper.promptSingleSortingPage()
+                    TelemetryWrapper.promptSortingPage(SINGLE)
                     loadNewScreenshot(getFilePath(intent))
                 }
 
                 intent.hasExtra(EXTRA_SCREENSHOT_ID) -> {
-                    TelemetryWrapper.promptSingleSortingPage()
+                    TelemetryWrapper.promptSortingPage(SINGLE)
                     loadOldScreenshot(intent.getStringExtra(EXTRA_SCREENSHOT_ID))
                 }
 
                 intent.hasExtra(EXTRA_COLLECTION_ID) -> {
-                    TelemetryWrapper.promptMultipleSortingPage()
+                    TelemetryWrapper.promptSortingPage(MULTIPLE)
                     collectionId = intent.getStringExtra(EXTRA_COLLECTION_ID)
                     collectionId?.let {
                         loadCollection(it)
@@ -345,7 +362,11 @@ class SortingPanelActivity : AppCompatActivity() {
         this.unsortedScreenshots.addAll(sorted.subList(currentIndex, screenshots.size))
 
         if (screenshots.size == 1) {
-            sortingPanel.setActionText(getString(android.R.string.cancel))
+            sortingPanel.setActionText(getString(if (isSortingNewScreenshot(intent)) {
+                R.string.action_later
+            } else {
+                android.R.string.cancel
+            }))
             sortingPanel.setProgressVisibility(View.INVISIBLE)
             sortingPanel.setFakeLayerVisibility(View.INVISIBLE)
         } else {
@@ -355,12 +376,14 @@ class SortingPanelActivity : AppCompatActivity() {
         }
 
         sortingPanel.setActionCallback {
-            showAddedToast(unsortedCollection, unsortedScreenshots.isNotEmpty())
+            if (isSortingUncategorized) {
+                showAddedToast(unsortedCollection, unsortedScreenshots.isNotEmpty())
+            }
             onNewModelAvailable()
             panelModel.onNextScreenshot()
 
             if (screenshots.size == 1) {
-                TelemetryWrapper.cancelSingleSorting()
+                TelemetryWrapper.cancelSorting(SINGLE)
             }
         }
 
@@ -412,9 +435,9 @@ class SortingPanelActivity : AppCompatActivity() {
             }
 
             if (isSortingSingleScreenshot) {
-                TelemetryWrapper.sortSingleScreenshot(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(this@SortingPanelActivity, collection.name))
+                TelemetryWrapper.sortScreenshot(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(this@SortingPanelActivity, collection.name), SINGLE)
             } else {
-                TelemetryWrapper.sortMultipleScreenshot(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(this@SortingPanelActivity, collection.name))
+                TelemetryWrapper.sortScreenshot(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(this@SortingPanelActivity, collection.name), MULTIPLE)
             }
         }
     }

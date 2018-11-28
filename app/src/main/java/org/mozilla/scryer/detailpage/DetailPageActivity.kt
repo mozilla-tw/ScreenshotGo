@@ -299,7 +299,12 @@ class DetailPageActivity : AppCompatActivity() {
     }
 
     private suspend fun runTextRecognition(screenshot: ScreenshotModel): Result {
-        val decoded = BitmapFactory.decodeFile(screenshot.absolutePath)
+        val decoded = try {
+            BitmapFactory.decodeFile(screenshot.absolutePath)
+        } catch (e: Error) {
+            return Result.Failed("decode failed: " + e.message)
+        }
+
         return decoded?.let { bitmap ->
             try {
                 runTextRecognition(bitmap)?.let { result ->

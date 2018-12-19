@@ -1,9 +1,7 @@
 package org.mozilla.scryer.setting
 
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.ActionBar
 import android.support.v7.app.AlertDialog
@@ -17,6 +15,8 @@ import com.google.firebase.iid.FirebaseInstanceId
 import org.mozilla.scryer.*
 import org.mozilla.scryer.permission.PermissionHelper
 import org.mozilla.scryer.preference.PreferenceWrapper
+import org.mozilla.scryer.promote.PromoteRatingHelper
+import org.mozilla.scryer.promote.PromoteShareHelper
 import org.mozilla.scryer.telemetry.TelemetryWrapper
 
 class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChangeListener, Preference.OnPreferenceClickListener {
@@ -166,26 +166,25 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         dialogView.findViewById<Button>(R.id.dialog_give_feedback_btn_go_rate).setOnClickListener {
             goToPlayStore(context)
             dialog?.dismiss()
-            TelemetryWrapper.feedback(TelemetryWrapper.Value.POSITIVE)
+            TelemetryWrapper.clickFeedback(TelemetryWrapper.Value.POSITIVE,
+                    TelemetryWrapper.ExtraValue.FROM_SETTINGS)
         }
         dialogView.findViewById<Button>(R.id.dialog_give_feedback_btn_feedback).setOnClickListener {
             goToFeedback(context)
             dialog?.dismiss()
+            TelemetryWrapper.clickFeedback(TelemetryWrapper.Value.NEGATIVE,
+                    TelemetryWrapper.ExtraValue.FROM_SETTINGS)
         }
         dialog.setView(dialogView)
         dialog.setCanceledOnTouchOutside(true)
         dialog.show()
+
+        TelemetryWrapper.promptFeedbackDialog(TelemetryWrapper.ExtraValue.FROM_SETTINGS)
     }
 
     private fun showShareAppDialog(context: Context) {
-        val sendIntent = Intent(Intent.ACTION_SEND)
-        sendIntent.type = "text/plain"
-        sendIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_full_name))
-        sendIntent.putExtra(Intent.EXTRA_TEXT,
-                context.getString(R.string.share_intro,
-                        context.getString(R.string.app_full_name),
-                        context.getString(R.string.share_app_google_play_url)))
-        context.startActivity(Intent.createChooser(sendIntent, null))
+        PromoteShareHelper.showShareAppDialog(context)
+        TelemetryWrapper.promptShareDialog(TelemetryWrapper.ExtraValue.FROM_SETTINGS)
     }
 
     private fun showFirebaseDebugDialog(context: Context): Boolean {
@@ -210,23 +209,11 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
     }
 
     private fun goToPlayStore(context: Context) {
-        val appPackageName = context.packageName
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appPackageName"))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-        } catch (ex: ActivityNotFoundException) {
-            // No google play install
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName"))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
-        }
+        PromoteRatingHelper.goToPlayStore(context)
     }
 
     private fun goToFeedback(context: Context) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.give_us_feedback_url)))
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
+        PromoteRatingHelper.goToFeedback(context)
     }
 
     private fun checkOverlayPermission() {

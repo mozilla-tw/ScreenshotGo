@@ -57,6 +57,10 @@ class TelemetryWrapper {
         const val NOT_INTERESTED_IN_SEARCH = "Not interested in search"
         const val CLOSE_FAB = "Close FAB"
         const val STOP_CAPTURE_SERVICE = "Stop capture service"
+        const val PROMPT_FEEDBACK_DIALOG = "Prompt feedback dialog"
+        const val CLICK_FEEDBACK = "Click feedback"
+        const val PROMPT_SHARE_DIALOG = "Prompt share dialog"
+        const val BACKGROUND_SERVICE_ACTIVE = "Background service active"
     }
 
     private object Method {
@@ -75,6 +79,7 @@ class TelemetryWrapper {
         const val NOTIFICATION = "notification"
         const val SETTINGS = "settings"
         const val POSITIVE = "positive"
+        const val NEGATIVE = "negative"
     }
 
     private object Extra {
@@ -82,11 +87,20 @@ class TelemetryWrapper {
         const val MODE = "mode"
         const val TIMES = "times"
         const val MESSAGE = "message"
+        const val TRIGGER = "trigger"
+        const val FROM = "from"
     }
 
     object ExtraValue {
         const val SINGLE = "single"
         const val MULTIPLE = "multiple"
+
+        const val FROM_PROMPT = "prompt"
+        const val FROM_SETTINGS = "settings"
+
+        const val TRIGGER_CAPTURE = "capture"
+        const val TRIGGER_SORT = "sort"
+        const val TRIGGER_OCR = "ocr"
     }
 
     companion object {
@@ -500,22 +514,118 @@ class TelemetryWrapper {
             EventBuilder(Category.NOT_INTERESTED_IN_SEARCH, Method.V1, Object.GO).queue()
         }
 
+        @TelemetryDoc(
+                name = Category.CLOSE_FAB,
+                category = Category.CLOSE_FAB,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [])
         fun closeFAB() {
             EventBuilder(Category.CLOSE_FAB, Method.V1, Object.GO).queue()
         }
 
+        @TelemetryDoc(
+                name = Category.STOP_CAPTURE_SERVICE,
+                category = Category.STOP_CAPTURE_SERVICE,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "notification,settings",
+                extras = [])
         fun stopCaptureService(value: String) {
             EventBuilder(Category.STOP_CAPTURE_SERVICE, Method.V1, Object.GO, value).queue()
+        }
+
+        @TelemetryDoc(
+                name = Category.PROMPT_FEEDBACK_DIALOG,
+                category = Category.PROMPT_FEEDBACK_DIALOG,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [
+                    TelemetryExtra(
+                            name = Extra.FROM,
+                            value = ExtraValue.FROM_PROMPT + "," + ExtraValue.FROM_SETTINGS
+                    ),
+                    TelemetryExtra(
+                            name = Extra.TRIGGER,
+                            value = ExtraValue.TRIGGER_CAPTURE
+                                    + "," + ExtraValue.TRIGGER_SORT
+                                    + "," + ExtraValue.TRIGGER_OCR
+                    )])
+        fun promptFeedbackDialog(from: String, trigger: String = "") {
+            EventBuilder(Category.PROMPT_FEEDBACK_DIALOG, Method.V1, Object.GO)
+                    .extra(Extra.FROM, from)
+                    .extra(Extra.TRIGGER, trigger)
+                    .queue()
+        }
+
+        @TelemetryDoc(
+                name = Category.CLICK_FEEDBACK,
+                category = Category.CLICK_FEEDBACK,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "positive,negative",
+                extras = [
+                    TelemetryExtra(
+                            name = Extra.FROM,
+                            value = ExtraValue.FROM_PROMPT + "," + ExtraValue.FROM_SETTINGS
+                    ),
+                    TelemetryExtra(
+                            name = Extra.TRIGGER,
+                            value = ExtraValue.TRIGGER_CAPTURE
+                                    + "," + ExtraValue.TRIGGER_SORT
+                                    + "," + ExtraValue.TRIGGER_OCR
+                    )])
+        fun clickFeedback(value: String, from: String, trigger: String = "") {
+            EventBuilder(Category.CLICK_FEEDBACK, Method.V1, Object.GO, value)
+                    .extra(Extra.FROM, from)
+                    .extra(Extra.TRIGGER, trigger)
+                    .queue()
+            if (value == Value.POSITIVE) {
+                AdjustHelper.trackEvent(ADJUST_EVENT_FEEDBACK_POSITIVE)
+            }
+        }
+
+        @TelemetryDoc(
+                name = Category.PROMPT_SHARE_DIALOG,
+                category = Category.PROMPT_SHARE_DIALOG,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [
+                    TelemetryExtra(
+                            name = Extra.FROM,
+                            value = ExtraValue.FROM_PROMPT + "," + ExtraValue.FROM_SETTINGS
+                    ),
+                    TelemetryExtra(
+                            name = Extra.TRIGGER,
+                            value = ExtraValue.TRIGGER_CAPTURE
+                                    + "," + ExtraValue.TRIGGER_SORT
+                                    + "," + ExtraValue.TRIGGER_OCR
+                    )])
+        fun promptShareDialog(from: String, trigger: String = "") {
+            EventBuilder(Category.PROMPT_SHARE_DIALOG, Method.V1, Object.GO)
+                    .extra(Extra.FROM, from)
+                    .extra(Extra.TRIGGER, trigger)
+                    .queue()
         }
 
         fun shareApp() {
             AdjustHelper.trackEvent(ADJUST_EVENT_SHARE_APP)
         }
 
-        fun feedback(value: String) {
-            if (value == Value.POSITIVE) {
-                AdjustHelper.trackEvent(ADJUST_EVENT_FEEDBACK_POSITIVE)
-            }
+        @TelemetryDoc(
+                name = Category.BACKGROUND_SERVICE_ACTIVE,
+                category = Category.BACKGROUND_SERVICE_ACTIVE,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [])
+        fun logActiveBackgroundService() {
+            EventBuilder(Category.BACKGROUND_SERVICE_ACTIVE, Method.V1, Object.GO).queue()
+            // force to upload event since it came from service instead of MainActivity
+            TelemetryHolder.get().queuePing(TelemetryEventPingBuilder.TYPE).scheduleUpload()
         }
     }
 

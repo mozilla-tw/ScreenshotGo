@@ -11,6 +11,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
@@ -20,6 +21,8 @@ import android.support.v4.content.ContextCompat
 import android.support.v4.content.LocalBroadcastManager
 import android.text.TextUtils
 import android.widget.Toast
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import kotlinx.coroutines.experimental.launch
 import org.mozilla.scryer.capture.RequestCaptureActivity
 import org.mozilla.scryer.capture.ScreenCaptureListener
@@ -31,9 +34,12 @@ import org.mozilla.scryer.permission.PermissionHelper
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.preference.PreferenceWrapper
+import org.mozilla.scryer.promote.Promoter
 import org.mozilla.scryer.sortingpanel.SortingPanelActivity
+import org.mozilla.scryer.telemetry.CaptureServiceHeartbeatWorker
 import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.ScryerToast
+import java.util.concurrent.TimeUnit
 
 
 class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCaptureListener {
@@ -126,6 +132,7 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
             isRunning = false
             destroyFloatingButton()
             fileMonitor.stopMonitor()
+            stopHeartbeatTracking()
         }
         super.onDestroy()
     }
@@ -162,6 +169,7 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
         startForeground(getForegroundNotificationId(), getForegroundNotification())
         initFileMonitors()
         initFloatingButton()
+        startHeartbeatTracking()
     }
 
     private fun disableScryerService(showToast: Boolean) {
@@ -183,6 +191,19 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
             captureButtonController?.setOnClickListener(this)
             captureButtonController?.init()
         }
+    }
+
+    private fun startHeartbeatTracking() {
+        stopHeartbeatTracking()
+
+        val heartbeatWorkBuilder = PeriodicWorkRequest
+                .Builder(CaptureServiceHeartbeatWorker::class.java, 24, TimeUnit.HOURS)
+        heartbeatWorkBuilder.addTag(CaptureServiceHeartbeatWorker.TAG)
+        WorkManager.getInstance().enqueue(heartbeatWorkBuilder.build())
+    }
+
+    private fun stopHeartbeatTracking() {
+        WorkManager.getInstance().cancelAllWorkByTag(CaptureServiceHeartbeatWorker.TAG)
     }
 
     private fun destroyFloatingButton() {
@@ -266,6 +287,8 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
         captureButtonController?.show()
         if (!TextUtils.isEmpty(path)) {
             startSortingPanelActivity(path)
+            MediaScannerConnection.scanFile(applicationContext, arrayOf(path), null, null)
+            Promoter.onScreenshotTaken(this)
         }
     }
 
@@ -329,7 +352,7 @@ class ScryerService : Service(), CaptureButtonController.ClickListener, ScreenCa
 
         return NotificationCompat.Builder(this, channelId)
                 .setCategory(Notification.CATEGORY_PROMO)
-                .setSmallIcon(R.drawable.ic_stat_notify)
+                .setSmallIcon(R.drawable.ic_stat_notify_sort)
                 .setColor(ContextCompat.getColor(this, R.color.foreground_notification))
                 .setContentTitle(getString(R.string.notification_action_collect_title))
                 .setContentText(getString(R.string.notification_action_collect))

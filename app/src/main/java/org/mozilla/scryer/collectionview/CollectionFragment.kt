@@ -26,7 +26,6 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.TextView
-import androidx.navigation.Navigation
 import kotlinx.android.synthetic.main.dialog_collection_info.view.*
 import kotlinx.android.synthetic.main.dialog_screenshot_info.view.*
 import kotlinx.android.synthetic.main.fragment_collection.*
@@ -37,6 +36,7 @@ import kotlinx.coroutines.experimental.withContext
 import org.mozilla.scryer.*
 import org.mozilla.scryer.Observer
 import org.mozilla.scryer.detailpage.DetailPageActivity
+import org.mozilla.scryer.extension.getNavController
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.persistence.SuggestCollectionHelper
@@ -82,11 +82,12 @@ class CollectionFragment : Fragment() {
                 }
 
                 R.id.action_delete -> {
-                    showDeleteScreenshotDialog(activity, selector.selected.toList(), object : OnDeleteScreenshotListener {
-                        override fun onDeleteScreenshot() {
-                            mode.finish()
-                        }
-                    })
+                    showDeleteScreenshotDialog(activity, selector.selected.toList(),
+                            object : OnDeleteScreenshotListener {
+                                override fun onDeleteScreenshot() {
+                                    mode.finish()
+                                }
+                            })
                 }
 
                 R.id.action_share -> {
@@ -215,31 +216,38 @@ class CollectionFragment : Fragment() {
         return layout
     }
 
-    override fun getView(): View {
-        return super.getView()!!
-    }
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        val activity = activity ?: return
+
         screenshotAdapter = ScreenshotAdapter(context, selector) { item, view ->
             val context = context ?: return@ScreenshotAdapter
             DetailPageActivity.showDetailPage(context, item, view, collectionId)
 
-            TelemetryWrapper.collectionItem(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(context, collectionName))
+            TelemetryWrapper.collectionItem(
+                    SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(context, collectionName))
         }
 
         setHasOptionsMenu(true)
         setupActionBar()
-        initScreenshotList(view.context)
 
-        TelemetryWrapper.visitCollectionPage(SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(context, collectionName))
+        initScreenshotList(activity)
 
-        ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+        TelemetryWrapper.visitCollectionPage(
+                SuggestCollectionHelper.getSuggestCollectionNameForTelemetry(context, collectionName))
+
+        setupWindowInsets()
+    }
+
+    private fun setupWindowInsets() {
+        val rootView = view ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
             toolbar_holder.setPadding(toolbar_holder.paddingLeft,
                     insets.systemWindowInsetTop,
                     toolbar_holder.paddingRight,
                     toolbar_holder.paddingBottom)
-            view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, insets.systemWindowInsetBottom)
+            view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight,
+                    insets.systemWindowInsetBottom)
             insets
         }
     }
@@ -274,7 +282,7 @@ class CollectionFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                Navigation.findNavController(view).navigateUp()
+                getNavController()?.navigateUp()
             }
 
             R.id.action_select -> {
@@ -292,7 +300,7 @@ class CollectionFragment : Fragment() {
 
             R.id.action_search -> {
                 context?.let {
-                    Navigation.findNavController(view).navigate(R.id.action_navigate_to_search, Bundle())
+                    getNavController()?.navigate(R.id.action_navigate_to_search, Bundle())
                 }
             }
 
@@ -313,7 +321,7 @@ class CollectionFragment : Fragment() {
                     showDeleteCollectionDialog(it, ScreenshotViewModel.get(this), collectionId,
                             object : OnDeleteCollectionListener {
                                 override fun onDeleteCollection() {
-                                    Navigation.findNavController(view).navigateUp()
+                                    getNavController()?.navigateUp()
                                 }
                             })
                 }
@@ -331,7 +339,9 @@ class CollectionFragment : Fragment() {
     }
 
     private fun setupActionBar() {
-        setSupportActionBar(activity, view.findViewById(R.id.toolbar))
+        view?.let {
+            setSupportActionBar(activity, it.findViewById(R.id.toolbar))
+        }
         getSupportActionBar(activity).apply {
             setDisplayHomeAsUpEnabled(true)
             updateActionBarTitle(this)

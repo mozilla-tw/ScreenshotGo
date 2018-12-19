@@ -50,6 +50,8 @@ import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.persistence.SuggestCollectionHelper
 import org.mozilla.scryer.preference.PreferenceWrapper
+import org.mozilla.scryer.promote.PromoteRatingHelper
+import org.mozilla.scryer.promote.PromoteShareHelper
 import org.mozilla.scryer.setting.SettingsActivity
 import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.telemetry.TelemetryWrapper
@@ -134,6 +136,11 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     override fun onResume() {
         super.onResume()
         permissionFlow.start()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        promptPromotionIfNeeded()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -286,7 +293,15 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
-                dialog.dismiss()
+
+                val activity = activity ?: return
+                if (activity.isFinishing || activity.isDestroyed) {
+                    return
+                }
+
+                if (dialog.isShowing) {
+                    dialog.dismiss()
+                }
             }
         }
 
@@ -324,6 +339,12 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
     override fun onOverlayGranted() {
         log(LOG_TAG, "onOverlayGranted")
+
+        ScryerApplication.getSettingsRepository().floatingEnable = true
+        val intent = Intent(activity, ScryerService::class.java)
+        intent.action = ScryerService.ACTION_ENABLE_CAPTURE_BUTTON
+        activity?.startService(intent)
+
         dismissPermissionDialog()
     }
 
@@ -687,6 +708,51 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     private fun isFirstTimeLaunched(): Boolean {
         // TODO: Better way?
         return (activity as? MainActivity)?.isFirstTimeLaunched ?: false
+    }
+
+    private fun promptPromotionIfNeeded() {
+        val context = context ?: return
+        val shareReason = PromoteShareHelper.getShareReason(context)
+        if (shareReason >= 0) {
+            promptShareDialog(context, shareReason)
+
+        } else if (PromoteRatingHelper.shouldPromote(context)) {
+            promptRatingDialog(context)
+        }
+    }
+
+    private fun promptRatingDialog(context: Context) {
+        val from = TelemetryWrapper.ExtraValue.FROM_PROMPT
+
+        val dialog = PromoteRatingHelper.getRatingDialog(context, {
+            TelemetryWrapper.clickFeedback(TelemetryWrapper.Value.POSITIVE, from)
+        }, {
+            TelemetryWrapper.clickFeedback(TelemetryWrapper.Value.NEGATIVE, from)
+        })
+
+        if (dialogQueue.tryShow(dialog, null)) {
+            PromoteRatingHelper.onRatingPromoted(context)
+            TelemetryWrapper.promptFeedbackDialog(from)
+        }
+    }
+
+    private fun promptShareDialog(context: Context, reason: Int) {
+        val reasonForTelemetry = when (reason) {
+            PromoteShareHelper.REASON_SHOT -> TelemetryWrapper.ExtraValue.TRIGGER_CAPTURE
+            PromoteShareHelper.REASON_SORT -> TelemetryWrapper.ExtraValue.TRIGGER_SORT
+            PromoteShareHelper.REASON_OCR -> TelemetryWrapper.ExtraValue.TRIGGER_OCR
+            else -> return
+        }
+
+        PromoteShareHelper.getShareDialog(context, reason, {
+            TelemetryWrapper.shareApp()
+        })?.let {
+            if (dialogQueue.tryShow(it, null)) {
+                PromoteShareHelper.onSharingPromoted(context)
+                TelemetryWrapper.promptShareDialog(TelemetryWrapper.ExtraValue.FROM_PROMPT,
+                        reasonForTelemetry)
+            }
+        }
     }
 
     private class DialogQueue {

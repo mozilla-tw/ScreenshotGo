@@ -3,6 +3,7 @@
     <string name="action_create">Create new collection</string>
     <!-- Label used for buttons to delete items, e.g. in dialogs-->
     <string name="action_delete">Delete</string>
+    <string name="action_share">Share</string>
     <!-- Label used for title in screenshot info dialogue, but for action in menu -->
     <string name="info_info">Screenshot info</string>
     <!-- Label used when no content -->
@@ -102,7 +103,6 @@
     <string name="menu_ocr_action_web">Web search</string>
     <string name="menu_ocr_action_copy">Copy</string>
     <string name="menu_action_selectall">Select all</string>
-    <string name="menu_action_share">Share</string>
 
     <!-- Bottom sheet: strings displayed on the reminder panel, and the placeholder %1$s is the app name, ScreenshotGo -->
     <string name="sheet_enable_title_enable">Enable %1$s to take screenshots?</string>
@@ -188,7 +188,6 @@
 
     <!-- In-app promote dialog -->
     <string name="dialogue_feedback_title">Love Firefox ScreenshotGo?</string>
-    <string name="dialogue_feedback_description">Let us know how you feel.</string>
     <string name="dialogue_feedback_action_5stars">Rate 5 Stars</string>
     <string name="dialogue_feedback_action_send">Send Feedback</string>
 
@@ -196,5 +195,5 @@
 
     <string name="dialogue_take_share_description">Enjoy taking screenshots? Share it now!</string>
     <string name="dialogue_sort_share_description">Enjoy organizing screenshots? Share it now!</string>
-    <string name="dialogue_ocr_share_description">Found screenshot-to-text useful? Share it now!</string>
+    <string name="dialogue_ocr_share_description">Find screenshot-to-text useful? Share it now!</string>
 </resources>

@@ -1,5 +1,4 @@
-/* -*- Mode: Java; c-basic-offset: 4; tab-width: 4; indent-tabs-mode: nil; -*-
- * This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
@@ -26,16 +25,17 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import kotlinx.android.synthetic.main.activity_detail_page.*
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.DefaultDispatcher
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withContext
+import mozilla.components.browser.search.SearchEngineManager
+import mozilla.components.browser.search.provider.AssetsSearchEngineProvider
+import mozilla.components.browser.search.provider.localization.LocaleSearchLocalizationProvider
 import org.mozilla.scryer.BuildConfig
 import org.mozilla.scryer.R
 import org.mozilla.scryer.collectionview.OnDeleteScreenshotListener
@@ -366,10 +366,14 @@ class DetailPageActivity : AppCompatActivity() {
 
     private fun updateUI() {
         if (isTextMode) {
-            updateLoadingViewVisibility(false)
             updateFabUI(true, false)
-            updateTextModePanelVisibility(true)
             enableActionMenu(false)
+
+            launch (UI) {
+                setupTextSelectionCallback(textModeResultTextView)
+                updateLoadingViewVisibility(false)
+                updateTextModePanelVisibility(true)
+            }
 
         } else {
             updateLoadingViewVisibility(isRecognizing)
@@ -493,29 +497,53 @@ class DetailPageActivity : AppCompatActivity() {
             return
         }
 
+        textModeResultTextView.text = buildFullTextString(blocks)
+        drawHighlights(blocks)
+    }
+
+    private fun buildFullTextString(blocks: List<FirebaseVisionText.Block>): String {
         val builder = StringBuilder()
-
-        mGraphicOverlay.clear()
-
-        for (block in blocks) {
-            val lines = block.lines.toMutableList()
-            lines.sortBy { it.boundingBox?.centerY() }
-
-            for (line in lines) {
+        blocks.forEach { block ->
+            val lines = block.lines.toMutableList().apply {
+                sortBy {
+                    it.boundingBox?.centerY()
+                }
+            }
+            lines.forEach { line ->
                 builder.append(line.text).append("\n")
             }
-
             builder.append("\n")
+        }
+        return builder.toString()
+    }
 
+    private fun drawHighlights(blocks: List<FirebaseVisionText.Block>) {
+        mGraphicOverlay.clear()
+
+        blocks.forEach { block ->
             if (BuildConfig.DEBUG) {
                 val textGraphic = TextGraphic(mGraphicOverlay, block)
                 mGraphicOverlay.add(textGraphic)
             }
         }
-
-        text_mode_text.text = builder.toString()
     }
-//
+
+    private suspend fun setupTextSelectionCallback(textView: TextView) = withContext(DefaultDispatcher) {
+        val searchEngineManager = SearchEngineManager(listOf(
+                AssetsSearchEngineProvider(LocaleSearchLocalizationProvider())))
+        val engine = searchEngineManager.getDefaultSearchEngine(this@DetailPageActivity)
+        textView.customSelectionActionModeCallback = TextSelectionCallback(
+                textView,
+                object : TextSelectionCallback.SearchEngineDelegate {
+                    override val name: String
+                        get() = engine.name
+
+                    override fun buildSearchUrl(text: String): String {
+                        return engine.buildSearchUrl(text)
+                    }
+                })
+    }
+
 //    private fun showSystemUI() {
 //        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
 //                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or

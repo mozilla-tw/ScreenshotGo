@@ -136,7 +136,7 @@
                         android:layout_gravity="center_horizontal"
                         android:background="@drawable/sorting_panel_hint_bar" />
                     <TextView
-                        android:id="@+id/text_mode_text"
+                        android:id="@+id/textModeResultTextView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:textColor="@color/grey60"
@@ -150,5 +150,4 @@
             </android.support.v4.widget.NestedScrollView>
         </android.support.design.widget.CoordinatorLayout>
     </android.support.constraint.ConstraintLayout>
-
 </android.support.constraint.ConstraintLayout>

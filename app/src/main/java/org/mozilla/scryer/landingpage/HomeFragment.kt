@@ -6,11 +6,9 @@
 package org.mozilla.scryer.landingpage
 
 import android.Manifest
-import android.app.ActionBar
+
 import android.app.Activity
 import android.app.SearchManager
-import android.arch.lifecycle.Observer
-import android.arch.lifecycle.ViewModelProviders
 import android.content.*
 import android.graphics.Color
 import android.graphics.Rect
@@ -18,23 +16,23 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.support.annotation.RequiresApi
-import android.support.constraint.Group
-import android.support.design.widget.BottomSheetDialog
-import android.support.v4.app.ActivityCompat
-import android.support.v4.app.Fragment
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.app.AppCompatDialog
-import android.support.v7.preference.PreferenceManager
-import android.support.v7.widget.*
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatDialog
+import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.appcompat.widget.SearchView
+import androidx.constraintlayout.widget.Group
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
-import kotlinx.coroutines.experimental.DefaultDispatcher
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withContext
+import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.experimental.*
 import mozilla.components.support.base.log.Log
 import org.mozilla.scryer.*
 import org.mozilla.scryer.capture.ScreenCaptureManager
@@ -57,11 +55,12 @@ import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.BottomDialogFactory
 import org.mozilla.scryer.ui.GridItemDecoration
+import org.mozilla.scryer.util.launchIO
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.util.*
 
-class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
+class HomeFragment : androidx.fragment.app.Fragment(), PermissionFlow.ViewDelegate {
 
     companion object {
         private const val LOG_TAG = "HomeFragment"
@@ -79,10 +78,10 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         QuickAccessAdapter(context)
     }
 
-    private lateinit var mainListView: RecyclerView
+    private lateinit var mainListView: androidx.recyclerview.widget.RecyclerView
     private val mainAdapter: MainAdapter = MainAdapter(this)
 
-    private lateinit var searchListView: RecyclerView
+    private lateinit var searchListView: androidx.recyclerview.widget.RecyclerView
     private val searchListAdapter: SearchAdapter by lazy {
         SearchAdapter(context)
     }
@@ -292,7 +291,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
 
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
+                androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(context).unregisterReceiver(this)
 
                 val activity = activity ?: return
                 if (activity.isFinishing || activity.isDestroyed) {
@@ -305,12 +304,12 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             }
         }
 
-        LocalBroadcastManager.getInstance(context).registerReceiver(receiver,
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(context).registerReceiver(receiver,
                 IntentFilter(ScryerService.EVENT_TAKE_SCREENSHOT))
 
         permissionDialog = dialog
         dialogQueue.show(dialog, DialogInterface.OnDismissListener {
-            LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver)
+            androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(context).unregisterReceiver(receiver)
         })
     }
 
@@ -319,7 +318,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         welcomeView?.visibility = View.GONE
         storagePermissionView?.visibility = View.GONE
 
-        launch(UI) {
+        GlobalScope.launch(Dispatchers.Main) {
             val newScreenshots = syncAndGetNewScreenshotsFromExternal()
 
             val showNewScreenshotDialog = newScreenshots.isNotEmpty()
@@ -447,20 +446,20 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
                 TelemetryWrapper.clickOnQuickAccess(holder.adapterPosition)
             }
 
-            override fun onMoreClick(holder: RecyclerView.ViewHolder) {
+            override fun onMoreClick(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
                 Navigation.findNavController(holder.itemView).navigate(R.id.action_navigate_to_collection, Bundle())
                 TelemetryWrapper.clickMoreOnQuickAccess()
             }
         }
 
-        with (quickAccessContainer.findViewById<RecyclerView>(R.id.list_view)) {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        with (quickAccessContainer.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.list_view)) {
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context, androidx.recyclerview.widget.LinearLayoutManager.HORIZONTAL, false)
             adapter = quickAccessAdapter
 
             val spaceOuter = resources.getDimensionPixelSize(R.dimen.home_horizontal_padding)
             val spaceInner = resources.getDimensionPixelSize(R.dimen.quick_access_item_space)
-            addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+            addItemDecoration(object : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
+                override fun getItemOffsets(outRect: Rect, view: View, parent: androidx.recyclerview.widget.RecyclerView, state: androidx.recyclerview.widget.RecyclerView.State) {
                     val position = parent.getChildAdapterPosition(view)
                     if (position == 0) {
                         outRect.left = spaceOuter
@@ -484,7 +483,8 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     private fun initCollectionList(context: Context) {
-        val manager = GridLayoutManager(context, COLLECTION_COLUMN_COUNT, GridLayoutManager.VERTICAL, false)
+        val manager = androidx.recyclerview.widget.GridLayoutManager(context, COLLECTION_COLUMN_COUNT,
+                RecyclerView.VERTICAL, false)
         manager.spanSizeLookup = MainAdapter.SpanSizeLookup(COLLECTION_COLUMN_COUNT)
         mainListView.layoutManager = manager
 
@@ -515,7 +515,8 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     private fun initSearchList(context: Context) {
-        val manager = GridLayoutManager(context, COLLECTION_COLUMN_COUNT, GridLayoutManager.VERTICAL, false)
+        val manager = androidx.recyclerview.widget.GridLayoutManager(context, COLLECTION_COLUMN_COUNT,
+                RecyclerView.VERTICAL, false)
         searchListView.layoutManager = manager
         searchListView.adapter = searchListAdapter
         val space = 8f.dpToPx(context.resources.displayMetrics)
@@ -539,20 +540,14 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
     }
 
     private suspend fun syncAndGetNewScreenshotsFromExternal(): List<ScreenshotModel> {
-        val context = context ?: return emptyList()
-
-        val externalList = withContext(DefaultDispatcher) {
-            ScreenshotFetcher().fetchScreenshots(context)
-        }
-
-        val dbList = withContext(DefaultDispatcher) {
-            viewModel.getScreenshotList()
-        }
-
-        return withContext(DefaultDispatcher) {
-            mergeExternalToDatabase(externalList, dbList).filter {
-                it.collectionId == CollectionModel.UNCATEGORIZED
-            }
+        return withContext(Dispatchers.Default) {
+            context?.let {
+                val externalList = ScreenshotFetcher().fetchScreenshots(it)
+                val dbList = viewModel.getScreenshotList()
+                mergeExternalToDatabase(externalList, dbList).filter { screenshot ->
+                    screenshot.collectionId == CollectionModel.UNCATEGORIZED
+                }
+            } ?: emptyList()
         }
     }
 
@@ -581,7 +576,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
         }
 
         dialog.setOnCancelListener {
-            launch {
+            launchIO {
                 viewModel.batchMove(newScreenshots, CollectionModel.CATEGORY_NONE)
             }
         }
@@ -668,7 +663,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate {
             }
         }
 
-        withContext(UI) {
+        withContext(Dispatchers.Main) {
             mainAdapter.notifyDataSetChanged()
         }
 

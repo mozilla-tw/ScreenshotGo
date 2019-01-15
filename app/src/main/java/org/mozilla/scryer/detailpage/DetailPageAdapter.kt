@@ -5,65 +5,110 @@
 
 package org.mozilla.scryer.detailpage
 
+import android.graphics.Bitmap
+import android.graphics.PointF
 import android.graphics.drawable.Drawable
-import android.support.v4.view.PagerAdapter
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
+import androidx.collection.SparseArrayCompat
+import androidx.viewpager.widget.PagerAdapter
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
+import com.davemorrissey.labs.subscaleview.ImageSource
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import org.mozilla.scryer.persistence.ScreenshotModel
 
 class DetailPageAdapter : PagerAdapter() {
 
     var screenshots = listOf<ScreenshotModel>()
     var itemCallback: ItemCallback? = null
+    var imageStateCallback: ImageStateCallback? = null
+
+    private var pageViews = SparseArrayCompat<PageView>()
 
     override fun getCount(): Int {
         return screenshots.size
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val imageView = ImageView(container.context)
+        val imageView = object : SubsamplingScaleImageView(container.context) {
+            override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+                super.onSizeChanged(w, h, oldw, oldh)
+                resetScaleAndCenter()
+            }
+        }
+
+        val pageView = object : PageView {
+            override fun resetScale() {
+                imageView.resetScaleAndCenter()
+            }
+
+            override fun isScaled(): Boolean {
+                return imageView.scale > imageView.minScale
+            }
+        }
+
+        imageView.setOnStateChangedListener(object : SubsamplingScaleImageView.OnStateChangedListener {
+            override fun onCenterChanged(newCenter: PointF, origin: Int) {}
+
+            override fun onScaleChanged(newScale: Float, origin: Int) {
+                imageStateCallback?.onScaleChanged(pageView)
+            }
+        })
+
         val item = screenshots[position]
         val path = item.absolutePath
         Glide.with(container.context)
+                .asBitmap()
                 .load(path)
-                .listener(object : RequestListener<Drawable> {
-                    override fun onLoadFailed(e: GlideException?, model: Any, target: Target<Drawable>,
-                                              isFirstResource: Boolean): Boolean {
+                .into(object : SimpleTarget<Bitmap>() {
+                    override fun onLoadFailed(errorDrawable: Drawable?) {
                         itemCallback?.onItemLoaded(item)
-                        return false
                     }
 
-                    override fun onResourceReady(resource: Drawable, model: Any, target: Target<Drawable>,
-                                                 dataSource: DataSource,
-                                                 isFirstResource: Boolean): Boolean {
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                        imageView.setImage(ImageSource.bitmap(resource))
                         itemCallback?.onItemLoaded(item)
-                        return false
                     }
                 })
-                .into(imageView)
+
         container.addView(imageView)
         imageView.setOnClickListener {
             itemCallback?.onItemClicked(screenshots[position])
         }
+
+        pageViews.put(position, pageView)
         return imageView
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, obj: Any) {
         container.removeView(obj as View)
+        val view = pageViews[position]
+        if (view == obj) {
+            pageViews.remove(position)
+        }
     }
 
     override fun isViewFromObject(view: View, obj: Any): Boolean {
         return view == obj
     }
 
+    fun findViewForPosition(position: Int): PageView? {
+        return pageViews[position]
+    }
+
     interface ItemCallback {
         fun onItemClicked(item: ScreenshotModel)
         fun onItemLoaded(item: ScreenshotModel)
+    }
+
+    interface ImageStateCallback {
+        fun onScaleChanged(pageView: PageView)
+    }
+
+    interface PageView {
+        fun resetScale()
+        fun isScaled(): Boolean
     }
 }

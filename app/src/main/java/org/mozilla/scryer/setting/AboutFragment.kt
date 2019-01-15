@@ -5,18 +5,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.app.ActionBar
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.ActionBar
 import org.mozilla.scryer.R
 import org.mozilla.scryer.getSupportActionBar
 import java.util.*
 
-class AboutFragment : Fragment() {
+class AboutFragment : androidx.fragment.app.Fragment() {
     companion object {
         const val TAG: String = "AboutFragment"
     }

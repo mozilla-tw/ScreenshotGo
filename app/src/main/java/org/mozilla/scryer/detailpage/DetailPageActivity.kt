@@ -4,39 +4,36 @@
 
 package org.mozilla.scryer.detailpage
 
+
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Point
-import android.graphics.RectF
+import android.graphics.*
 import android.os.Bundle
-import android.support.design.widget.BottomSheetBehavior
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.drawable.DrawableCompat
-import android.support.v4.view.ViewCompat
-import android.support.v4.view.ViewPager
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
+import android.view.*
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.ViewCompat
+import androidx.viewpager.widget.ViewPager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import kotlinx.android.synthetic.main.activity_detail_page.*
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 import mozilla.components.browser.search.SearchEngineManager
 import mozilla.components.browser.search.provider.AssetsSearchEngineProvider
 import mozilla.components.browser.search.provider.localization.LocaleSearchLocalizationProvider
-import org.mozilla.scryer.BuildConfig
 import org.mozilla.scryer.R
 import org.mozilla.scryer.collectionview.OnDeleteScreenshotListener
 import org.mozilla.scryer.collectionview.showDeleteScreenshotDialog
@@ -49,9 +46,12 @@ import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.ScryerToast
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
+import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.coroutines.experimental.suspendCoroutine
 
-class DetailPageActivity : AppCompatActivity() {
+class DetailPageActivity : AppCompatActivity(), CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
 
     companion object Launcher {
         private const val EXTRA_SCREENSHOT_ID = "screenshot_id"
@@ -59,13 +59,18 @@ class DetailPageActivity : AppCompatActivity() {
 
         private const val SUPPORT_SLIDE = true
 
+        private const val IMAGE_SCALE_NORMAL_MODE = 1f
+        private const val IMAGE_SCALE_TEXT_MODE = 0.9f
+
         fun showDetailPage(context: Context, screenshot: ScreenshotModel, srcView: View?,
                            collectionId: String? = null) {
             val intent = Intent(context, DetailPageActivity::class.java)
             val bundle = srcView?.let {
-                val option = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                        context as Activity, srcView, ViewCompat.getTransitionName(it))
-                option.toBundle()
+                ViewCompat.getTransitionName(it)?.let { transitionName ->
+                    val option = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                            context as Activity, srcView, transitionName)
+                    option.toBundle()
+                }
             }
             intent.putExtra(EXTRA_SCREENSHOT_ID, screenshot.id)
             collectionId?.let {
@@ -75,12 +80,11 @@ class DetailPageActivity : AppCompatActivity() {
         }
     }
 
-    private val mGraphicOverlay: GraphicOverlay by lazy { findViewById<GraphicOverlay>(R.id.graphic_overlay) }
-
     private var shareMenu: MenuItem? = null
     private var moveToMenu: MenuItem? = null
     private var screenshotInfoMenu: MenuItem? = null
     private var deleteMenu: MenuItem? = null
+    private var selectAllMenu: MenuItem? = null
 
     /** Where did the user came from to this page **/
     private val srcCollectionId: String? by lazy {
@@ -105,6 +109,9 @@ class DetailPageActivity : AppCompatActivity() {
     private var isTextMode = false
     private var isEnterTransitionPostponed = true
 
+    private val adapter = DetailPageAdapter()
+    private val graphicOverlayHelper = GraphicOverlayHelper()
+
     /* whether the user has run ocr on the current image before swiping to the next one */
     private var hasRunOcr = false
 
@@ -125,6 +132,12 @@ class DetailPageActivity : AppCompatActivity() {
                 isEnterTransitionPostponed = false
                 supportStartPostponedEnterTransition()
             }
+        }
+    }
+
+    private val imageStateCallback = object : DetailPageAdapter.ImageStateCallback {
+        override fun onScaleChanged(pageView: DetailPageAdapter.PageView) {
+            view_pager.pageLocked = pageView.isScaled()
         }
     }
 
@@ -179,7 +192,11 @@ class DetailPageActivity : AppCompatActivity() {
                 }
             }
             screenshotInfoMenu = menu.findItem(R.id.action_screenshot_info)
+
             deleteMenu = menu.findItem(R.id.action_delete)
+
+            selectAllMenu = menu.findItem(R.id.action_select_all)
+            selectAllMenu?.isVisible = false
         }
 
         return true
@@ -192,7 +209,8 @@ class DetailPageActivity : AppCompatActivity() {
                 TelemetryWrapper.shareScreenshot()
             }
             R.id.action_move_to -> {
-                startActivity(SortingPanelActivity.sortOldScreenshot(this, screenshots[view_pager.currentItem]))
+                startActivity(SortingPanelActivity.sortOldScreenshot(this,
+                        screenshots[view_pager.currentItem]))
             }
             R.id.action_screenshot_info -> {
                 showScreenshotInfoDialog(this, screenshots[view_pager.currentItem])
@@ -205,11 +223,15 @@ class DetailPageActivity : AppCompatActivity() {
                             }
                         })
             }
+            R.id.action_select_all -> {
+                selectAllBlocks()
+            }
             else -> return super.onOptionsItemSelected(item)
         }
         return super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun initActionBar() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -218,18 +240,34 @@ class DetailPageActivity : AppCompatActivity() {
             onBackPressed()
         }
 
+        toolbar.setOnTouchListener { v, event ->
+            routeUnhandledEventToOverlay(event)
+        }
+
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowTitleEnabled(false)
         }
     }
 
+    /* Toolbar always eat all touch events regardless they are handled or not, workaround here to
+     * dispatch touch event to underlying graphic overlay */
+    private fun routeUnhandledEventToOverlay(event: MotionEvent): Boolean {
+        val scale = IMAGE_SCALE_TEXT_MODE
+        val leftDiff = view_pager.measuredWidth * (1 - scale) / 2f
+        val x = (event.rawX - leftDiff) / scale
+        val y = event.rawY / scale
+        event.setLocation(x, y)
+        return graphic_overlay.dispatchTouchEvent(event)
+    }
+
     private fun initViewPager() {
-        launch(UI) {
+        launch(Dispatchers.Main) {
             screenshots = getScreenshots().sortedByDescending { it.lastModified }
-            view_pager.adapter = DetailPageAdapter().apply {
-                this.screenshots = this@DetailPageActivity.screenshots
-                this.itemCallback = this@DetailPageActivity.itemCallback
+            view_pager.adapter = adapter.apply {
+                screenshots = this@DetailPageActivity.screenshots
+                itemCallback = this@DetailPageActivity.itemCallback
+                imageStateCallback = this@DetailPageActivity.imageStateCallback
             }
             view_pager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                 override fun onPageSelected(position: Int) {
@@ -263,27 +301,28 @@ class DetailPageActivity : AppCompatActivity() {
     }
 
     private fun initPanel() {
-        BottomSheetBehavior.from(text_mode_panel_content)
-                .setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-                    override fun onSlide(bottomSheet: View, slideOffset: Float) {
+        val behavior = BottomSheetBehavior.from(text_mode_panel_content)
+        behavior.peekHeight = resources.getDimensionPixelSize(
+                R.dimen.sorting_panel_title_height)
+        behavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
 
-                    }
+            }
 
-                    override fun onStateChanged(bottomSheet: View, newState: Int) {
-                        if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                            isTextMode = false
-                            updateUI()
-                        }
-                    }
-                })
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    unselectAllBlocks()
+                }
+            }
+        })
     }
 
     private fun startRecognition() {
         val appContext = applicationContext
-        launch(UI) {
+        launch(Dispatchers.Main) {
             updateUI()
 
-            val result = withContext(CommonPool) {
+            val result = withContext(Dispatchers.Default) {
                 runTextRecognition(screenshots[view_pager.currentItem])
             }
 
@@ -365,11 +404,19 @@ class DetailPageActivity : AppCompatActivity() {
     }
 
     private fun updateUI() {
-        if (isTextMode) {
-            updateFabUI(true, false)
-            enableActionMenu(false)
+        val pagerScale: Float
+        val pagerTranslation: Float
+        val pageView = adapter.findViewForPosition(view_pager.currentItem)
 
-            launch (UI) {
+        if (isTextMode) {
+            pageView?.resetScale()
+
+            updateFabUI(true, false)
+            enableTextModeMenu(true)
+            pagerScale = IMAGE_SCALE_TEXT_MODE
+            pagerTranslation = -view_pager.height * ((1 - IMAGE_SCALE_TEXT_MODE) / 2f)
+
+            launch(Dispatchers.Main) {
                 setupTextSelectionCallback(textModeResultTextView)
                 updateLoadingViewVisibility(false)
                 updateTextModePanelVisibility(true)
@@ -379,9 +426,20 @@ class DetailPageActivity : AppCompatActivity() {
             updateLoadingViewVisibility(isRecognizing)
             updateFabUI(false, isRecognizing)
             updateTextModePanelVisibility(false)
-            enableActionMenu(true)
+            enableTextModeMenu(false)
+            pagerScale = IMAGE_SCALE_NORMAL_MODE
+            pagerTranslation = 1f
+            graphic_overlay.visibility = View.GONE
         }
         updateNavigationIcon()
+
+        view_pager.pageLocked = (pageView?.isScaled() == true)
+        listOf(view_pager, graphic_overlay).forEach {
+            it.animate()
+                    .scaleX(pagerScale)
+                    .scaleY(pagerScale)
+                    .translationY(pagerTranslation).duration = 150
+        }
     }
 
     private fun updateLoadingViewVisibility(visible: Boolean) {
@@ -395,18 +453,18 @@ class DetailPageActivity : AppCompatActivity() {
     private fun updateFabUI(isTextMode: Boolean, isLoading: Boolean) {
         when {
             isTextMode -> {
-                cancel_fab.visibility = View.INVISIBLE
-                text_mode_fab.verticalScrollbarPosition = View.INVISIBLE
+                cancel_fab.hide()
+                text_mode_fab.hide()
             }
 
             isLoading -> {
-                cancel_fab.visibility = View.VISIBLE
-                text_mode_fab.visibility = View.INVISIBLE
+                cancel_fab.show()
+                text_mode_fab.hide()
             }
 
             else -> {
-                cancel_fab.visibility = View.INVISIBLE
-                text_mode_fab.visibility = View.VISIBLE
+                cancel_fab.hide()
+                text_mode_fab.show()
             }
         }
     }
@@ -419,14 +477,15 @@ class DetailPageActivity : AppCompatActivity() {
             View.GONE
         }
         text_mode_panel.visibility = visibility
-        text_mode_background.visibility = visibility
     }
 
-    private fun enableActionMenu(enable: Boolean) {
-        shareMenu?.isVisible = enable
-        moveToMenu?.isVisible = enable
-        screenshotInfoMenu?.isVisible = enable
-        deleteMenu?.isVisible = enable
+    private fun enableTextModeMenu(enable: Boolean) {
+        shareMenu?.isVisible = !enable
+        moveToMenu?.isVisible = !enable
+        screenshotInfoMenu?.isVisible = !enable
+        deleteMenu?.isVisible = !enable
+
+        selectAllMenu?.isVisible = enable
     }
 
     private fun updateNavigationIcon() {
@@ -438,18 +497,20 @@ class DetailPageActivity : AppCompatActivity() {
     }
 
     @Suppress("ConstantConditionIf")
-    private suspend fun getScreenshots(): List<ScreenshotModel> = withContext(DefaultDispatcher) {
-        if (SUPPORT_SLIDE) {
-            srcCollectionId?.let {
-                val list = if (it == CollectionModel.CATEGORY_NONE) {
-                    listOf(it, CollectionModel.UNCATEGORIZED)
-                } else {
-                    listOf(it)
-                }
-                viewModel.getScreenshotList(list)
-            } ?: viewModel.getScreenshotList()
-        } else {
-            viewModel.getScreenshot(screenshotId)?.let { listOf(it) } ?: emptyList()
+    private suspend fun getScreenshots(): List<ScreenshotModel> {
+        return withContext(Dispatchers.Default) {
+            if (SUPPORT_SLIDE) {
+                srcCollectionId?.let {
+                    val list = if (it == CollectionModel.CATEGORY_NONE) {
+                        listOf(it, CollectionModel.UNCATEGORIZED)
+                    } else {
+                        listOf(it)
+                    }
+                    viewModel.getScreenshotList(list)
+                } ?: viewModel.getScreenshotList()
+            } else {
+                viewModel.getScreenshot(screenshotId)?.let { listOf(it) } ?: emptyList()
+            }
         }
     }
 
@@ -461,23 +522,23 @@ class DetailPageActivity : AppCompatActivity() {
             toolbar_background.visibility = View.VISIBLE
             supportActionBar?.show()
             window?.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            text_mode_fab.visibility = View.VISIBLE
-            cancel_fab.visibility = View.INVISIBLE
+            text_mode_fab.show()
+            cancel_fab.hide()
 
         } else {
             toolbar_background.visibility = View.INVISIBLE
             supportActionBar?.hide()
             window?.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-            text_mode_fab.visibility = View.INVISIBLE
-            cancel_fab.visibility = View.INVISIBLE
+            text_mode_fab.hide()
+            cancel_fab.hide()
         }
     }
 
     private suspend fun runTextRecognition(selectedImage: Bitmap): FirebaseVisionText? =
             suspendCoroutine { cont ->
                 val image = FirebaseVisionImage.fromBitmap(selectedImage)
-                val detector = FirebaseVision.getInstance().visionTextDetector
-                detector.detectInImage(image)
+                val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
+                detector.processImage(image)
                         .addOnSuccessListener { texts ->
                             cont.resume(texts)
                         }
@@ -487,61 +548,87 @@ class DetailPageActivity : AppCompatActivity() {
             }
 
     private fun processTextRecognitionResult(texts: FirebaseVisionText) {
-        val blocks = texts.blocks.toMutableList().apply { }
-        blocks.sortBy { it.boundingBox?.centerY() }
+        val textBlocks = texts.textBlocks.toMutableList().apply {
+            sortBy { it.boundingBox?.centerY() }
+        }
 
-        if (blocks.size == 0) {
-            Toast.makeText(applicationContext, "No text found", Toast.LENGTH_SHORT).show()
+        if (textBlocks.size == 0) {
             ScryerToast.makeText(this, getString(R.string.detail_ocr_error_notext),
                     Toast.LENGTH_SHORT).show()
             return
         }
 
-        textModeResultTextView.text = buildFullTextString(blocks)
-        drawHighlights(blocks)
+        updateGraphicOverlay(textBlocks.map { TextBlockGraphic(graphic_overlay, it) })
+        updatePanel("")
     }
 
-    private fun buildFullTextString(blocks: List<FirebaseVisionText.Block>): String {
-        val builder = StringBuilder()
-        blocks.forEach { block ->
-            val lines = block.lines.toMutableList().apply {
-                sortBy {
-                    it.boundingBox?.centerY()
-                }
-            }
-            lines.forEach { line ->
-                builder.append(line.text).append("\n")
-            }
-            builder.append("\n")
+    private fun updateGraphicOverlay(blocks: List<TextBlockGraphic>) {
+        graphic_overlay.apply {
+            visibility = View.VISIBLE
+            clear()
+
+            blocks.forEach { graphic_overlay.add(it) }
         }
-        return builder.toString()
-    }
 
-    private fun drawHighlights(blocks: List<FirebaseVisionText.Block>) {
-        mGraphicOverlay.clear()
+        graphicOverlayHelper.blocks = blocks
 
-        blocks.forEach { block ->
-            if (BuildConfig.DEBUG) {
-                val textGraphic = TextGraphic(mGraphicOverlay, block)
-                mGraphicOverlay.add(textGraphic)
+        val touchHelper = GraphicOverlayTouchHelper(this, blocks)
+        touchHelper.callback = object : GraphicOverlayTouchHelper.Callback {
+            override fun onBlockSelectStateChanged(block: TextBlockGraphic?) {
+                updatePanel(graphicOverlayHelper.getSelectedText())
             }
+        }
+        graphic_overlay.setOnTouchListener { _, event ->
+            touchHelper.onTouchEvent(event)
         }
     }
 
-    private suspend fun setupTextSelectionCallback(textView: TextView) = withContext(DefaultDispatcher) {
-        val searchEngineManager = SearchEngineManager(listOf(
-                AssetsSearchEngineProvider(LocaleSearchLocalizationProvider())))
-        val engine = searchEngineManager.getDefaultSearchEngine(this@DetailPageActivity)
-        textView.customSelectionActionModeCallback = TextSelectionCallback(
-                textView,
-                object : TextSelectionCallback.SearchEngineDelegate {
-                    override val name: String
-                        get() = engine.name
+    private fun selectAllBlocks() {
+        graphicOverlayHelper.selectAllBlocks()
+        updatePanel(graphicOverlayHelper.getSelectedText())
+    }
 
-                    override fun buildSearchUrl(text: String): String {
-                        return engine.buildSearchUrl(text)
-                    }
-                })
+    private fun unselectAllBlocks() {
+        graphicOverlayHelper.unselectAllBlocks()
+        updatePanel("")
+    }
+
+    private suspend fun setupTextSelectionCallback(textView: TextView) {
+        return withContext(Dispatchers.Default) {
+            val searchEngineManager = SearchEngineManager(listOf(
+                    AssetsSearchEngineProvider(LocaleSearchLocalizationProvider())))
+            val engine = searchEngineManager.getDefaultSearchEngine(this@DetailPageActivity)
+            textView.customSelectionActionModeCallback = TextSelectionCallback(
+                    textView,
+                    object : TextSelectionCallback.SearchEngineDelegate {
+                        override val name: String
+                            get() = engine.name
+
+                        override fun buildSearchUrl(text: String): String {
+                            return engine.buildSearchUrl(text)
+                        }
+                    })
+        }
+    }
+
+    /**
+     * @param block the block being selected, or null if nothing is selected
+     */
+    private fun updatePanel(panelText: String) {
+        textModeResultTextView.text = panelText
+
+        val behavior = BottomSheetBehavior.from(text_mode_panel_content)
+        if (panelText.isEmpty()) {
+            text_mode_panel_content.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            textModeResultTextView.visibility = View.GONE
+            textModeResultMoreOptions.visibility = View.VISIBLE
+            behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        } else {
+            text_mode_panel_content.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+            textModeResultTextView.visibility = View.VISIBLE
+            textModeResultMoreOptions.visibility = View.GONE
+            behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+        }
     }
 
 //    private fun showSystemUI() {

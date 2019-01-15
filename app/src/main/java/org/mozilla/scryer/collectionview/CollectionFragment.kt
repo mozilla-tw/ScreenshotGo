@@ -12,25 +12,23 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
-import android.support.v4.content.FileProvider
-import android.support.v4.graphics.drawable.DrawableCompat
-import android.support.v4.view.ViewCompat
-import android.support.v7.app.ActionBar
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.view.ActionMode
-import android.support.v7.widget.AppCompatCheckBox
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.TextView
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode
+import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.dialog_collection_info.view.*
 import kotlinx.android.synthetic.main.dialog_screenshot_info.view.*
 import kotlinx.android.synthetic.main.fragment_collection.*
-import kotlinx.coroutines.experimental.DefaultDispatcher
-import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withContext
 import org.mozilla.scryer.*
@@ -45,13 +43,14 @@ import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.ui.ConfirmationDialog
 import org.mozilla.scryer.ui.InnerSpaceDecoration
+import org.mozilla.scryer.util.launchIO
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CollectionFragment : Fragment() {
+class CollectionFragment : androidx.fragment.app.Fragment() {
     companion object {
         const val ARG_COLLECTION_ID = "collection_id"
         const val ARG_COLLECTION_NAME = "collection_name"
@@ -59,7 +58,7 @@ class CollectionFragment : Fragment() {
         private const val SPAN_COUNT = 3
     }
 
-    private lateinit var screenshotListView: RecyclerView
+    private lateinit var screenshotListView: androidx.recyclerview.widget.RecyclerView
     private lateinit var subtitleView: TextView
     private lateinit var selectAllCheckbox: AppCompatCheckBox
 
@@ -357,7 +356,8 @@ class CollectionFragment : Fragment() {
     }
 
     private fun initScreenshotList(context: Context) {
-        val manager = GridLayoutManager(context, SPAN_COUNT, GridLayoutManager.VERTICAL, false)
+        val manager = androidx.recyclerview.widget.GridLayoutManager(context, SPAN_COUNT,
+                RecyclerView.VERTICAL, false)
         screenshotListView.itemAnimator = null
         screenshotListView.layoutManager = manager
         screenshotListView.adapter = screenshotAdapter
@@ -490,7 +490,7 @@ fun showDeleteScreenshotDialog(
             context.getString(R.string.dialogue_deleteshot_title_delete),
             context.getString(R.string.action_delete),
             DialogInterface.OnClickListener { dialog, _ ->
-                launch {
+                launchIO {
                     screenshotModels.forEach {
                         ScryerApplication.getScreenshotRepository().deleteScreenshot(it)
                         File(it.absolutePath).delete()
@@ -506,8 +506,8 @@ fun showDeleteScreenshotDialog(
     dialog.viewHolder.message?.text = context.getString(R.string.dialogue_deleteshot_content_delete)
     dialog.viewHolder.subMessage?.visibility = View.VISIBLE
 
-    launch(UI) {
-        val size = withContext(DefaultDispatcher) {
+    GlobalScope.launch(Dispatchers.Main) {
+        val size = withContext(Dispatchers.Default) {
             var totalSize = 0L
             screenshotModels.forEach {
                 totalSize += File(it.absolutePath).length()
@@ -529,7 +529,7 @@ fun showShareScreenshotDialog(context: Context, screenshotModels: List<Screensho
         return
     }
 
-    launch {
+    GlobalScope.launch(Dispatchers.IO) {
         val authorities = BuildConfig.APPLICATION_ID + ".provider.fileprovider"
         val share = Intent()
         if (screenshotModels.size == 1) {
@@ -556,7 +556,7 @@ fun showShareScreenshotDialog(context: Context, screenshotModels: List<Screensho
 }
 
 fun showCollectionInfo(context: Context, viewModel: ScreenshotViewModel, collectionId: String?) {
-    launch(DefaultDispatcher) {
+    GlobalScope.launch(Dispatchers.IO) {
         collectionId ?: return@launch
 
         val idList = if (collectionId == CollectionModel.CATEGORY_NONE) {
@@ -574,7 +574,7 @@ fun showCollectionInfo(context: Context, viewModel: ScreenshotViewModel, collect
 
         val collection = viewModel.getCollection(collectionId)
 
-        withContext(UI) {
+        withContext(Dispatchers.Main) {
             collection ?: return@withContext
             showCollectionInfoDialog(context, collection, screenshots, totalFileSize)
         }
@@ -607,18 +607,18 @@ fun showDeleteCollectionDialog(
         collectionId: String?,
         listener: OnDeleteCollectionListener?
 ) {
-    launch(UI) {
+    GlobalScope.launch(Dispatchers.Main) {
         collectionId ?: return@launch
 
-        withContext(DefaultDispatcher) {
+        withContext(Dispatchers.Default) {
             viewModel.getCollection(collectionId)
 
         }?.let { collection ->
-            val screenshots = withContext(DefaultDispatcher) {
+            val screenshots = withContext(Dispatchers.Default) {
                 viewModel.getScreenshotList(listOf(collection.id))
             }
 
-            val totalFileSize = withContext(DefaultDispatcher) {
+            val totalFileSize = withContext(Dispatchers.Default) {
                 var totalFileSize = 0L
                 for (screenshot in screenshots) {
                     val file = File(screenshot.absolutePath)
@@ -634,7 +634,7 @@ fun showDeleteCollectionDialog(
                     context.getString(R.string.dialogue_deletecollection_title_delete),
                     context.getString(R.string.action_delete),
                     DialogInterface.OnClickListener { dialog, _ ->
-                        launch {
+                        GlobalScope.launch(Dispatchers.IO) {
                             viewModel.deleteCollection(collection)
                             screenshots.forEach { screenshot ->
                                 File(screenshot.absolutePath).delete()

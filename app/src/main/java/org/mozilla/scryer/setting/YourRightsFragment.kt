@@ -1,18 +1,17 @@
 package org.mozilla.scryer.setting
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.app.ActionBar
 import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.ActionBar
 import org.mozilla.scryer.R
 import org.mozilla.scryer.getSupportActionBar
 
-class YourRightsFragment : Fragment() {
+class YourRightsFragment : androidx.fragment.app.Fragment() {
     companion object {
         const val TAG: String = "YourRightsFragment"
     }

@@ -7,9 +7,9 @@ package org.mozilla.scryer.promote
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.preference.PreferenceManager
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AlertDialog
+import androidx.preference.PreferenceManager
 import android.view.View
 import org.mozilla.scryer.R
 
@@ -67,7 +67,7 @@ class PromoteShareHelper {
             }
 
             val dialog = PromoteDialogHelper.createPromoteDialog(context,
-                    context.getString(R.string.dialogue_share_title),
+                    context.getString(R.string.dialogue_share_title, context.getString(R.string.app_full_name)),
                     context.getString(subtitleId),
                     ContextCompat.getDrawable(context, R.drawable.image_share),
                     context.getString(R.string.action_share),

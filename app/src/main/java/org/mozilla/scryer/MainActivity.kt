@@ -5,17 +5,16 @@
 
 package org.mozilla.scryer
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.FragmentActivity
-import android.support.v7.app.ActionBar
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.view.View
 import android.view.WindowManager
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModelProviders
 import org.mozilla.scryer.notification.ScryerMessagingService
 import org.mozilla.scryer.permission.PermissionViewModel
 import org.mozilla.scryer.preference.PreferenceWrapper
@@ -85,11 +84,11 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-fun setSupportActionBar(activity: FragmentActivity?, toolbar: Toolbar) {
+fun setSupportActionBar(activity: androidx.fragment.app.FragmentActivity?, toolbar: Toolbar) {
     (activity as AppCompatActivity).setSupportActionBar(toolbar)
 }
 
-fun getSupportActionBar(activity: FragmentActivity?): ActionBar {
+fun getSupportActionBar(activity: androidx.fragment.app.FragmentActivity?): ActionBar {
     val actionBar = (activity as AppCompatActivity).supportActionBar
     return actionBar ?: throw RuntimeException("no action bar set")
 }

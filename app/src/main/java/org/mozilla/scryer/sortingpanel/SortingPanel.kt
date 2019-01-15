@@ -5,24 +5,23 @@
 
 package org.mozilla.scryer.sortingpanel
 
-import android.arch.lifecycle.DefaultLifecycleObserver
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.Observer
 import android.content.Context
 import android.graphics.Matrix
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.design.widget.BottomSheetBehavior
-import android.support.v7.widget.AppCompatImageView
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import org.mozilla.scryer.R
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
@@ -31,7 +30,7 @@ import java.io.File
 
 open class SortingPanel : FrameLayout, DefaultLifecycleObserver {
 
-    private val recyclerView: RecyclerView by lazy { findViewById<RecyclerView>(R.id.panel_recycler_view) }
+    private val recyclerView: androidx.recyclerview.widget.RecyclerView by lazy { findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.panel_recycler_view) }
     private val coordinatorLayout: View by lazy { findViewById<View>(R.id.coordinator_layout) }
     private val panelView: View by lazy { findViewById<View>(R.id.panel_container) }
     private val overlay: View by lazy { findViewById<View>(R.id.background_overlay) }
@@ -117,8 +116,8 @@ open class SortingPanel : FrameLayout, DefaultLifecycleObserver {
     }
 
     private fun initRecyclerView() {
-        this.recyclerView.layoutManager = GridLayoutManager(context, columnCount,
-                GridLayoutManager.VERTICAL,
+        this.recyclerView.layoutManager = androidx.recyclerview.widget.GridLayoutManager(context, columnCount,
+                RecyclerView.VERTICAL,
                 false)
 
         val space = resources.getDimensionPixelSize(R.dimen.sorting_panel_item_spacing)
@@ -128,11 +127,12 @@ open class SortingPanel : FrameLayout, DefaultLifecycleObserver {
         this.recyclerView.adapter = this.adapter
     }
 
-    override fun onSaveInstanceState(): Parcelable {
-        val parcelable = super.onSaveInstanceState()
-        val savedState = SavedState(parcelable)
-        savedState.overlayAlpha = this.overlay.alpha
-        return savedState
+    override fun onSaveInstanceState(): Parcelable? {
+        return super.onSaveInstanceState()?.let {
+            val savedState = SavedState(it)
+            savedState.overlayAlpha = this.overlay.alpha
+            savedState
+        }
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {

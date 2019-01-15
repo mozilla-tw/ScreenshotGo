@@ -3,11 +3,11 @@ package org.mozilla.scryer.setting
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.ActionBar
-import android.support.v7.app.AlertDialog
-import android.support.v7.preference.Preference
-import android.support.v7.preference.PreferenceFragmentCompat
-import android.support.v7.preference.SwitchPreferenceCompat
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AlertDialog
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
@@ -60,6 +60,7 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         val settingsRepository = ScryerApplication.getSettingsRepository()
 
         enableCaptureService.onPreferenceChangeListener = this
+        enableCaptureService.isIconSpaceReserved = false
 
         enableCaptureService.isChecked = settingsRepository.serviceEnabled
         enableCaptureServiceChildItems(settingsRepository.serviceEnabled)
@@ -85,8 +86,13 @@ class SettingsFragment : PreferenceFragmentCompat(), Preference.OnPreferenceChan
         enableSendUsageDataButton.summary = getString(R.string.settings_detail_mozilla, getString(R.string.app_full_name))
 
         giveFeedbackPreference.onPreferenceClickListener = this
+        giveFeedbackPreference.isIconSpaceReserved = false
+
         shareWithFriendsPreference.onPreferenceClickListener = this
+        shareWithFriendsPreference.isIconSpaceReserved = false
+
         aboutPreference.onPreferenceClickListener = this
+        aboutPreference.isIconSpaceReserved = false
     }
 
     override fun onResume() {

@@ -9,9 +9,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AlertDialog
-import android.support.v7.preference.PreferenceManager
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AlertDialog
+import androidx.preference.PreferenceManager
 import org.mozilla.scryer.R
 
 class PromoteRatingHelper {
@@ -57,15 +57,15 @@ class PromoteRatingHelper {
                 onNegative: () -> Unit
         ): AlertDialog {
             return PromoteDialogHelper.createPromoteDialog(context,
-                    context.getString(R.string.dialogue_feedback_title),
+                    context.getString(R.string.dialogue_feedback_title, context.getString(R.string.app_full_name)),
                     context.getString(R.string.feedback_detail_letusknow),
                     ContextCompat.getDrawable(context, R.drawable.image_feedback),
-                    context.getString(R.string.dialogue_feedback_action_5stars),
+                    context.getString(R.string.feedback_action_rate),
                     {
                         PromoteRatingHelper.goToPlayStore(context)
                         onPositive.invoke()
                     },
-                    context.getString(R.string.dialogue_feedback_action_send),
+                    context.getString(R.string.feedback_action_feedback),
                     {
                         PromoteRatingHelper.goToFeedback(context)
                         onNegative.invoke()

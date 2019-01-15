@@ -10,14 +10,11 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.support.annotation.LayoutRes
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.LayoutRes
+import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.R
@@ -25,7 +22,6 @@ import org.mozilla.scryer.collectionview.CollectionFragment
 import org.mozilla.scryer.collectionview.OnContextMenuActionListener
 import org.mozilla.scryer.collectionview.showCollectionInfo
 import org.mozilla.scryer.collectionview.showDeleteCollectionDialog
-import org.mozilla.scryer.extension.dpToPx
 import org.mozilla.scryer.extension.getValidPosition
 import org.mozilla.scryer.extension.navigateSafely
 import org.mozilla.scryer.persistence.CollectionModel
@@ -36,7 +32,7 @@ import org.mozilla.scryer.ui.GridItemDecoration
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 
-class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+class MainAdapter(private val fragment: androidx.fragment.app.Fragment?): androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>(),
         OnContextMenuActionListener {
     companion object {
         const val TYPE_SECTION_NAME = 0
@@ -61,7 +57,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
     var collectionList: List<CollectionModel> = emptyList()
     var coverList: Map<String, ScreenshotModel> = HashMap()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
         when (viewType) {
             TYPE_SECTION_NAME ->
                 return createSectionNameHolder(parent)
@@ -95,7 +91,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         }
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is SectionNameHolder -> bindSectionNameHolder(holder, position)
             is StaticHolder -> return
@@ -103,7 +99,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         }
     }
 
-    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
+    override fun onViewRecycled(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
         when (holder) {
             is CollectionHolder -> holder.image?.setImageBitmap(null)
         }
@@ -131,7 +127,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         }
     }
 
-    private fun createCollectionHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+    private fun createCollectionHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder {
         val itemView = wrapInItemView(parent, R.layout.item_collection)
 
         val itemHolder = CollectionHolder(itemView, this)
@@ -139,7 +135,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         itemHolder.image = itemView.findViewById(R.id.image)
         itemHolder.overlay = itemView.findViewById(R.id.overlay)
 
-        itemView.setOnClickListener {_ ->
+        itemView.setOnClickListener {
             itemHolder.getValidPosition { position: Int ->
                 val itemIndex = position - PREFIX_ITEM_COUNT
                 val bundle = Bundle().apply {
@@ -157,13 +153,13 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         return itemHolder
     }
 
-    private fun createNewCollectionHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+    private fun createNewCollectionHolder(parent: ViewGroup): androidx.recyclerview.widget.RecyclerView.ViewHolder {
         val itemView = wrapInItemView(parent, R.layout.item_new_collection)
         itemView.elevation = 0f
 
         val holder = StaticHolder(itemView)
-        itemView.setOnClickListener { _ ->
-            holder.getValidPosition { _ ->
+        itemView.setOnClickListener {
+            holder.getValidPosition {
                 val fragment = fragment ?: return@getValidPosition
                 // since suggest collection is not visible on home view, it is confusing to show
                 // name-conflict error msg when user input a name identical to suggest collections,
@@ -194,7 +190,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         return holder
     }
 
-    private fun createQuickAccessHolder(): RecyclerView.ViewHolder {
+    private fun createQuickAccessHolder(): androidx.recyclerview.widget.RecyclerView.ViewHolder {
         return StaticHolder(quickAccessContainer)
     }
 
@@ -250,15 +246,15 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
     }
 
 
-    class StaticHolder(itemView: View): RecyclerView.ViewHolder(itemView)
+    class StaticHolder(itemView: View): androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView)
 
-    class SectionNameHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
+    class SectionNameHolder(itemView: View): androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
         var title: TextView? = null
     }
 
     class CollectionHolder(itemView: View,
                            private val onContextMenuActionListener: OnContextMenuActionListener)
-        : RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
+        : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
         var image: ImageView? = null
         var title: TextView? = null
         var overlay: View? = null
@@ -287,7 +283,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         }
     }
 
-    class SpanSizeLookup(private val columnCount: Int) : GridLayoutManager.SpanSizeLookup() {
+    class SpanSizeLookup(private val columnCount: Int) : androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
         override fun getSpanSize(position: Int): Int {
             return when (position) {
                 POS_COLLECTION_LIST_TITLE -> columnCount
@@ -298,26 +294,27 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
         }
     }
 
+    // TODO: Make event decoration configurable
     class ItemDecoration(context: Context, columnCount: Int, space: Int, top: Int)
         : GridItemDecoration(columnCount, space, top, space, space, space) {
 
-        private val shoppingDude = ContextCompat.getDrawable(context, R.drawable.ornaments)
-        private val shoppingDudePattern = ContextCompat.getDrawable(context,
-                R.drawable.santadeer)
-        private val shoppingBag = ContextCompat.getDrawable(context, R.drawable.gifts)
-
-        private val blackFridayLogo = ContextCompat.getDrawable(context, R.drawable.christmastree)
+//        private val shoppingDude = ContextCompat.getDrawable(context, R.drawable.ornaments)
+//        private val shoppingDudePattern = ContextCompat.getDrawable(context,
+//                R.drawable.santadeer)
+//        private val shoppingBag = ContextCompat.getDrawable(context, R.drawable.gifts)
+//
+//        private val blackFridayLogo = ContextCompat.getDrawable(context, R.drawable.christmastree)
 
         private val quickAccessBkg = ColorDrawable(ContextCompat.getColor(context,
                 R.color.quick_access_background))
-        private val collectionBkg = ColorDrawable(ContextCompat.getColor(context,
-                R.color.home_background))
+//        private val collectionBkg = ColorDrawable(ContextCompat.getColor(context,
+//                R.color.home_background))
 
         override fun getItemOffsets(
                 outRect: Rect,
                 view: View,
-                parent: RecyclerView,
-                state: RecyclerView.State
+                parent: androidx.recyclerview.widget.RecyclerView,
+                state: androidx.recyclerview.widget.RecyclerView.State
         ) {
             val position = parent.getChildAdapterPosition(view) - PREFIX_ITEM_COUNT
             if (position < 0) {
@@ -326,7 +323,7 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
             setSpaces(outRect, position)
         }
 
-        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        override fun onDraw(c: Canvas, parent: androidx.recyclerview.widget.RecyclerView, state: androidx.recyclerview.widget.RecyclerView.State) {
             val childCount = parent.childCount
             for (child in (0 until childCount).map { parent.getChildAt(it) }) {
                 val pos = parent.getChildAdapterPosition(child)
@@ -335,111 +332,108 @@ class MainAdapter(private val fragment: Fragment?): RecyclerView.Adapter<Recycle
                         drawQuickAccessTitle(c, child)
                     }
 
-                    POS_COLLECTION_LIST_TITLE -> {
-                        drawCollectionTitle(c, child)
-                        decorateCollectionTitle(c, child)
-                    }
+//                    POS_COLLECTION_LIST_TITLE -> {
+//                        drawCollectionTitle(c, child)
+//                        decorateCollectionTitle(c, child)
+//                    }
                 }
             }
             super.onDraw(c, parent, state)
         }
 
-        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-            super.onDrawOver(c, parent, state)
-            val childCount = parent.childCount
-            for (child in (0 until childCount).map { parent.getChildAt(it) }) {
-                val pos = parent.getChildAdapterPosition(child)
-                when (pos) {
-                    parent.adapter.itemCount - 1 -> {
-                        decorateLastItem(c, child)
-                    }
-
-                    POS_QUICK_ACCESS_TITLE -> {
-                        decorateQuickAccessTitle(c, child)
-                    }
-                }
-            }
-        }
+//        override fun onDrawOver(c: Canvas, parent: androidx.recyclerview.widget.RecyclerView, state: androidx.recyclerview.widget.RecyclerView.State) {
+//            super.onDrawOver(c, parent, state)
+//            val childCount = parent.childCount
+//            for (child in (0 until childCount).map { parent.getChildAt(it) }) {
+//                val pos = parent.getChildAdapterPosition(child)
+//                val lastIndex = (parent.adapter?.itemCount ?: 0) - 1
+//                if (lastIndex > POS_COLLECTION_LIST_TITLE && pos == lastIndex) {
+//                    decorateLastItem(c, child)
+//                } else if (pos == POS_QUICK_ACCESS_TITLE) {
+//                    decorateQuickAccessTitle(c, child)
+//                }
+//            }
+//        }
 
         private fun drawQuickAccessTitle(canvas: Canvas, view: View) {
             quickAccessBkg.setBounds(view.left, view.top, view.right, view.bottom)
             quickAccessBkg.draw(canvas)
         }
 
-        private fun decorateQuickAccessTitle(canvas: Canvas, view: View) {
-            val logo = blackFridayLogo ?: return
-
-            val verticalSpace = view.height
-
-            val logoWidth = logo.intrinsicWidth
-            val logoHeight = logo.intrinsicHeight
-
-            val targetHeight = (verticalSpace * 1f).toInt()
-            val targetWidth = (logoWidth * (targetHeight / logoHeight.toFloat())).toInt()
-
-            val vPadding = view.resources.getDimensionPixelSize(R.dimen.quick_access_item_margin_top)
-            val hPadding = view.paddingEnd + 48f.dpToPx(view.resources.displayMetrics)
-
-            val bottom = view.bottom + vPadding
-            val top = bottom - targetHeight
-            val right = view.right - hPadding
-            val left = right - targetWidth
-
-            logo.setBounds(left, top, right, bottom)
-            logo.draw(canvas)
-        }
-
-        private fun drawCollectionTitle(canvas: Canvas, view: View) {
-            collectionBkg.setBounds(view.left, view.top, view.right, view.bottom)
-            collectionBkg.draw(canvas)
-        }
-
-        private fun decorateCollectionTitle(canvas: Canvas, view: View) {
-            val dude = shoppingDude ?: return
-            val pattern = shoppingDudePattern ?: return
-
-            val verticalSpace = view.height
-
-            val logoWidth = dude.intrinsicWidth
-            val logoHeight = dude.intrinsicHeight
-
-            val targetHeight = (verticalSpace * 0.9f).toInt()
-
-            val ornamentHeight = (verticalSpace * 0.55f).toInt()
-            val ornamentWidth = (logoWidth * (ornamentHeight / logoHeight.toFloat())).toInt()
-
-            val hPadding = view.resources.getDimensionPixelSize(R.dimen.home_horizontal_padding)
-
-            var top = view.top
-            var bottom = top + ornamentHeight
-            var right = view.right - hPadding
-            var left = right - ornamentWidth
-
-            dude.setBounds(left, top, right, bottom)
-
-            bottom = view.bottom
-            top = bottom - targetHeight
-            right = dude.bounds.left - 4f.dpToPx(view.resources.displayMetrics)
-            left = right - (pattern.intrinsicWidth * ((bottom - top) / pattern.intrinsicHeight.toFloat())).toInt()
-            pattern.setBounds(left, top, right, bottom)
-
-            view.invalidate()
-            pattern.draw(canvas)
-            dude.draw(canvas)
-        }
-
-        private fun decorateLastItem(canvas: Canvas, view: View) {
-            val bag = shoppingBag ?: return
-
-            val bagWidth = (bag.intrinsicWidth * 0.5f).toInt()
-            val bagHeight = (bag.intrinsicHeight * 0.5f).toInt()
-
-            val bottom = view.bottom
-            val right = view.right
-            val left = right - bagWidth
-            val top = bottom - bagHeight
-            bag.setBounds(left, top, right, bottom)
-            bag.draw(canvas)
-        }
+//        private fun decorateQuickAccessTitle(canvas: Canvas, view: View) {
+//            val logo = blackFridayLogo ?: return
+//
+//            val verticalSpace = view.height
+//
+//            val logoWidth = logo.intrinsicWidth
+//            val logoHeight = logo.intrinsicHeight
+//
+//            val targetHeight = (verticalSpace * 1f).toInt()
+//            val targetWidth = (logoWidth * (targetHeight / logoHeight.toFloat())).toInt()
+//
+//            val vPadding = view.resources.getDimensionPixelSize(R.dimen.quick_access_item_margin_top)
+//            val hPadding = view.paddingEnd + 48f.dpToPx(view.resources.displayMetrics)
+//
+//            val bottom = view.bottom + vPadding
+//            val top = bottom - targetHeight
+//            val right = view.right - hPadding
+//            val left = right - targetWidth
+//
+//            logo.setBounds(left, top, right, bottom)
+//            logo.draw(canvas)
+//        }
+//
+//        private fun drawCollectionTitle(canvas: Canvas, view: View) {
+//            collectionBkg.setBounds(view.left, view.top, view.right, view.bottom)
+//            collectionBkg.draw(canvas)
+//        }
+//
+//        private fun decorateCollectionTitle(canvas: Canvas, view: View) {
+//            val dude = shoppingDude ?: return
+//            val pattern = shoppingDudePattern ?: return
+//
+//            val verticalSpace = view.height
+//
+//            val logoWidth = dude.intrinsicWidth
+//            val logoHeight = dude.intrinsicHeight
+//
+//            val targetHeight = (verticalSpace * 0.9f).toInt()
+//
+//            val ornamentHeight = (verticalSpace * 0.55f).toInt()
+//            val ornamentWidth = (logoWidth * (ornamentHeight / logoHeight.toFloat())).toInt()
+//
+//            val hPadding = view.resources.getDimensionPixelSize(R.dimen.home_horizontal_padding)
+//
+//            var top = view.top
+//            var bottom = top + ornamentHeight
+//            var right = view.right - hPadding
+//            var left = right - ornamentWidth
+//
+//            dude.setBounds(left, top, right, bottom)
+//
+//            bottom = view.bottom
+//            top = bottom - targetHeight
+//            right = dude.bounds.left - 4f.dpToPx(view.resources.displayMetrics)
+//            left = right - (pattern.intrinsicWidth * ((bottom - top) / pattern.intrinsicHeight.toFloat())).toInt()
+//            pattern.setBounds(left, top, right, bottom)
+//
+//            view.invalidate()
+//            pattern.draw(canvas)
+//            dude.draw(canvas)
+//        }
+//
+//        private fun decorateLastItem(canvas: Canvas, view: View) {
+//            val bag = shoppingBag ?: return
+//
+//            val bagWidth = (bag.intrinsicWidth * 0.5f).toInt()
+//            val bagHeight = (bag.intrinsicHeight * 0.5f).toInt()
+//
+//            val bottom = view.bottom
+//            val right = view.right
+//            val left = right - bagWidth
+//            val top = bottom - bagHeight
+//            bag.setBounds(left, top, right, bottom)
+//            bag.draw(canvas)
+//        }
     }
 }

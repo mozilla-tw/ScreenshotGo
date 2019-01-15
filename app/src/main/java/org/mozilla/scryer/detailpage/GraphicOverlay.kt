@@ -1,13 +1,23 @@
 package org.mozilla.scryer.detailpage
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.hardware.camera2.CameraCharacteristics
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
-import java.util.HashSet
+import org.mozilla.scryer.BuildConfig
+import java.util.*
 
 class GraphicOverlay(context: Context, attrs: AttributeSet) : View(context, attrs) {
+
+    companion object {
+        private val COLOR_BACKGROUND = Color.parseColor("#b3000000")
+    }
+
     private val lock = Any()
     private var previewWidth: Int = 0
     private var widthScaleFactor = 1.0f
@@ -15,6 +25,22 @@ class GraphicOverlay(context: Context, attrs: AttributeSet) : View(context, attr
     private var heightScaleFactor = 1.0f
     private var facing = CameraCharacteristics.LENS_FACING_BACK
     private val graphics = HashSet<Graphic>()
+
+    private val debugPaint = if (BuildConfig.DEBUG) {
+        Paint().apply {
+            color = Color.RED
+            style = Paint.Style.FILL_AND_STROKE
+        }
+    } else {
+        null
+    }
+    private var touchX: Int = 0
+    private var touchY: Int = 0
+
+    init {
+        setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+        isClickable = true
+    }
 
     /**
      * Base class for a custom graphics object to be rendered within the graphic overlay. Subclass
@@ -137,10 +163,26 @@ class GraphicOverlay(context: Context, attrs: AttributeSet) : View(context, attr
                 heightScaleFactor = canvas.height.toFloat() / previewHeight.toFloat()
             }
 
+            canvas.drawColor(COLOR_BACKGROUND)
+
             for (graphic in graphics) {
                 graphic.draw(canvas)
             }
+
+            debugPaint?.let {
+                canvas.drawCircle(touchX.toFloat(), touchY.toFloat(), 20f, debugPaint)
+            }
         }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (BuildConfig.DEBUG) {
+            touchX = event.x.toInt()
+            touchY = event.y.toInt()
+            postInvalidate()
+        }
+        return super.onTouchEvent(event)
     }
 }
 

@@ -26,6 +26,7 @@ import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import kotlinx.android.synthetic.main.activity_detail_page.*
+import kotlinx.android.synthetic.main.activity_detail_page.view.*
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.launch
@@ -315,6 +316,12 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
                     override fun onStateChanged(bottomSheet: View, newState: Int) {
                         if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                             unselectAllBlocks()
+                            switchToHintModePanelLayout()
+                        }
+
+                        if (newState == BottomSheetBehavior.STATE_EXPANDED
+                                && graphicOverlayHelper.getSelectedText() == "") {
+                            BottomSheetBehavior.from(text_mode_panel_content).state = BottomSheetBehavior.STATE_COLLAPSED
                         }
                     }
                 })
@@ -568,6 +575,7 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
 //                pageView)
         updateGraphicOverlay(graphicBlocks)
 
+        switchToHintModePanelLayout()
         updatePanel("")
     }
 
@@ -598,7 +606,6 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
 
     private fun unselectAllBlocks() {
         graphicOverlayHelper.unselectAllBlocks()
-        updatePanel("")
     }
 
     private suspend fun setupTextSelectionCallback(textView: TextView) {
@@ -624,18 +631,25 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
 
         val behavior = BottomSheetBehavior.from(text_mode_panel_content)
         if (panelText.isEmpty()) {
-            text_mode_panel_content.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            textModePanelHandler.visibility = View.GONE
-            textModePanelTextView.visibility = View.GONE
-            textModePanelHint.visibility = View.VISIBLE
             behavior.state = BottomSheetBehavior.STATE_COLLAPSED
         } else {
-            text_mode_panel_content.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-            textModePanelHandler.visibility = View.VISIBLE
-            textModePanelTextView.visibility = View.VISIBLE
-            textModePanelHint.visibility = View.GONE
+            switchToTextModePanelLayout()
             behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         }
+    }
+
+    private fun switchToHintModePanelLayout() {
+        text_mode_panel_content.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+        textModePanelHandler.visibility = View.GONE
+        textModePanelTextView.visibility = View.GONE
+        textModePanelHint.visibility = View.VISIBLE
+    }
+
+    private fun switchToTextModePanelLayout() {
+        text_mode_panel_content.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+        textModePanelHandler.visibility = View.VISIBLE
+        textModePanelTextView.visibility = View.VISIBLE
+        textModePanelHint.visibility = View.GONE
     }
 
 //    private fun showSystemUI() {

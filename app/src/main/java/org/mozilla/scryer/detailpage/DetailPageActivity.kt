@@ -4,25 +4,24 @@
 
 package org.mozilla.scryer.detailpage
 
-
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.*
 import android.os.Bundle
+import android.provider.Settings
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.core.view.ViewCompat
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.ml.common.FirebaseMLException
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
@@ -41,10 +40,12 @@ import org.mozilla.scryer.collectionview.showScreenshotInfoDialog
 import org.mozilla.scryer.collectionview.showShareScreenshotDialog
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
+import org.mozilla.scryer.preference.PreferenceWrapper
 import org.mozilla.scryer.promote.Promoter
 import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.ScryerToast
+import org.mozilla.scryer.ui.TextViewClickMovement
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.coroutines.experimental.suspendCoroutine
@@ -65,18 +66,18 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
         fun showDetailPage(context: Context, screenshot: ScreenshotModel, srcView: View?,
                            collectionId: String? = null) {
             val intent = Intent(context, DetailPageActivity::class.java)
-            val bundle = srcView?.let {
-                ViewCompat.getTransitionName(it)?.let { transitionName ->
-                    val option = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                            context as Activity, srcView, transitionName)
-                    option.toBundle()
-                }
-            }
+//            val bundle = srcView?.let {
+//                ViewCompat.getTransitionName(it)?.let { transitionName ->
+//                    val option = ActivityOptionsCompat.makeSceneTransitionAnimation(
+//                            context as Activity, srcView, transitionName)
+//                    option.toBundle()
+//                }
+//            }
             intent.putExtra(EXTRA_SCREENSHOT_ID, screenshot.id)
             collectionId?.let {
                 intent.putExtra(EXTRA_COLLECTION_ID, collectionId)
             }
-            (context as AppCompatActivity).startActivity(intent, bundle)
+            (context as AppCompatActivity).startActivity(intent)
         }
     }
 
@@ -105,12 +106,16 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
         LoadingViewGroup(this)
     }
 
+    private val prefs = PreferenceWrapper(this)
+
     private var isRecognizing = false
     private var isTextMode = false
     private var isEnterTransitionPostponed = true
 
     private val adapter = DetailPageAdapter()
-    private val graphicOverlayHelper = GraphicOverlayHelper()
+    private val graphicOverlayHelper: GraphicOverlayHelper by lazy {
+        GraphicOverlayHelper(graphicOverlay)
+    }
 
     /* whether the user has run ocr on the current image before swiping to the next one */
     private var hasRunOcr = false
@@ -143,7 +148,11 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_detail_page)
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+
         supportPostponeEnterTransition()
 
         initActionBar()
@@ -153,7 +162,35 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
 
         updateUI()
 
+        if (!prefs.isOcrOnboardingShown()) {
+            showOcrOnboarding()
+        }
+
         TelemetryWrapper.viewScreenshot()
+    }
+
+    private fun showOcrOnboarding() {
+        onboarding_view.visibility = View.VISIBLE
+        onboarding_view.setOnClickListener {
+            (onboarding_view.parent as ViewGroup).removeView(onboarding_view)
+        }
+
+        onboarding_overlay.overlayMode = GraphicOverlay.MODE_HIGHLIGHT
+        onboarding_overlay.overlayColor = ContextCompat.getColor(this, R.color.detail_onboarding_overlay)
+        onboarding_overlay.add(object : GraphicOverlay.Graphic(onboarding_overlay) {
+            private val spotlightPaint: Paint = Paint().apply {
+                xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+            }
+
+            override fun draw(canvas: Canvas) {
+                canvas.drawCircle((text_mode_fab.left + text_mode_fab.right) / 2f,
+                        (text_mode_fab.top + text_mode_fab.bottom) / 2f,
+                        (text_mode_fab.right - text_mode_fab.left).toFloat(),
+                        spotlightPaint)
+            }
+        })
+
+        prefs.setOcrOnboardingShown()
     }
 
     override fun onBackPressed() {
@@ -225,6 +262,7 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
             }
             R.id.action_select_all -> {
                 selectAllBlocks()
+                TelemetryWrapper.selectAllExtractedText()
             }
             else -> return super.onOptionsItemSelected(item)
         }
@@ -240,7 +278,7 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
             onBackPressed()
         }
 
-        toolbar.setOnTouchListener { v, event ->
+        toolbar.setOnTouchListener { _, event ->
             routeUnhandledEventToOverlay(event)
         }
 
@@ -255,10 +293,10 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
     private fun routeUnhandledEventToOverlay(event: MotionEvent): Boolean {
         val scale = IMAGE_SCALE_TEXT_MODE
         val leftDiff = view_pager.measuredWidth * (1 - scale) / 2f
-        val x = (event.rawX - leftDiff) / scale
-        val y = event.rawY / scale
+        val x = (event.x - leftDiff) / scale
+        val y = event.y / scale + (toolbar.layoutParams as ViewGroup.MarginLayoutParams).topMargin
         event.setLocation(x, y)
-        return graphic_overlay.dispatchTouchEvent(event)
+        return graphicOverlay.dispatchTouchEvent(event)
     }
 
     private fun initViewPager() {
@@ -301,20 +339,32 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun initPanel() {
-        val behavior = BottomSheetBehavior.from(text_mode_panel_content)
-        behavior.peekHeight = resources.getDimensionPixelSize(
-                R.dimen.sorting_panel_title_height)
-        behavior.setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+        BottomSheetBehavior.from(text_mode_panel_content)
+                .setBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                    override fun onSlide(bottomSheet: View, slideOffset: Float) {
 
-            }
+                    }
 
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    unselectAllBlocks()
-                }
+                    override fun onStateChanged(bottomSheet: View, newState: Int) {
+                        if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                            unselectAllBlocks()
+                            switchToHintModePanelLayout()
+                        }
+
+                        if (newState == BottomSheetBehavior.STATE_EXPANDED
+                                && graphicOverlayHelper.getSelectedText() == "") {
+                            BottomSheetBehavior.from(text_mode_panel_content).state = BottomSheetBehavior.STATE_COLLAPSED
+                        }
+                    }
+                })
+
+        textModePanelTextView.movementMethod = TextViewClickMovement(this, object : TextViewClickMovement.OnTextViewClickMovementListener {
+            override fun onLinkClicked(linkText: String, linkType: TextViewClickMovement.LinkType) {
+                TelemetryWrapper.clickLinkInExtractedText()
             }
         })
+
+        textModePanelHint.setOnClickListener { TelemetryWrapper.clickOnOCRBottomTip() }
     }
 
     private fun startRecognition() {
@@ -331,14 +381,14 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
                     ScryerToast.makeText(this@DetailPageActivity,
                             getString(R.string.detail_ocr_error_edgecase),
                             Toast.LENGTH_SHORT).show()
-                    TelemetryWrapper.viewTextInScreenshot(TelemetryWrapper.Value.WEIRD_SIZE)
+                    TelemetryWrapper.viewTextInScreenshot(textRecognitionResultForTelemetry(TelemetryWrapper.Value.WEIRD_SIZE, result.value))
                 } else {
-                    TelemetryWrapper.viewTextInScreenshot(TelemetryWrapper.Value.SUCCESS)
+                    TelemetryWrapper.viewTextInScreenshot(textRecognitionResultForTelemetry(TelemetryWrapper.Value.SUCCESS, result.value))
                 }
 
                 if (isRecognizing) {
-                    processTextRecognitionResult(result.value)
                     isTextMode = true
+                    processTextRecognitionResult(result.value)
                     updateUI()
                     if (!hasRunOcr) {
                         hasRunOcr = true
@@ -346,16 +396,41 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
                     }
                 }
 
+            } else if (result is Result.Unavailable) {
+                showConnectPromptSnackbar()
+                TelemetryWrapper.viewTextInScreenshot(TelemetryWrapper.TextRecognitionResult(TelemetryWrapper.Value.FAIL, result.msg))
+
             } else if (result is Result.Failed) {
                 ScryerToast.makeText(this@DetailPageActivity,
                         getString(R.string.detail_ocr_error_failed),
                         Toast.LENGTH_SHORT).show()
 
-                TelemetryWrapper.viewTextInScreenshot(TelemetryWrapper.Value.FAIL, result.msg)
+                TelemetryWrapper.viewTextInScreenshot(TelemetryWrapper.TextRecognitionResult(TelemetryWrapper.Value.FAIL, result.msg))
             }
 
             isRecognizing = false
             updateUI()
+        }
+    }
+
+    private fun textRecognitionResultForTelemetry(value: String, textResult: FirebaseVisionText): TelemetryWrapper.TextRecognitionResult {
+        val regex = "http://|https://".toRegex()
+        val match = regex.find(textResult.text)
+
+        val textBlocks = textResult.textBlocks.size
+        val totalLength = textResult.text.length
+
+        return TelemetryWrapper.TextRecognitionResult(value, "",
+                match?.groupValues?.size ?: 0, textBlocks, totalLength)
+    }
+
+    private fun showConnectPromptSnackbar() {
+        Snackbar.make(snackbar_container, R.string.detail_ocr_error_module, Snackbar.LENGTH_LONG).apply {
+            setAction(R.string.detail_ocr_error_action_connect) {
+                startActivity(Intent(Settings.ACTION_WIRELESS_SETTINGS))
+                TelemetryWrapper.clickOnOCRErrorTip(getString(R.string.detail_ocr_error_module))
+            }
+            show()
         }
     }
 
@@ -377,7 +452,11 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
                     }
                 }
             } catch (e: Exception) {
-                Result.Failed("recognize failed: " + e.message)
+                if ((e as? FirebaseMLException)?.code == FirebaseMLException.UNAVAILABLE) {
+                    Result.Unavailable("recognize failed: " + e.message)
+                } else {
+                    Result.Failed("recognize failed: " + e.message)
+                }
             }
 
         } ?: Result.Failed("invalid bitmap")
@@ -417,7 +496,7 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
             pagerTranslation = -view_pager.height * ((1 - IMAGE_SCALE_TEXT_MODE) / 2f)
 
             launch(Dispatchers.Main) {
-                setupTextSelectionCallback(textModeResultTextView)
+                setupTextSelectionCallback(textModePanelTextView)
                 updateLoadingViewVisibility(false)
                 updateTextModePanelVisibility(true)
             }
@@ -429,12 +508,18 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
             enableTextModeMenu(false)
             pagerScale = IMAGE_SCALE_NORMAL_MODE
             pagerTranslation = 1f
-            graphic_overlay.visibility = View.GONE
+            updateGraphicOverlay(emptyList())
         }
         updateNavigationIcon()
 
+        if (isRecognizing) {
+            supportActionBar?.hide()
+        } else {
+            supportActionBar?.show()
+        }
+
         view_pager.pageLocked = (pageView?.isScaled() == true)
-        listOf(view_pager, graphic_overlay).forEach {
+        listOf(view_pager, graphicOverlay).forEach {
             it.animate()
                     .scaleX(pagerScale)
                     .scaleY(pagerScale)
@@ -521,64 +606,69 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
         if (isShowing) {
             toolbar_background.visibility = View.VISIBLE
             supportActionBar?.show()
-            window?.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             text_mode_fab.show()
             cancel_fab.hide()
 
         } else {
             toolbar_background.visibility = View.INVISIBLE
             supportActionBar?.hide()
-            window?.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+
             text_mode_fab.hide()
             cancel_fab.hide()
         }
     }
 
-    private suspend fun runTextRecognition(selectedImage: Bitmap): FirebaseVisionText? =
-            suspendCoroutine { cont ->
-                val image = FirebaseVisionImage.fromBitmap(selectedImage)
-                val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
-                detector.processImage(image)
-                        .addOnSuccessListener { texts ->
-                            cont.resume(texts)
-                        }
-                        .addOnFailureListener { exception ->
-                            cont.resumeWithException(exception)
-                        }
-            }
+    private suspend fun runTextRecognition(
+            selectedImage: Bitmap
+    ): FirebaseVisionText? = suspendCoroutine { cont ->
 
-    private fun processTextRecognitionResult(texts: FirebaseVisionText) {
-        val textBlocks = texts.textBlocks.toMutableList().apply {
-            sortBy { it.boundingBox?.centerY() }
-        }
+        val image = FirebaseVisionImage.fromBitmap(selectedImage)
+        val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
+        detector.processImage(image)
+                .addOnSuccessListener { texts ->
+                    cont.resume(texts)
+                }
+                .addOnFailureListener { exception ->
+                    cont.resumeWithException(exception)
+                }
+    }
 
-        if (textBlocks.size == 0) {
-            ScryerToast.makeText(this, getString(R.string.detail_ocr_error_notext),
-                    Toast.LENGTH_SHORT).show()
-            return
-        }
+    private fun processTextRecognitionResult(result: FirebaseVisionText) {
+        val pageView = adapter.findViewForPosition(view_pager.currentItem) ?: return
 
-        updateGraphicOverlay(textBlocks.map { TextBlockGraphic(graphic_overlay, it) })
+        val graphicBlocks = graphicOverlayHelper.convertToGraphicBlocks(result, pageView)
+//        val graphicBlocks = graphicOverlayHelper.convertWordsToGraphicBlocks(result,
+//                listOf("word1", "word2"),
+//                pageView)
+        updateGraphicOverlay(graphicBlocks)
+
+        switchToHintModePanelLayout()
         updatePanel("")
     }
 
     private fun updateGraphicOverlay(blocks: List<TextBlockGraphic>) {
-        graphic_overlay.apply {
-            visibility = View.VISIBLE
-            clear()
-
-            blocks.forEach { graphic_overlay.add(it) }
-        }
+        graphicOverlay.setBlocks(blocks, if (isTextMode) {
+            GraphicOverlay.MODE_OVERLAY_HIGHLIGHT
+        } else {
+            GraphicOverlay.MODE_HIGHLIGHT
+        })
 
         graphicOverlayHelper.blocks = blocks
 
         val touchHelper = GraphicOverlayTouchHelper(this, blocks)
         touchHelper.callback = object : GraphicOverlayTouchHelper.Callback {
             override fun onBlockSelectStateChanged(block: TextBlockGraphic?) {
-                updatePanel(graphicOverlayHelper.getSelectedText())
+                val selectedText = graphicOverlayHelper.getSelectedText()
+                updatePanel(selectedText)
+
+                if (!selectedText.isEmpty()) {
+                    TelemetryWrapper.clickOnTextBlock()
+                }
             }
         }
-        graphic_overlay.setOnTouchListener { _, event ->
+        graphicOverlay.setOnTouchListener { _, event ->
             touchHelper.onTouchEvent(event)
         }
     }
@@ -590,7 +680,6 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
 
     private fun unselectAllBlocks() {
         graphicOverlayHelper.unselectAllBlocks()
-        updatePanel("")
     }
 
     private suspend fun setupTextSelectionCallback(textView: TextView) {
@@ -611,24 +700,28 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
-    /**
-     * @param block the block being selected, or null if nothing is selected
-     */
     private fun updatePanel(panelText: String) {
-        textModeResultTextView.text = panelText
+        textModePanelTextView.text = panelText
 
         val behavior = BottomSheetBehavior.from(text_mode_panel_content)
         if (panelText.isEmpty()) {
-            text_mode_panel_content.layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            textModeResultTextView.visibility = View.GONE
-            textModeResultMoreOptions.visibility = View.VISIBLE
             behavior.state = BottomSheetBehavior.STATE_COLLAPSED
         } else {
-            text_mode_panel_content.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-            textModeResultTextView.visibility = View.VISIBLE
-            textModeResultMoreOptions.visibility = View.GONE
-            behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+            switchToTextModePanelLayout()
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
+    }
+
+    private fun switchToHintModePanelLayout() {
+        textModePanelHandler.visibility = View.GONE
+        textModePanelTextView.visibility = View.GONE
+        textModePanelHint.visibility = View.VISIBLE
+    }
+
+    private fun switchToTextModePanelLayout() {
+        textModePanelHandler.visibility = View.VISIBLE
+        textModePanelTextView.visibility = View.VISIBLE
+        textModePanelHint.visibility = View.GONE
     }
 
 //    private fun showSystemUI() {
@@ -671,7 +764,8 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
                 value: FirebaseVisionText,
                 @Suppress("unused") val msg: String
         ) : Success(value)
-        class Failed(@Suppress("unused") val msg: String) : Result()
+        open class Failed(@Suppress("unused") val msg: String) : Result()
+        class Unavailable(msg: String) : Failed(msg)
     }
 
 }

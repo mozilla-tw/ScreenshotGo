@@ -56,6 +56,11 @@ class TelemetryWrapper {
         const val SEARCH_FROM_EXTRACTED_TEXT = "Search from extracted text"
         const val COPY_EXTRACTED_TEXT = "Copy extracted text"
         const val SHARE_EXTRACTED_TEXT = "Share extracted text"
+        const val CLICK_ON_TEXT_BLOCK = "Click on text block"
+        const val CLICK_LINK_IN_EXTRACTED_TEXT = "Click link in extracted text"
+        const val SELECT_ALL_EXTRACTED_TEXT = "Select all extracted text"
+        const val CLICK_ON_OCR_BOTTOM_TIP = "Click on OCR bottom tip"
+        const val CLICK_ON_OCR_ERROR_TIP = "Click on OCR error tip"
         const val VISIT_SEARCH_PAGE = "Visit search page"
         const val INTERESTED_IN_SEARCH = "Interested in search"
         const val NOT_INTERESTED_IN_SEARCH = "Not interested in search"
@@ -94,6 +99,9 @@ class TelemetryWrapper {
         const val MESSAGE = "message"
         const val TRIGGER = "trigger"
         const val FROM = "from"
+        const val LINKS_FOUND = "links_found"
+        const val TEXT_BLOCKS = "text_blocks"
+        const val TOTAL_LENGTH = "total_length"
     }
 
     object ExtraValue {
@@ -480,9 +488,17 @@ class TelemetryWrapper {
                 method = Method.V1,
                 `object` = Object.GO,
                 value = "success,weird_size,fail",
-                extras = [TelemetryExtra(name = Extra.MESSAGE, value = "empty or failing reason")])
-        fun viewTextInScreenshot(value: String, message: String = "") {
-            EventBuilder(Category.VIEW_TEXT_IN_SCREENSHOT, Method.V1, Object.GO, value).extra(Extra.MESSAGE, message).queue()
+                extras = [TelemetryExtra(name = Extra.MESSAGE, value = "empty or failing reason"),
+                    TelemetryExtra(name = Extra.LINKS_FOUND, value = "[0-9]+"),
+                    TelemetryExtra(name = Extra.TEXT_BLOCKS, value = "[0-9]+"),
+                    TelemetryExtra(name = Extra.TOTAL_LENGTH, value = "[0-9]+")])
+        fun viewTextInScreenshot(textRecognitionResult: TextRecognitionResult) {
+            EventBuilder(Category.VIEW_TEXT_IN_SCREENSHOT, Method.V1, Object.GO, textRecognitionResult.value)
+                    .extra(Extra.MESSAGE, textRecognitionResult.message)
+                    .extra(Extra.LINKS_FOUND, textRecognitionResult.linksFound.toString())
+                    .extra(Extra.TEXT_BLOCKS, textRecognitionResult.textBlocks.toString())
+                    .extra(Extra.TOTAL_LENGTH, textRecognitionResult.totalLength.toString())
+                    .queue()
             AdjustHelper.trackEvent(ADJUST_EVENT_VIEW_TEXT_IN_SCREENSHOT)
         }
 
@@ -528,6 +544,61 @@ class TelemetryWrapper {
                 extras = [])
         fun shareExtractedText() {
             EventBuilder(Category.SHARE_EXTRACTED_TEXT, Method.V1, Object.GO).queue()
+        }
+
+        @TelemetryDoc(
+                name = Category.CLICK_ON_TEXT_BLOCK,
+                category = Category.CLICK_ON_TEXT_BLOCK,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [])
+        fun clickOnTextBlock() {
+            EventBuilder(Category.CLICK_ON_TEXT_BLOCK, Method.V1, Object.GO).queue()
+        }
+
+        @TelemetryDoc(
+                name = Category.CLICK_LINK_IN_EXTRACTED_TEXT,
+                category = Category.CLICK_LINK_IN_EXTRACTED_TEXT,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [])
+        fun clickLinkInExtractedText() {
+            EventBuilder(Category.CLICK_LINK_IN_EXTRACTED_TEXT, Method.V1, Object.GO).queue()
+        }
+
+        @TelemetryDoc(
+                name = Category.SELECT_ALL_EXTRACTED_TEXT,
+                category = Category.SELECT_ALL_EXTRACTED_TEXT,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [])
+        fun selectAllExtractedText() {
+            EventBuilder(Category.SELECT_ALL_EXTRACTED_TEXT, Method.V1, Object.GO).queue()
+        }
+
+        @TelemetryDoc(
+                name = Category.CLICK_ON_OCR_BOTTOM_TIP,
+                category = Category.CLICK_ON_OCR_BOTTOM_TIP,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [])
+        fun clickOnOCRBottomTip() {
+            EventBuilder(Category.CLICK_ON_OCR_BOTTOM_TIP, Method.V1, Object.GO).queue()
+        }
+
+        @TelemetryDoc(
+                name = Category.CLICK_ON_OCR_ERROR_TIP,
+                category = Category.CLICK_ON_OCR_ERROR_TIP,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [TelemetryExtra(name = Extra.MESSAGE, value = "ui message")])
+        fun clickOnOCRErrorTip(message: String) {
+            EventBuilder(Category.CLICK_ON_OCR_ERROR_TIP, Method.V1, Object.GO).extra(Extra.MESSAGE, message).queue()
         }
 
         @TelemetryDoc(
@@ -771,4 +842,10 @@ class TelemetryWrapper {
             private const val MEASUREMENT_SCREENSHOT_COUNT = "screenshot_count"
         }
     }
+
+    data class TextRecognitionResult(val value: String,
+                                     val message: String = "",
+                                     val linksFound: Int = 0,
+                                     val textBlocks: Int = 0,
+                                     val totalLength: Int = 0)
 }

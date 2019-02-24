@@ -28,6 +28,8 @@ import org.mozilla.scryer.persistence.SuggestCollectionHelper
 import org.mozilla.scryer.setSupportActionBar
 import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.InnerSpaceDecoration
+import org.mozilla.scryer.util.hideKeyboard
+import org.mozilla.scryer.util.showKeyboard
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 
 class FullTextSearchFragment : androidx.fragment.app.Fragment() {
@@ -192,7 +194,7 @@ class FullTextSearchFragment : androidx.fragment.app.Fragment() {
                     } else {
                         View.VISIBLE
                     }
-                    emptyView.visibility = if (screenshots.isEmpty() && s?.isEmpty() == false && !isIndexing) {
+                    emptyView.visibility = if (screenshots.isEmpty() && s?.isNotEmpty() == true && !isIndexing) {
                         View.VISIBLE
                     } else {
                         View.GONE
@@ -209,8 +211,25 @@ class FullTextSearchFragment : androidx.fragment.app.Fragment() {
                         screenshotAdapter.notifyDataSetChanged()
                     }
                 })
+
+                clear.visibility = if (searchEditText.text?.isNotEmpty() == true) {
+                    View.VISIBLE
+                } else {
+                    View.INVISIBLE
+                }
             }
         })
+        searchEditText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            // Avoid showing keyboard again when returning to the previous page by back key.
+            if (hasFocus) {
+                showKeyboard(searchEditText)
+            } else {
+                hideKeyboard(searchEditText)
+            }
+        }
+        searchEditText.requestFocus()
+
+        clear.setOnClickListener { searchEditText.setText("") }
 
         selectAllCheckbox.setOnClickListener { _ ->
             val isChecked = selectAllCheckbox.isChecked
@@ -275,7 +294,8 @@ class FullTextSearchFragment : androidx.fragment.app.Fragment() {
 
     private fun onIndexEnd() {
         screenshotAdapter.showLoadingView(null)
-        if (screenshotAdapter.screenshotList.isEmpty()) {
+        if (screenshotAdapter.screenshotList.isEmpty()
+                && searchEditText.text?.isNotEmpty() == true) {
             emptyView.visibility = View.VISIBLE
         }
         isIndexing = false
@@ -284,6 +304,7 @@ class FullTextSearchFragment : androidx.fragment.app.Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
+                searchEditText.clearFocus()
                 getNavController()?.navigateUp()
             }
 

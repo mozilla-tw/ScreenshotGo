@@ -257,7 +257,7 @@ class SortingPanelActivity : AppCompatActivity() {
         if (screenshot.collectionId == CollectionModel.UNCATEGORIZED) {
             screenshot.collectionId = CollectionModel.CATEGORY_NONE
             launchIO {
-                screenshotViewModel.updateScreenshot(screenshot)
+                screenshotViewModel.updateScreenshots(listOf(screenshot))
             }
         }
     }
@@ -432,7 +432,7 @@ class SortingPanelActivity : AppCompatActivity() {
 
             screenshot.collectionId = collection.id
             withContext(Dispatchers.Default) {
-                screenshotViewModel.addScreenshot(listOf(screenshot))
+                screenshotViewModel.updateScreenshots(listOf(screenshot))
             }
 
             if (isSortingSingleScreenshot) {
@@ -478,7 +478,7 @@ class SortingPanelActivity : AppCompatActivity() {
 
     private fun createNewScreenshot(path: String): ScreenshotModel? {
         if (path.isNotEmpty()) {
-            return ScreenshotModel(path, System.currentTimeMillis(), CollectionModel.UNCATEGORIZED)
+            return ScreenshotModel(path, System.currentTimeMillis(), CollectionModel.CATEGORY_NONE)
         }
         return null
     }

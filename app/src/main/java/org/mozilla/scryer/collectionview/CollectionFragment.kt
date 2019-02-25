@@ -23,6 +23,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.dialog_collection_info.view.*
 import kotlinx.android.synthetic.main.dialog_screenshot_info.view.*
@@ -50,7 +52,7 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CollectionFragment : androidx.fragment.app.Fragment() {
+class CollectionFragment : Fragment() {
     companion object {
         const val ARG_COLLECTION_ID = "collection_id"
         const val ARG_COLLECTION_NAME = "collection_name"
@@ -58,7 +60,7 @@ class CollectionFragment : androidx.fragment.app.Fragment() {
         private const val SPAN_COUNT = 3
     }
 
-    private lateinit var screenshotListView: androidx.recyclerview.widget.RecyclerView
+    private lateinit var screenshotListView: RecyclerView
     private lateinit var subtitleView: TextView
     private lateinit var selectAllCheckbox: AppCompatCheckBox
 
@@ -78,6 +80,7 @@ class CollectionFragment : androidx.fragment.app.Fragment() {
                         mode.finish()
                     }
                     dialog.show()
+                    TelemetryWrapper.moveScreenshot(TelemetryWrapper.ExtraValue.COLLECTION, selector.selected.size)
                 }
 
                 R.id.action_delete -> {
@@ -87,10 +90,12 @@ class CollectionFragment : androidx.fragment.app.Fragment() {
                                     mode.finish()
                                 }
                             })
+                    TelemetryWrapper.deleteScreenshot(TelemetryWrapper.ExtraValue.COLLECTION, selector.selected.size)
                 }
 
                 R.id.action_share -> {
                     showShareScreenshotDialog(activity, selector.selected.toList())
+                    TelemetryWrapper.shareScreenshot(TelemetryWrapper.ExtraValue.COLLECTION, selector.selected.size)
                 }
             }
 
@@ -152,7 +157,7 @@ class CollectionFragment : androidx.fragment.app.Fragment() {
                 "${selected.size}"
             }
 
-            selectAllCheckbox.isChecked = screenshotAdapter.getScreenshotList().all {
+            selectAllCheckbox.isChecked = screenshotAdapter.screenshotList.all {
                 isSelected(it)
             }
             selectAllCheckbox.invalidate()
@@ -174,6 +179,8 @@ class CollectionFragment : androidx.fragment.app.Fragment() {
             selectAllCheckbox.visibility = View.VISIBLE
             actionMode?.title = getString(R.string.collection_header_select_none)
             selectAllCheckbox.isChecked = false
+
+            TelemetryWrapper.longPressOnScreenshot(TelemetryWrapper.ExtraValue.COLLECTION)
         }
 
         override fun onExitSelectMode() {
@@ -205,7 +212,7 @@ class CollectionFragment : androidx.fragment.app.Fragment() {
         selectAllCheckbox.setOnClickListener { _ ->
             val isChecked = selectAllCheckbox.isChecked
             selectAllCheckbox.invalidate()
-            screenshotAdapter.getScreenshotList().forEach {
+            screenshotAdapter.screenshotList.forEach {
                 if (isChecked != selector.isSelected(it)) {
                     selector.toggleSelection(it)
                 }
@@ -219,7 +226,7 @@ class CollectionFragment : androidx.fragment.app.Fragment() {
         super.onActivityCreated(savedInstanceState)
         val activity = activity ?: return
 
-        screenshotAdapter = ScreenshotAdapter(context, selector) { item, view ->
+        screenshotAdapter = ScreenshotAdapter(context, selector) { item, view, _ ->
             val context = context ?: return@ScreenshotAdapter
             DetailPageActivity.showDetailPage(context, item, view, collectionId)
 
@@ -290,7 +297,7 @@ class CollectionFragment : androidx.fragment.app.Fragment() {
 
             R.id.action_sort -> {
                 collectionId?.takeIf {
-                    screenshotAdapter.getScreenshotList().isNotEmpty()
+                    screenshotAdapter.screenshotList.isNotEmpty()
                 }?.let {
                     startSortingActivity(it)
                     TelemetryWrapper.clickOnSortingButton()
@@ -352,11 +359,11 @@ class CollectionFragment : androidx.fragment.app.Fragment() {
     }
 
     private fun updateSortMenuItem(item: MenuItem?) {
-        item?.isVisible = screenshotAdapter.getScreenshotList().isNotEmpty()
+        item?.isVisible = screenshotAdapter.screenshotList.isNotEmpty()
     }
 
     private fun initScreenshotList(context: Context) {
-        val manager = androidx.recyclerview.widget.GridLayoutManager(context, SPAN_COUNT,
+        val manager = GridLayoutManager(context, SPAN_COUNT,
                 RecyclerView.VERTICAL, false)
         screenshotListView.itemAnimator = null
         screenshotListView.layoutManager = manager
@@ -390,7 +397,7 @@ class CollectionFragment : androidx.fragment.app.Fragment() {
             }
 
             screenshots.sortedByDescending { it.lastModified }.let { sorted ->
-                screenshotAdapter.setScreenshotList(sorted)
+                screenshotAdapter.screenshotList = sorted
                 screenshotAdapter.notifyDataSetChanged()
             }
 

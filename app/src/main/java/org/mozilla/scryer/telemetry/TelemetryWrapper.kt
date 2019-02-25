@@ -49,7 +49,6 @@ class TelemetryWrapper {
         const val CAPTURE_VIA_NOTIFICATION = "Capture via notification"
         const val CAPTURE_VIA_EXTERNAL = "Capture via external"
         const val VIEW_SCREENSHOT = "View screenshot"
-        const val SHARE_SCREENSHOT = "Share screenshot"
         const val EXTRACT_TEXT_FROM_SCREENSHOT = "Extract text from screenshot"
         const val VIEW_TEXT_IN_SCREENSHOT = "View text in screenshot"
         const val PROMPT_EXTRACTED_TEXT_MENU = "Prompt extracted text menu"
@@ -64,6 +63,7 @@ class TelemetryWrapper {
         const val VISIT_SEARCH_PAGE = "Visit search page"
         const val INTERESTED_IN_SEARCH = "Interested in search"
         const val NOT_INTERESTED_IN_SEARCH = "Not interested in search"
+        const val CLICK_SEARCH_RESULT = "Click search result"
         const val CLOSE_FAB = "Close FAB"
         const val STOP_CAPTURE_SERVICE = "Stop capture service"
         const val PROMPT_FEEDBACK_DIALOG = "Prompt feedback dialog"
@@ -71,6 +71,10 @@ class TelemetryWrapper {
         const val PROMPT_SHARE_DIALOG = "Prompt share dialog"
         const val BACKGROUND_SERVICE_ACTIVE = "Background service active"
         const val SHARE_APP = "Share app"
+        const val LONG_PRESS_ON_SCREENSHOT = "Long press on screenshot"
+        const val MOVE_SCREENSHOT = "Move screenshot"
+        const val DELETE_SCREENSHOT = "Delete screenshot"
+        const val SHARE_SCREENSHOT = "Share screenshot"
     }
 
     private object Method {
@@ -102,11 +106,21 @@ class TelemetryWrapper {
         const val LINKS_FOUND = "links_found"
         const val TEXT_BLOCKS = "text_blocks"
         const val TOTAL_LENGTH = "total_length"
+        const val INDEX_PROGRESS = "index_progress"
+        const val COLLECTION = "collection"
+        const val RESULT_SIZE = "result_size"
+        const val RESULT_POSITION = "result_position"
+        const val KEYWORD_LENGTH = "keyword_length"
+        const val DURATION = "duration"
+        const val SELECTED_ITEMS = "selected_items"
     }
 
     object ExtraValue {
         const val SINGLE = "single"
         const val MULTIPLE = "multiple"
+
+        const val SEARCH = "search"
+        const val COLLECTION = "collection"
 
         const val FROM_PROMPT = "prompt"
         const val FROM_SETTINGS = "settings"
@@ -269,9 +283,9 @@ class TelemetryWrapper {
                 method = Method.V1,
                 `object` = Object.GO,
                 value = "",
-                extras = [])
-        fun startSearch() {
-            EventBuilder(Category.START_SEARCH, Method.V1, Object.GO).queue()
+                extras = [TelemetryExtra(name = Extra.INDEX_PROGRESS, value = "(0-100)")])
+        fun startSearch(indexProgress: Int) {
+            EventBuilder(Category.START_SEARCH, Method.V1, Object.GO).extra(Extra.INDEX_PROGRESS, indexProgress.toString()).queue()
             AdjustHelper.trackEvent(ADJUST_EVENT_START_SEARCH)
         }
 
@@ -460,18 +474,6 @@ class TelemetryWrapper {
         }
 
         @TelemetryDoc(
-                name = Category.SHARE_SCREENSHOT,
-                category = Category.SHARE_SCREENSHOT,
-                method = Method.V1,
-                `object` = Object.GO,
-                value = "",
-                extras = [])
-        fun shareScreenshot() {
-            EventBuilder(Category.SHARE_SCREENSHOT, Method.V1, Object.GO).queue()
-        }
-
-
-        @TelemetryDoc(
                 name = Category.EXTRACT_TEXT_FROM_SCREENSHOT,
                 category = Category.EXTRACT_TEXT_FROM_SCREENSHOT,
                 method = Method.V1,
@@ -635,6 +637,27 @@ class TelemetryWrapper {
         }
 
         @TelemetryDoc(
+                name = Category.CLICK_SEARCH_RESULT,
+                category = Category.CLICK_SEARCH_RESULT,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [TelemetryExtra(name = Extra.COLLECTION, value = "collection name"),
+                    TelemetryExtra(name = Extra.RESULT_SIZE, value = "[0-9]+"),
+                    TelemetryExtra(name = Extra.RESULT_POSITION, value = "[0-9]+"),
+                    TelemetryExtra(name = Extra.KEYWORD_LENGTH, value = "[0-9]+"),
+                    TelemetryExtra(name = Extra.DURATION, value = "[0-9]+")])
+        fun clickSearchResult(collection: String, size: Int, position: Int, keywordLength: Int, duration: Long) {
+            EventBuilder(Category.CLICK_SEARCH_RESULT, Method.V1, Object.GO)
+                    .extra(Extra.COLLECTION, collection)
+                    .extra(Extra.RESULT_SIZE, size.toString())
+                    .extra(Extra.RESULT_POSITION, position.toString())
+                    .extra(Extra.KEYWORD_LENGTH, keywordLength.toString())
+                    .extra(Extra.DURATION, duration.toString())
+                    .queue()
+        }
+
+        @TelemetryDoc(
                 name = Category.CLOSE_FAB,
                 category = Category.CLOSE_FAB,
                 method = Method.V1,
@@ -771,6 +794,80 @@ class TelemetryWrapper {
             EventBuilder(Category.BACKGROUND_SERVICE_ACTIVE, Method.V1, Object.GO).queue()
             // force to upload event since it came from service instead of MainActivity
             TelemetryHolder.get().queuePing(TelemetryEventPingBuilder.TYPE).scheduleUpload()
+        }
+
+        @TelemetryDoc(
+                name = Category.LONG_PRESS_ON_SCREENSHOT,
+                category = Category.LONG_PRESS_ON_SCREENSHOT,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [
+                    TelemetryExtra(
+                            name = Extra.MODE,
+                            value = ExtraValue.SEARCH + "," + ExtraValue.COLLECTION
+                    )])
+        fun longPressOnScreenshot(mode: String) {
+            EventBuilder(Category.LONG_PRESS_ON_SCREENSHOT, Method.V1, Object.GO)
+                    .extra(Extra.MODE, mode)
+                    .queue()
+        }
+
+        @TelemetryDoc(
+                name = Category.MOVE_SCREENSHOT,
+                category = Category.MOVE_SCREENSHOT,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [
+                    TelemetryExtra(
+                            name = Extra.MODE,
+                            value = ExtraValue.SINGLE + "," + ExtraValue.SEARCH + "," + ExtraValue.COLLECTION
+                    ),
+                    TelemetryExtra(name = Extra.SELECTED_ITEMS, value = "[0-9]+")])
+        fun moveScreenshot(mode: String, selectedItemCount: Int) {
+            EventBuilder(Category.MOVE_SCREENSHOT, Method.V1, Object.GO)
+                    .extra(Extra.MODE, mode)
+                    .extra(Extra.SELECTED_ITEMS, selectedItemCount.toString())
+                    .queue()
+        }
+
+        @TelemetryDoc(
+                name = Category.DELETE_SCREENSHOT,
+                category = Category.DELETE_SCREENSHOT,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [
+                    TelemetryExtra(
+                            name = Extra.MODE,
+                            value = ExtraValue.SINGLE + "," + ExtraValue.SEARCH + "," + ExtraValue.COLLECTION
+                    ),
+                    TelemetryExtra(name = Extra.SELECTED_ITEMS, value = "[0-9]+")])
+        fun deleteScreenshot(mode: String, selectedItemCount: Int) {
+            EventBuilder(Category.DELETE_SCREENSHOT, Method.V1, Object.GO)
+                    .extra(Extra.MODE, mode)
+                    .extra(Extra.SELECTED_ITEMS, selectedItemCount.toString())
+                    .queue()
+        }
+
+        @TelemetryDoc(
+                name = Category.SHARE_SCREENSHOT,
+                category = Category.SHARE_SCREENSHOT,
+                method = Method.V1,
+                `object` = Object.GO,
+                value = "",
+                extras = [
+                    TelemetryExtra(
+                            name = Extra.MODE,
+                            value = ExtraValue.SINGLE + "," + ExtraValue.SEARCH + "," + ExtraValue.COLLECTION
+                    ),
+                    TelemetryExtra(name = Extra.SELECTED_ITEMS, value = "[0-9]+")])
+        fun shareScreenshot(mode: String, selectedItemCount: Int) {
+            EventBuilder(Category.SHARE_SCREENSHOT, Method.V1, Object.GO)
+                    .extra(Extra.MODE, mode)
+                    .extra(Extra.SELECTED_ITEMS, selectedItemCount.toString())
+                    .queue()
         }
     }
 

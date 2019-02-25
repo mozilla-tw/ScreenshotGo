@@ -7,7 +7,7 @@ object Versions {
     val lifecycle = "2.1.0-alpha01"
     val room = "2.1.0-alpha03"
     val navigation = "1.0.0-alpha05"
-    val work = "1.0.0-alpha12"
+    val work = "1.0.0-beta05"
     val app_compat = "1.1.0-alpha01"
     val material = "1.1.0-alpha02"
     val recycler_view = "1.1.0-alpha01"
@@ -40,6 +40,7 @@ object Versions {
     val glide = "4.7.1"
     val subsampling_image_view = "3.10.0"
     val lottie = "2.7.0"
+    val better_link_movement_method = "2.2.0"
 
     // Mozilla
     val android_components = "0.27.0"

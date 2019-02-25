@@ -10,7 +10,10 @@ import android.view.*
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatCheckBox
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import org.mozilla.scryer.BuildConfig
 import org.mozilla.scryer.R
@@ -20,15 +23,15 @@ import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import java.io.File
 
 open class ScreenshotAdapter(
-        val context: Context?,
+        private val context: Context?,
         private val selector: ListSelector<ScreenshotModel>? = null,
-        private val onItemClickListener: ((item: ScreenshotModel, view: View?) -> Unit)? = null
-) : androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>(), OnContextMenuActionListener {
+        private val onItemClickListener: ((item: ScreenshotModel, view: View?, position: Int) -> Unit)? = null
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), OnContextMenuActionListener {
 
-    private var screenshotList: List<ScreenshotModel> = emptyList()
-    private var recyclerView: androidx.recyclerview.widget.RecyclerView? = null
+    var screenshotList: List<ScreenshotModel> = emptyList()
+    private var recyclerView: RecyclerView? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_screenshot, parent, false)
 
         val holder = ScreenshotItemHolder(view, this)
@@ -44,7 +47,7 @@ open class ScreenshotAdapter(
                     selector.toggleSelection(screenshot)
                     updateSelectionUI(holder, screenshot)
                 } else {
-                    onItemClickListener?.invoke(screenshotList[position], holder.image)
+                    onItemClickListener?.invoke(screenshotList[position], holder.image, position)
                 }
             }
         }
@@ -62,12 +65,12 @@ open class ScreenshotAdapter(
         return holder
     }
 
-    override fun onAttachedToRecyclerView(recyclerView: androidx.recyclerview.widget.RecyclerView) {
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
         this.recyclerView = recyclerView
     }
 
-    override fun onDetachedFromRecyclerView(recyclerView: androidx.recyclerview.widget.RecyclerView) {
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
         this.recyclerView = null
     }
@@ -76,7 +79,7 @@ open class ScreenshotAdapter(
         return screenshotList.size
     }
 
-    override fun onBindViewHolder(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         (holder as? ScreenshotItemHolder) ?: return
         val screenshot = screenshotList[position]
 
@@ -90,12 +93,12 @@ open class ScreenshotAdapter(
         updateItemUI(holder)
     }
 
-    override fun onViewAttachedToWindow(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
         (holder as? ScreenshotItemHolder) ?: return
         updateItemUI(holder)
     }
 
-    override fun onViewRecycled(holder: androidx.recyclerview.widget.RecyclerView.ViewHolder) {
+    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
         (holder as? ScreenshotItemHolder) ?: return
 
         holder.image?.let {
@@ -132,14 +135,6 @@ open class ScreenshotAdapter(
 
     fun getItem(position: Int): ScreenshotModel {
         return screenshotList[position]
-    }
-
-    open fun setScreenshotList(list: List<ScreenshotModel>) {
-        screenshotList = list
-    }
-
-    fun getScreenshotList(): List<ScreenshotModel> {
-        return screenshotList
     }
 
     private fun isSelected(screenshot: ScreenshotModel): Boolean {
@@ -184,7 +179,7 @@ open class ScreenshotAdapter(
     private fun notifyVisibleItemRangeChanged() {
         val recyclerView = recyclerView ?: return
 
-        (recyclerView.layoutManager as? androidx.recyclerview.widget.LinearLayoutManager)?.apply {
+        (recyclerView.layoutManager as? LinearLayoutManager)?.apply {
             val first = findFirstVisibleItemPosition()
             val last = findLastVisibleItemPosition()
             notifyItemRangeChanged(first, last - first + 1)
@@ -212,9 +207,9 @@ open class ScreenshotAdapter(
 class ScreenshotItemHolder(
         itemView: View,
         private val onContextMenuActionListener: OnContextMenuActionListener
-) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener,
+) : RecyclerView.ViewHolder(itemView), View.OnCreateContextMenuListener,
         MenuItem.OnMenuItemClickListener {
-    var cardView: androidx.cardview.widget.CardView? = null
+    var cardView: CardView? = null
     var title: TextView? = null
     var image: ImageView? = null
     var checkbox: AppCompatCheckBox? = null

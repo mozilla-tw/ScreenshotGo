@@ -14,7 +14,9 @@ import android.view.WindowManager
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProviders
+import kotlinx.android.synthetic.main.activity_main.*
 import org.mozilla.scryer.notification.ScryerMessagingService
 import org.mozilla.scryer.permission.PermissionViewModel
 import org.mozilla.scryer.preference.PreferenceWrapper
@@ -56,6 +58,22 @@ class MainActivity : AppCompatActivity() {
             openUrlIntent.action = Intent.ACTION_VIEW
             startActivity(openUrlIntent)
         }
+
+        if (BuildConfig.DEBUG) {
+            scan_progress_bar.visibility = View.VISIBLE
+            ScryerApplication.getContentScanner().getProgress().observe(this, Observer {
+                scan_progress_bar.progress = if (it.first == it.second) {
+                    100
+                } else {
+                    (100 * it.first / it.second.toFloat()).toInt()
+                }
+                scan_progress_bar.visibility = if (scan_progress_bar.progress == 100) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
+            })
+        }
     }
 
     override fun onResume() {
@@ -84,11 +102,11 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-fun setSupportActionBar(activity: androidx.fragment.app.FragmentActivity?, toolbar: Toolbar) {
+fun setSupportActionBar(activity: FragmentActivity?, toolbar: Toolbar) {
     (activity as AppCompatActivity).setSupportActionBar(toolbar)
 }
 
-fun getSupportActionBar(activity: androidx.fragment.app.FragmentActivity?): ActionBar {
+fun getSupportActionBar(activity: FragmentActivity?): ActionBar {
     val actionBar = (activity as AppCompatActivity).supportActionBar
     return actionBar ?: throw RuntimeException("no action bar set")
 }

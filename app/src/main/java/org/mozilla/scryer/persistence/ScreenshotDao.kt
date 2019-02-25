@@ -8,6 +8,7 @@ package org.mozilla.scryer.persistence
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
+import androidx.sqlite.db.SimpleSQLiteQuery
 
 @Dao
 interface ScreenshotDao {
@@ -25,15 +26,58 @@ interface ScreenshotDao {
     @Query("SELECT * FROM screenshot WHERE collection_id IN(:collectionIds)")
     fun getScreenshotList(collectionIds: List<String>): List<ScreenshotModel>
 
-    @Insert(onConflict = REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun addScreenshot(screenshot: List<ScreenshotModel>)
 
     @Update(onConflict = REPLACE)
-    fun updateScreenshot(screenshot: ScreenshotModel)
+    fun updateScreenshot(screenshots: List<ScreenshotModel>)
 
     @Delete
     fun deleteScreenshot(screenshot: ScreenshotModel)
 
+//    @Query("SELECT screenshot.* FROM screenshot JOIN fts ON " +
+//            "screenshot.rowid = fts.docid WHERE fts.content_text MATCH :queryText")
+//    fun searchScreenshots(queryText: String): LiveData<List<ScreenshotModel>>
+
+    /**
+     *  SELECT
+     *      s.*
+     *  FROM
+     *      screenshot s
+     *  INNER JOIN
+     *      (SELECT
+     *          content.*
+     *      FROM
+     *          screenshot_content content
+     *      INNER JOIN
+     *          fts
+     *      ON
+     *          content.`rowid` = fts.`rowid`
+     *      WHERE
+     *          fts.content_text
+     *      MATCH
+     *          :queryText) result
+     *  ON
+     *      s.id = result.id
+     */
+    @Query("SELECT s.* FROM screenshot s INNER JOIN (SELECT content.* FROM screenshot_content content INNER JOIN fts ON content.`rowid` = fts.`rowid` WHERE fts.content_text MATCH :queryText) result ON s.id = result.id")
+    fun searchScreenshots(queryText: String): LiveData<List<ScreenshotModel>>
+
+    @Query("SELECT s.* FROM screenshot s INNER JOIN (SELECT content.* FROM screenshot_content content INNER JOIN fts ON content.`rowid` = fts.`rowid` WHERE fts.content_text MATCH :queryText) result ON s.id = result.id")
+    fun searchScreenshotList(queryText: String): List<ScreenshotModel>
+
+    @RawQuery
+    fun searchScreenshotsRaw(query: SimpleSQLiteQuery) : List<ScreenshotModel>
+
     @Query("SELECT screenshot.* FROM (SELECT id, max(last_modified) AS max_date FROM screenshot GROUP BY collection_id) AS latest INNER JOIN screenshot ON latest.id = screenshot.id AND screenshot.last_modified = latest.max_date")
     fun getCollectionCovers(): LiveData<List<ScreenshotModel>>
+
+    @Query("SELECT * FROM screenshot_content")
+    fun getScreenshotContent(): LiveData<List<ScreenshotContentModel>>
+
+    @Insert(onConflict = REPLACE)
+    fun updateContentText(contentModel: ScreenshotContentModel)
+
+    @Query("SELECT * FROM screenshot_content WHERE id = :screenshotId")
+    fun getContentText(screenshotId: String): ScreenshotContentModel?
 }

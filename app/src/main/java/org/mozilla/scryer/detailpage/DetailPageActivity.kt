@@ -10,6 +10,7 @@ import android.content.Intent
 import android.graphics.*
 import android.os.Bundle
 import android.provider.Settings
+import android.text.util.Linkify
 import android.view.*
 import android.widget.TextView
 import android.widget.Toast
@@ -22,14 +23,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ml.common.FirebaseMLException
-import com.google.firebase.ml.vision.FirebaseVision
-import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.text.FirebaseVisionText
 import kotlinx.android.synthetic.main.activity_detail_page.*
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.experimental.*
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import mozilla.components.browser.search.SearchEngineManager
 import mozilla.components.browser.search.provider.AssetsSearchEngineProvider
 import mozilla.components.browser.search.provider.localization.LocaleSearchLocalizationProvider
@@ -42,21 +39,19 @@ import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.preference.PreferenceWrapper
 import org.mozilla.scryer.promote.Promoter
+import org.mozilla.scryer.scan.FirebaseVisionTextHelper
 import org.mozilla.scryer.sortingpanel.SortingPanelActivity
 import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.ui.ScryerToast
-import org.mozilla.scryer.ui.TextViewClickMovement
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import kotlin.coroutines.experimental.CoroutineContext
-import kotlin.coroutines.experimental.suspendCoroutine
 
 class DetailPageActivity : AppCompatActivity(), CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main
 
     companion object Launcher {
         private const val EXTRA_SCREENSHOT_ID = "screenshot_id"
         private const val EXTRA_COLLECTION_ID = "collection_id"
+        private const val EXTRA_SEARCH_KEYWORD = "search_keyword"
 
         private const val SUPPORT_SLIDE = true
 
@@ -64,7 +59,7 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
         private const val IMAGE_SCALE_TEXT_MODE = 0.9f
 
         fun showDetailPage(context: Context, screenshot: ScreenshotModel, srcView: View?,
-                           collectionId: String? = null) {
+                           collectionId: String? = null, searchKeyword: String? = null) {
             val intent = Intent(context, DetailPageActivity::class.java)
 //            val bundle = srcView?.let {
 //                ViewCompat.getTransitionName(it)?.let { transitionName ->
@@ -76,6 +71,9 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
             intent.putExtra(EXTRA_SCREENSHOT_ID, screenshot.id)
             collectionId?.let {
                 intent.putExtra(EXTRA_COLLECTION_ID, collectionId)
+            }
+            searchKeyword?.let {
+                intent.putExtra(EXTRA_SEARCH_KEYWORD, searchKeyword)
             }
             (context as AppCompatActivity).startActivity(intent)
         }
@@ -90,6 +88,10 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
     /** Where did the user came from to this page **/
     private val srcCollectionId: String? by lazy {
         intent?.getStringExtra(EXTRA_COLLECTION_ID)
+    }
+
+    private val searchKeyword: String? by lazy {
+        intent?.getStringExtra(EXTRA_SEARCH_KEYWORD)
     }
 
     private val screenshotId: String by lazy {
@@ -146,6 +148,11 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
+    private val activityJob = Job()
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + activityJob
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -169,28 +176,9 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
         TelemetryWrapper.viewScreenshot()
     }
 
-    private fun showOcrOnboarding() {
-        onboarding_view.visibility = View.VISIBLE
-        onboarding_view.setOnClickListener {
-            (onboarding_view.parent as ViewGroup).removeView(onboarding_view)
-        }
-
-        onboarding_overlay.overlayMode = GraphicOverlay.MODE_HIGHLIGHT
-        onboarding_overlay.overlayColor = ContextCompat.getColor(this, R.color.detail_onboarding_overlay)
-        onboarding_overlay.add(object : GraphicOverlay.Graphic(onboarding_overlay) {
-            private val spotlightPaint: Paint = Paint().apply {
-                xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-            }
-
-            override fun draw(canvas: Canvas) {
-                canvas.drawCircle((text_mode_fab.left + text_mode_fab.right) / 2f,
-                        (text_mode_fab.top + text_mode_fab.bottom) / 2f,
-                        (text_mode_fab.right - text_mode_fab.left).toFloat(),
-                        spotlightPaint)
-            }
-        })
-
-        prefs.setOcrOnboardingShown()
+    override fun onDestroy() {
+        activityJob.cancel()
+        super.onDestroy()
     }
 
     override fun onBackPressed() {
@@ -243,11 +231,12 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
         when (item?.itemId) {
             R.id.action_share -> {
                 showShareScreenshotDialog(this, screenshots[view_pager.currentItem])
-                TelemetryWrapper.shareScreenshot()
+                TelemetryWrapper.shareScreenshot(TelemetryWrapper.ExtraValue.SINGLE, 1)
             }
             R.id.action_move_to -> {
                 startActivity(SortingPanelActivity.sortOldScreenshot(this,
                         screenshots[view_pager.currentItem]))
+                TelemetryWrapper.moveScreenshot(TelemetryWrapper.ExtraValue.SINGLE, 1)
             }
             R.id.action_screenshot_info -> {
                 showScreenshotInfoDialog(this, screenshots[view_pager.currentItem])
@@ -259,6 +248,7 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
                                 finish()
                             }
                         })
+                TelemetryWrapper.deleteScreenshot(TelemetryWrapper.ExtraValue.SINGLE, 1)
             }
             R.id.action_select_all -> {
                 selectAllBlocks()
@@ -358,11 +348,10 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
                     }
                 })
 
-        textModePanelTextView.movementMethod = TextViewClickMovement(this, object : TextViewClickMovement.OnTextViewClickMovementListener {
-            override fun onLinkClicked(linkText: String, linkType: TextViewClickMovement.LinkType) {
-                TelemetryWrapper.clickLinkInExtractedText()
-            }
-        })
+        textModePanelTextView.movementMethod = BetterLinkMovementMethod.newInstance().setOnLinkClickListener { _, _ ->
+            TelemetryWrapper.clickLinkInExtractedText()
+            false
+        }
 
         textModePanelHint.setOnClickListener { TelemetryWrapper.clickOnOCRBottomTip() }
     }
@@ -372,8 +361,9 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
         launch(Dispatchers.Main) {
             updateUI()
 
+            val screenshot = screenshots[view_pager.currentItem]
             val result = withContext(Dispatchers.Default) {
-                runTextRecognition(screenshots[view_pager.currentItem])
+                runTextRecognition(screenshot)
             }
 
             if (result is Result.Success) {
@@ -385,6 +375,8 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
                 } else {
                     TelemetryWrapper.viewTextInScreenshot(textRecognitionResultForTelemetry(TelemetryWrapper.Value.SUCCESS, result.value))
                 }
+
+                FirebaseVisionTextHelper.writeContentTextToDb(screenshot, result.value.text)
 
                 if (isRecognizing) {
                     isTextMode = true
@@ -441,25 +433,24 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
             return Result.Failed("decode failed: " + e.message)
         }
 
-        return decoded?.let { bitmap ->
-            try {
-                runTextRecognition(bitmap)?.let { result ->
-                    if (isValidSize(bitmap)) {
-                        Result.Success(result)
-                    } else {
-                        Result.WeiredImageSize(result,
-                                "weird image size: ${bitmap.width}x${bitmap.height}")
-                    }
-                }
-            } catch (e: Exception) {
-                if ((e as? FirebaseMLException)?.code == FirebaseMLException.UNAVAILABLE) {
-                    Result.Unavailable("recognize failed: " + e.message)
-                } else {
-                    Result.Failed("recognize failed: " + e.message)
-                }
+        return try {
+            val result = FirebaseVisionTextHelper.extractText(decoded)
+            if (isValidSize(decoded)) {
+                Result.Success(result)
+            } else {
+                Result.WeiredImageSize(
+                        result,
+                        "weird image size: ${decoded.width}x${decoded.height}"
+                )
             }
 
-        } ?: Result.Failed("invalid bitmap")
+        } catch (e: Exception) {
+            if ((e as? FirebaseMLException)?.code == FirebaseMLException.UNAVAILABLE) {
+                Result.Unavailable("recognize failed: " + e.message)
+            } else {
+                Result.Failed("recognize failed: " + e.message)
+            }
+        }
     }
 
     private fun isValidSize(bitmap: Bitmap): Boolean {
@@ -585,14 +576,18 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
     private suspend fun getScreenshots(): List<ScreenshotModel> {
         return withContext(Dispatchers.Default) {
             if (SUPPORT_SLIDE) {
-                srcCollectionId?.let {
-                    val list = if (it == CollectionModel.CATEGORY_NONE) {
-                        listOf(it, CollectionModel.UNCATEGORIZED)
-                    } else {
-                        listOf(it)
+                when {
+                    srcCollectionId != null -> {
+                        val list = if (srcCollectionId == CollectionModel.CATEGORY_NONE) {
+                            listOf(srcCollectionId!!, CollectionModel.UNCATEGORIZED)
+                        } else {
+                            listOf(srcCollectionId!!)
+                        }
+                        viewModel.getScreenshotList(list)
                     }
-                    viewModel.getScreenshotList(list)
-                } ?: viewModel.getScreenshotList()
+                    searchKeyword != null -> viewModel.searchScreenshotList(searchKeyword!!)
+                    else -> viewModel.getScreenshotList()
+                }
             } else {
                 viewModel.getScreenshot(screenshotId)?.let { listOf(it) } ?: emptyList()
             }
@@ -618,21 +613,6 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
             text_mode_fab.hide()
             cancel_fab.hide()
         }
-    }
-
-    private suspend fun runTextRecognition(
-            selectedImage: Bitmap
-    ): FirebaseVisionText? = suspendCoroutine { cont ->
-
-        val image = FirebaseVisionImage.fromBitmap(selectedImage)
-        val detector = FirebaseVision.getInstance().onDeviceTextRecognizer
-        detector.processImage(image)
-                .addOnSuccessListener { texts ->
-                    cont.resume(texts)
-                }
-                .addOnFailureListener { exception ->
-                    cont.resumeWithException(exception)
-                }
     }
 
     private fun processTextRecognitionResult(result: FirebaseVisionText) {
@@ -701,6 +681,7 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun updatePanel(panelText: String) {
+        textModePanelTextView.autoLinkMask = Linkify.ALL
         textModePanelTextView.text = panelText
 
         val behavior = BottomSheetBehavior.from(text_mode_panel_content)
@@ -739,6 +720,31 @@ class DetailPageActivity : AppCompatActivity(), CoroutineScope {
 //                View.SYSTEM_UI_FLAG_FULLSCREEN or
 //                View.SYSTEM_UI_FLAG_IMMERSIVE
 //    }
+
+
+    private fun showOcrOnboarding() {
+        onboarding_view.visibility = View.VISIBLE
+        onboarding_view.setOnClickListener {
+            (onboarding_view.parent as ViewGroup).removeView(onboarding_view)
+        }
+
+        onboarding_overlay.overlayMode = GraphicOverlay.MODE_HIGHLIGHT
+        onboarding_overlay.overlayColor = ContextCompat.getColor(this, R.color.detail_onboarding_overlay)
+        onboarding_overlay.add(object : GraphicOverlay.Graphic(onboarding_overlay) {
+            private val spotlightPaint: Paint = Paint().apply {
+                xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+            }
+
+            override fun draw(canvas: Canvas) {
+                canvas.drawCircle((text_mode_fab.left + text_mode_fab.right) / 2f,
+                        (text_mode_fab.top + text_mode_fab.bottom) / 2f,
+                        (text_mode_fab.right - text_mode_fab.left).toFloat(),
+                        spotlightPaint)
+            }
+        })
+
+        prefs.setOcrOnboardingShown()
+    }
 
     private class LoadingViewGroup(private val activity: DetailPageActivity) {
         fun show() {

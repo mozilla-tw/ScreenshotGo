@@ -6,26 +6,15 @@
 package org.mozilla.scryer.repository
 
 import androidx.lifecycle.LiveData
-import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.room.Room
-import androidx.room.RoomDatabase
 import android.content.Context
 import org.mozilla.scryer.persistence.CollectionModel
-import org.mozilla.scryer.persistence.ScreenshotDatabase
+import org.mozilla.scryer.persistence.ScreenshotContentModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 
 interface ScreenshotRepository {
     companion object Factory {
         fun createRepository(context: Context, onCreated: () -> Unit): ScreenshotRepository {
-            val callback = object : RoomDatabase.Callback() {
-                override fun onCreate(db: SupportSQLiteDatabase) {
-                    onCreated()
-                }
-            }
-            return ScreenshotDatabaseRepository(Room.databaseBuilder(context.applicationContext,
-                    ScreenshotDatabase::class.java, "screenshot-db")
-                    .addCallback(callback)
-                    .build())
+            return ScreenshotDatabaseRepository.create(context, onCreated)
         }
     }
 
@@ -40,13 +29,19 @@ interface ScreenshotRepository {
     fun deleteCollection(collection: CollectionModel)
 
     fun addScreenshot(screenshots: List<ScreenshotModel>)
-    fun updateScreenshot(screenshot: ScreenshotModel)
+    fun updateScreenshots(screenshots: List<ScreenshotModel>)
     fun getScreenshot(screenshotId: String): ScreenshotModel?
     fun getScreenshots(): LiveData<List<ScreenshotModel>>
     fun getScreenshotList(): List<ScreenshotModel>
     fun getScreenshots(collectionIds: List<String>): LiveData<List<ScreenshotModel>>
     fun getScreenshotList(collectionIds: List<String>): List<ScreenshotModel>
     fun deleteScreenshot(screenshot: ScreenshotModel)
+    fun searchScreenshots(queryText: String): LiveData<List<ScreenshotModel>>
+    fun searchScreenshotList(queryText: String): List<ScreenshotModel>
+
+    fun getScreenshotContent(): LiveData<List<ScreenshotContentModel>>
+    fun updateScreenshotContent(screenshotContent: ScreenshotContentModel)
+    fun getContentText(screenshot: ScreenshotModel): String?
 
     fun setupDefaultContent(context: Context) {
         TODO("not implemented")

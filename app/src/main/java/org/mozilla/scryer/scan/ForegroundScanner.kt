@@ -27,10 +27,13 @@ class ForegroundScanner : CoroutineScope {
         scheduleForegroundScan()
     }
 
-    private val progressLiveData = MutableLiveData<Pair<Int, Int>>()
+    private val progressLiveData = MutableLiveData<Pair<Int, Int>>().apply {
+        value = Pair(0, 0)
+    }
 
     private val parentJob = Job()
     private var scanJob: Job? = null
+    private var isScanning = false
     private var scanActor: SendChannel<Unit>? = null
 
     override val coroutineContext: CoroutineContext
@@ -57,7 +60,7 @@ class ForegroundScanner : CoroutineScope {
     }
 
     fun isScanning(): Boolean {
-        return scanJob?.isActive == true
+        return isScanning
     }
 
     private fun prepareScan() {
@@ -65,18 +68,24 @@ class ForegroundScanner : CoroutineScope {
             scanJob = this
         }
 
-        scanActor = actor(context = scanJob, capacity = Channel.CONFLATED) {
+        scanActor = actor(
+                context = scanJob + Dispatchers.Main,
+                capacity = Channel.CONFLATED
+        ) {
             for (msg in channel) {
+                isScanning = true
                 FirebaseVisionTextHelper.scanAndSave { a, b ->
                     launch (Dispatchers.Main) {
                         progressLiveData.value = Pair(a, b)
                     }
                 }
+                isScanning = false
             }
         }
     }
 
     private fun cancelScan() {
+        isScanning = false
         scanActor?.close()
         scanJob?.cancel()
     }

@@ -5,31 +5,39 @@
 
 package org.mozilla.scryer.sortingpanel
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.experimental.*
 import org.mozilla.scryer.Observer
 import org.mozilla.scryer.R
+import org.mozilla.scryer.ScryerApplication
+import org.mozilla.scryer.collectionview.showShareScreenshotDialog
 import org.mozilla.scryer.persistence.CollectionModel
 import org.mozilla.scryer.persistence.ScreenshotModel
 import org.mozilla.scryer.persistence.SuggestCollectionHelper
+import org.mozilla.scryer.preference.PreferenceWrapper
 import org.mozilla.scryer.promote.Promoter
 import org.mozilla.scryer.telemetry.TelemetryWrapper
 import org.mozilla.scryer.telemetry.TelemetryWrapper.ExtraValue.MULTIPLE
 import org.mozilla.scryer.telemetry.TelemetryWrapper.ExtraValue.SINGLE
+import org.mozilla.scryer.ui.BottomDialogFactory
 import org.mozilla.scryer.ui.CollectionNameDialog
 import org.mozilla.scryer.ui.ConfirmationDialog
 import org.mozilla.scryer.ui.ScryerToast
@@ -38,14 +46,18 @@ import org.mozilla.scryer.util.launchIO
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.util.*
+import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.experimental.suspendCoroutine
 
-class SortingPanelActivity : AppCompatActivity() {
+class SortingPanelActivity : AppCompatActivity(), CoroutineScope {
     companion object {
         const val EXTRA_PATH = "path"
         const val EXTRA_SCREENSHOT_ID = "screenshot_id"
         const val EXTRA_SCREENSHOT_IDS = "screenshot_ids"
         const val EXTRA_COLLECTION_ID = "collection_id"
         const val EXTRA_SHOW_ADD_TO_COLLECTION = "collection_id"
+
+        private const val MAX_SORTING_PANEL_CANCEL_COUNT = 2
 
         fun sortCollection(context: Context, collectionId: String): Intent {
             val intent = Intent(context, SortingPanelActivity::class.java)
@@ -80,6 +92,11 @@ class SortingPanelActivity : AppCompatActivity() {
             } ?: false
         }
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + activityJob
+
+    private val activityJob = Job()
 
     private val sortingPanel: SortingPanel by lazy { findViewById<SortingPanel>(R.id.sorting_panel) }
 
@@ -135,6 +152,9 @@ class SortingPanelActivity : AppCompatActivity() {
 
         loadCollectionColorList()
         loadScreenshots(intent, this::onLoadScreenshotsSuccess)
+        if (isSortingNewScreenshot(intent)) {
+            initActionBar()
+        }
         initSortingPanel()
     }
 
@@ -180,7 +200,10 @@ class SortingPanelActivity : AppCompatActivity() {
                     unsortedScreenshots.size + 1)
             dialog.asAlertDialog().show()
         } else {
-            super.onBackPressed()
+            launch(Dispatchers.Main.immediate) {
+                showNoMoreDialogIfNeeded()
+                super.onBackPressed()
+            }
 
             if (isSortingSingleScreenshot) {
                 TelemetryWrapper.cancelSorting(SINGLE)
@@ -188,6 +211,98 @@ class SortingPanelActivity : AppCompatActivity() {
                 TelemetryWrapper.cancelSorting(MULTIPLE)
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_sorting_panel, menu)
+
+        if (menu != null) {
+            menu.findItem(R.id.action_share)?.let {
+                val wrapped = DrawableCompat.wrap(it.icon).mutate()
+                DrawableCompat.setTint(wrapped, ContextCompat.getColor(this, R.color.white))
+            }
+        }
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.action_share -> {
+                currentScreenshot?.let { showShareScreenshotDialog(this, it) }
+                TelemetryWrapper.shareScreenshot(TelemetryWrapper.ExtraValue.SINGLE, 1)
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+
+        return true
+    }
+
+    override fun onDestroy() {
+        activityJob.cancel()
+        super.onDestroy()
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun initActionBar() {
+        findViewById<View>(R.id.toolbar_background).visibility = View.VISIBLE
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        toolbar.visibility = View.VISIBLE
+        setSupportActionBar(toolbar)
+
+        toolbar.setNavigationOnClickListener {
+            showDeleteScreenshotDialog(Runnable {
+                launch(Dispatchers.Main.immediate) {
+                    showAddedToast(unsortedCollection, unsortedScreenshots.isNotEmpty())
+                    showNoMoreDialogIfNeeded()
+                    finishAndRemoveTask()
+                    TelemetryWrapper.cancelSorting(SINGLE)
+                }
+            }, Runnable {
+                launchIO {
+                    currentScreenshot?.let {
+                        ScryerApplication.getScreenshotRepository().deleteScreenshot(it)
+                        File(it.absolutePath).delete()
+                    }
+                }
+                finishAndRemoveTask()
+                TelemetryWrapper.deleteScreenshot(TelemetryWrapper.ExtraValue.SINGLE, 1)
+            })
+        }
+
+        supportActionBar?.apply {
+            setDisplayShowTitleEnabled(false)
+        }
+    }
+
+    private fun showDeleteScreenshotDialog(action: Runnable, negativeAction: Runnable) {
+        val dialog = BottomDialogFactory.create(this, R.layout.dialog_bottom)
+        dialog.findViewById<ConstraintLayout>(R.id.top_layout)?.minHeight = 0
+        dialog.findViewById<TextView>(R.id.title)?.visibility = View.GONE
+        dialog.findViewById<TextView>(R.id.subtitle)?.text = getString(R.string.sheet_saveordelete_content_screenshot)
+        dialog.findViewById<View>(R.id.dont_ask_again_checkbox)?.visibility = View.GONE
+
+        dialog.findViewById<TextView>(R.id.positive_button)?.apply {
+            setText(R.string.sheet_saveordelete_action_save)
+            setOnClickListener {
+                action.run()
+                dialog.dismiss()
+            }
+        }
+
+        dialog.findViewById<TextView>(R.id.negative_button)?.apply {
+            setText(R.string.action_delete)
+            setOnClickListener {
+                negativeAction.run()
+                dialog.dismiss()
+            }
+        }
+
+        dialog.setOnCancelListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun flushToUnsortedCollection() {
@@ -367,11 +482,11 @@ class SortingPanelActivity : AppCompatActivity() {
         this.unsortedScreenshots.addAll(sorted.subList(currentIndex, screenshots.size))
 
         if (screenshots.size == 1) {
-            sortingPanel.setActionText(getString(if (isSortingNewScreenshot(intent)) {
-                R.string.action_later
+            if (isSortingNewScreenshot(intent)) {
+                sortingPanel.setActionTextVisibility(View.GONE)
             } else {
-                android.R.string.cancel
-            }))
+                sortingPanel.setActionText(getString(android.R.string.cancel))
+            }
             sortingPanel.setProgressVisibility(View.INVISIBLE)
             sortingPanel.setFakeLayerVisibility(View.INVISIBLE)
         } else {
@@ -456,6 +571,10 @@ class SortingPanelActivity : AppCompatActivity() {
     }
 
     private fun onScreenshotSorted() {
+        if (isSortingNewScreenshot(intent)) {
+            PreferenceWrapper(this).resetPanelCancelCount()
+        }
+
         if (hasNotifiedPromoter) {
             return
         }
@@ -487,6 +606,47 @@ class SortingPanelActivity : AppCompatActivity() {
         val path = intent.getStringExtra(EXTRA_PATH)
         val file = File(path)
         return if (file.exists()) file.absolutePath else ""
+    }
+
+    private suspend fun showNoMoreDialogIfNeeded() = suspendCoroutine<Unit> { cont ->
+        val pref = PreferenceWrapper(this@SortingPanelActivity)
+        if (shouldShowCollectionPanel && isSortingNewScreenshot(intent)) {
+            val count = pref.getPanelCancelCount()
+            pref.increasePanelCancelCount()
+            if ((count + 1) >= MAX_SORTING_PANEL_CANCEL_COUNT) {
+                showNoMoreDialog {
+                    cont.resume(Unit)
+                }
+            } else {
+                cont.resume(Unit)
+            }
+        } else {
+            cont.resume(Unit)
+        }
+    }
+
+    private fun showNoMoreDialog(onFinished: () -> Unit) {
+        val dialog = ConfirmationDialog.build(this,
+                getString(R.string.dialogue_stopasking_title_stop),
+                getString(R.string.notification_action_stop),
+                DialogInterface.OnClickListener { _, _ ->
+                    ScryerApplication.getSettingsRepository().addToCollectionEnable = false
+                    onFinished.invoke()
+                },
+                getString(R.string.dialogue_stopasking_action_alwaysask),
+                DialogInterface.OnClickListener { _, _ ->
+                    PreferenceWrapper(this).resetPanelCancelCount()
+                    onFinished.invoke()
+                })
+        dialog.viewHolder.message?.text = getString(R.string.dialogue_stopasking_content_stop, getString(R.string.app_name_go))
+        dialog.viewHolder.subMessage?.visibility = View.VISIBLE
+        dialog.asAlertDialog().apply {
+            setOnCancelListener {
+                onFinished.invoke()
+            }
+            setCanceledOnTouchOutside(false)
+            show()
+        }
     }
 }
 

@@ -27,7 +27,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.Navigation
 import androidx.preference.PreferenceManager
@@ -38,7 +38,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.view_quick_access.view.*
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.*
 import mozilla.components.support.base.log.Log
 import org.mozilla.scryer.*
 import org.mozilla.scryer.collectionview.ScreenshotItemHolder
@@ -64,7 +64,7 @@ import org.mozilla.scryer.util.launchIO
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
 import java.util.*
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 class HomeFragment : Fragment(), PermissionFlow.ViewDelegate, CoroutineScope {
 
@@ -234,7 +234,7 @@ class HomeFragment : Fragment(), PermissionFlow.ViewDelegate, CoroutineScope {
     private fun showStoragePermissionView(view: View, action: Runnable) {
         val activity = activity?: return
 
-        val model = ViewModelProviders.of(activity).get(PermissionViewModel::class.java)
+        val model = ViewModelProvider(activity).get(PermissionViewModel::class.java)
         model.permissionRequest.observe(this, EventObserver {
             permissionFlow.onPermissionResult(MainActivity.REQUEST_CODE_WRITE_EXTERNAL_PERMISSION, it)
         })

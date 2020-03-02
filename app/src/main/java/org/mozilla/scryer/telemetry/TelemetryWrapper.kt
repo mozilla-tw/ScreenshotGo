@@ -3,6 +3,7 @@ package org.mozilla.scryer.telemetry
 import android.content.Context
 import android.preference.PreferenceManager
 import androidx.annotation.Nullable
+import mozilla.components.lib.fetch.httpurlconnection.HttpURLConnectionClient
 import org.mozilla.scryer.*
 import org.mozilla.telemetry.Telemetry
 import org.mozilla.telemetry.TelemetryHolder
@@ -12,9 +13,9 @@ import org.mozilla.telemetry.config.TelemetryConfiguration
 import org.mozilla.telemetry.event.TelemetryEvent
 import org.mozilla.telemetry.measurement.SettingsMeasurement
 import org.mozilla.telemetry.measurement.TelemetryMeasurement
-import org.mozilla.telemetry.net.HttpURLConnectionTelemetryClient
+import org.mozilla.telemetry.net.TelemetryClient
 import org.mozilla.telemetry.ping.TelemetryCorePingBuilder
-import org.mozilla.telemetry.ping.TelemetryEventPingBuilder
+import org.mozilla.telemetry.ping.TelemetryMobileEventPingBuilder
 import org.mozilla.telemetry.schedule.jobscheduler.JobSchedulerTelemetryScheduler
 import org.mozilla.telemetry.serialize.JSONPingSerializer
 import org.mozilla.telemetry.storage.FileTelemetryStorage
@@ -153,12 +154,12 @@ class TelemetryWrapper {
 
                 val serializer = JSONPingSerializer()
                 val storage = FileTelemetryStorage(configuration, serializer)
-                val client = HttpURLConnectionTelemetryClient()
+                val client = TelemetryClient(HttpURLConnectionClient())
                 val scheduler = JobSchedulerTelemetryScheduler()
 
                 TelemetryHolder.set(Telemetry(configuration, storage, client, scheduler)
                         .addPingBuilder(TelemetryCorePingBuilder(configuration))
-                        .addPingBuilder(TelemetryEventPingBuilder(configuration)))
+                        .addPingBuilder(TelemetryMobileEventPingBuilder(configuration)))
             } finally {
             }
         }
@@ -196,7 +197,7 @@ class TelemetryWrapper {
         fun stopMainActivity() {
             TelemetryHolder.get()
                     .queuePing(TelemetryCorePingBuilder.TYPE)
-                    .queuePing(TelemetryEventPingBuilder.TYPE)
+                    .queuePing(TelemetryMobileEventPingBuilder.TYPE)
                     .scheduleUpload()
         }
 
@@ -793,7 +794,7 @@ class TelemetryWrapper {
         fun logActiveBackgroundService() {
             EventBuilder(Category.BACKGROUND_SERVICE_ACTIVE, Method.V1, Object.GO).queue()
             // force to upload event since it came from service instead of MainActivity
-            TelemetryHolder.get().queuePing(TelemetryEventPingBuilder.TYPE).scheduleUpload()
+            TelemetryHolder.get().queuePing(TelemetryMobileEventPingBuilder.TYPE).scheduleUpload()
         }
 
         @TelemetryDoc(

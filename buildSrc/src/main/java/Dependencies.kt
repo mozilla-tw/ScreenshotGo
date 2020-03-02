@@ -2,33 +2,35 @@ package dependencies
 
 object Versions {
     // Android
-    val android_gradle_plugin = "3.2.1"
+    val android_gradle_plugin = "3.6.0"
     val support = "1.0.0"
-    val lifecycle = "2.1.0-alpha01"
-    val room = "2.1.0-alpha03"
-    val navigation = "1.0.0-alpha05"
-    val work = "1.0.0-beta05"
-    val app_compat = "1.1.0-alpha01"
-    val material = "1.1.0-alpha02"
-    val recycler_view = "1.1.0-alpha01"
-    val transision = "1.1.0-alpha01"
-    val media = "1.1.0-alpha01"
-    val constraint_layout = "2.0.0-alpha3"
-    val ktx = "1.0.1"
+    val lifecycle = "2.2.0"
+    val room = "2.2.4"
+    val navigation = "1.0.0"
+    val work = "1.0.1"
+    val app_compat = "1.2.0-alpha02"
+    val material = "1.2.0-alpha05"
+    val recycler_view = "1.2.0-alpha01"
+    val transision = "1.3.1"
+    val media = "1.2.0-alpha01"
+    val constraint_layout = "2.0.0-beta4"
+    val ktx = "1.2.0"
+    val concurrent_futures_ktx = "1.1.0-alpha01"
 
     // Crashlytics
-    val fabric_gradle_plugin = "1.26.1"
-    val crashlytics = "2.9.8"
+    val fabric_gradle_plugin = "1.31.2"
+    val crashlytics = "2.10.1"
 
     // Google
-    val firebase = "16.0.6"
-    val firebase_messageing = "17.3.4"
-    val firebase_ml = "18.0.2"
-    val google_service_plugin = "4.2.0"
+    val firebase = "17.2.2"
+    val firebase_messageing = "20.1.0"
+    val firebase_ml = "24.0.1"
+    val google_service_plugin = "4.3.3"
+    val gms_analytics = "17.0.0"
 
     // Kotlin
-    val kotlin = "1.2.71"
-    val kotlin_coroutine = "0.30.2"
+    val kotlin = "1.3.61"
+    val kotlin_coroutine = "1.3.3"
 
     // Test
     val junit = "4.12"
@@ -39,19 +41,19 @@ object Versions {
     // 3rd party
     val glide = "4.7.1"
     val subsampling_image_view = "3.10.0"
-    val lottie = "2.7.0"
+    val lottie = "3.2.2"
     val better_link_movement_method = "2.2.0"
 
     // Mozilla
-    val android_components = "0.27.0"
+    val android_components = "34.0.1"
 
     // Adjust
-    val adjust = "4.15.1"
-    val android_install_referrer = "1.0"
+    val adjust = "4.20.0"
+    val android_install_referrer = "1.1.1"
 
     // License
-    val license_plugin = "0.9.4"
-    val license = "16.0.1"
+    val license_plugin = "0.10.0"
+    val license = "17.0.0"
 }
 
 object Deps {

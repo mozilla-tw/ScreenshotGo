@@ -2,6 +2,7 @@ package org.mozilla.scryer.filemonitor
 
 import android.content.Context
 import android.database.Cursor
+import android.database.sqlite.SQLiteQueryBuilder
 import android.provider.MediaStore
 import com.crashlytics.android.Crashlytics
 import org.mozilla.scryer.persistence.CollectionModel
@@ -31,7 +32,7 @@ class ScreenshotFetcher {
     private fun getFolders(context: Context): List<String> {
         val uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         val columns = arrayOf(MediaStore.Images.Media.DATA, MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME)
-        val selection = "${MediaStore.Images.ImageColumns.BUCKET_ID} IS NOT NULL) GROUP BY (${MediaStore.Images.ImageColumns.BUCKET_ID}"
+        val selection = "${MediaStore.Images.ImageColumns.BUCKET_ID} IS NOT NULL"
         val results = mutableListOf<String>()
 
         try {

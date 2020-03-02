@@ -17,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:requestLegacyExternalStorage="true"
         tools:ignore="GoogleAppIndexingWarning">
 
         <activity
@@ -62,6 +63,7 @@
 
         <service
             android:name="org.mozilla.scryer.ScryerService"
+            android:foregroundServiceType="mediaProjection"
             android:exported="false" />
 
         <service

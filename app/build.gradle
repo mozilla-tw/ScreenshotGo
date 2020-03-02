@@ -8,11 +8,11 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "org.mozilla.screenshot.go"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "0.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -93,6 +93,7 @@ dependencies {
     implementation "androidx.media:media:${Versions.media}"
     implementation "androidx.legacy:legacy-support-v4:${Versions.support}"
     implementation "androidx.constraintlayout:constraintlayout:${Versions.constraint_layout}"
+    implementation "androidx.concurrent:concurrent-futures-ktx:${Versions.concurrent_futures_ktx}"
 
     // Ktx
     implementation "androidx.core:core-ktx:${Versions.ktx}"
@@ -131,11 +132,15 @@ dependencies {
     implementation "com.adjust.sdk:adjust-android:${Versions.adjust}"
 
     implementation "com.android.installreferrer:installreferrer:${Versions.android_install_referrer}"
-    implementation "com.google.android.gms:play-services-analytics:${Versions.firebase}" // Required by Adjust
+    implementation "com.google.android.gms:play-services-analytics:${Versions.gms_analytics}" // Required by Adjust
 
     // Mozilla
     implementation "org.mozilla.components:browser-search:${Versions.android_components}"
     implementation "org.mozilla.components:service-telemetry:${Versions.android_components}"
+    implementation "org.mozilla.components:concept-fetch:${Versions.android_components}"
+    implementation "org.mozilla.components:support-base:${Versions.android_components}"
+    implementation "org.mozilla.components:lib-fetch-httpurlconnection:${Versions.android_components}"
+
     implementation project(':telemetry-annotation')
     kapt project(':telemetry-compiler')
 

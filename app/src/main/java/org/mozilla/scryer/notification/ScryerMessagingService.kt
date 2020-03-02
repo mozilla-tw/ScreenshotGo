@@ -17,10 +17,10 @@ import org.mozilla.scryer.R
 
 class ScryerMessagingService : FirebaseMessagingService() {
 
-    override fun onMessageReceived(remoteMessage: RemoteMessage?) {
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // This happens when the app is running in foreground, and the user clicks on the push
         // notification with payload "PUSH_OPEN_URL"
-        remoteMessage?.let {
+        remoteMessage.let {
 
             val intent = Intent()
             // check if message contains data payload

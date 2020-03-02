@@ -112,8 +112,8 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
             var croppedBitmap: Bitmap? = null
 
             try {
-                reader.acquireLatestImage()?.use {
-                    val planes = it.planes
+                reader.acquireLatestImage()?.use { image ->
+                    val planes = image.planes
                     val buffer = planes[0].buffer
                     val pixelStride = planes[0].pixelStride
                     val rowStride = planes[0].rowStride
@@ -121,14 +121,17 @@ class ScreenCaptureManager(context: Context, private val screenCapturePermission
 
                     // create bitmap
                     bitmap = Bitmap.createBitmap(width + rowPadding / pixelStride, height, Bitmap.Config.ARGB_8888)
-                    bitmap?.copyPixelsFromBuffer(buffer)
+                    bitmap?.let {
+                        it.copyPixelsFromBuffer(buffer)
+                        // trim the screenshot to the correct size.
+                        croppedBitmap = Bitmap.createBitmap(it, 0, 0, width, height)
+                    }
 
-                    // trim the screenshot to the correct size.
-                    croppedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height)
-
-                    // write bitmap to a file
-                    FileOutputStream(filePath).use {
-                        croppedBitmap?.compress(Bitmap.CompressFormat.JPEG, 100, it)
+                    croppedBitmap?.let {
+                        // write bitmap to a file
+                        FileOutputStream(filePath).use { fileOutputStream ->
+                            it.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
+                        }
                     }
                 }
 

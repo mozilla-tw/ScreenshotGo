@@ -23,8 +23,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
-import kotlinx.coroutines.experimental.*
+import androidx.lifecycle.ViewModelProvider
+import kotlinx.coroutines.*
 import org.mozilla.scryer.Observer
 import org.mozilla.scryer.R
 import org.mozilla.scryer.ScryerApplication
@@ -45,9 +45,11 @@ import org.mozilla.scryer.util.CollectionListHelper
 import org.mozilla.scryer.util.launchIO
 import org.mozilla.scryer.viewmodel.ScreenshotViewModel
 import java.io.File
+import java.lang.Runnable
 import java.util.*
-import kotlin.coroutines.experimental.CoroutineContext
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class SortingPanelActivity : AppCompatActivity(), CoroutineScope {
     companion object {
@@ -135,7 +137,7 @@ class SortingPanelActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private val persistModel: PersistModel by lazy {
-        ViewModelProviders.of(this)[PersistModel::class.java]
+        ViewModelProvider(this)[PersistModel::class.java]
     }
 
     private val shouldShowCollectionPanel: Boolean
@@ -177,7 +179,7 @@ class SortingPanelActivity : AppCompatActivity(), CoroutineScope {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        ViewModelProviders.of(this).get(PersistModel::class.java).reset()
+        ViewModelProvider(this).get(PersistModel::class.java).reset()
         loadScreenshots(intent, this::onLoadScreenshotsSuccess)
     }
 
@@ -226,8 +228,8 @@ class SortingPanelActivity : AppCompatActivity(), CoroutineScope {
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
             R.id.action_share -> {
                 currentScreenshot?.let { showShareScreenshotDialog(this, it) }
                 TelemetryWrapper.shareScreenshot(TelemetryWrapper.ExtraValue.SINGLE, 1)
@@ -474,7 +476,7 @@ class SortingPanelActivity : AppCompatActivity(), CoroutineScope {
         this.sortedScreenshots.clear()
         this.unsortedScreenshots.clear()
 
-        val panelModel = ViewModelProviders.of(this).get(PersistModel::class.java)
+        val panelModel = ViewModelProvider(this).get(PersistModel::class.java)
         val currentIndex = panelModel.getCurrentIndex()
 
         val sorted = screenshots.sortedByDescending { it.lastModified }

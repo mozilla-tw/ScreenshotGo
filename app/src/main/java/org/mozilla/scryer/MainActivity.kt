@@ -15,7 +15,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.activity_main.*
 import org.mozilla.scryer.notification.ScryerMessagingService
 import org.mozilla.scryer.permission.PermissionViewModel
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>,
                                             grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        ViewModelProviders.of(this).get(PermissionViewModel::class.java)
+        ViewModelProvider(this).get(PermissionViewModel::class.java)
                 .permissionRequest.notify(grantResults)
     }
 

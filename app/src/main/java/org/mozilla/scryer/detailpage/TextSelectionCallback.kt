@@ -74,9 +74,8 @@ class TextSelectionCallback(
 
     private fun copyText(text: String) {
         val manager = view.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        manager.primaryClip = ClipData.newPlainText("selected text", text)
-        ScryerToast.makeText(view.context, view.context.getString(R.string.snackbar_copied),
-                Toast.LENGTH_SHORT).show()
+        manager.setPrimaryClip(ClipData.newPlainText("selected text", text))
+        ScryerToast.makeText(view.context, view.context.getString(R.string.snackbar_copied), Toast.LENGTH_SHORT).show()
 
         TelemetryWrapper.copyExtractedText()
     }
